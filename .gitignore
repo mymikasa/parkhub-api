@@ -2,11 +2,15 @@
 # https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
 #
 # Binaries for programs and plugins
+bin/
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
+# Service binaries without extensions (but keep source code)
+backend/services/*/*/bin/
+backend/services/*/permission-service
 
 # Test binary, built with `go test -c`
 *.test
@@ -26,7 +30,43 @@ go.work.sum
 
 # env file
 .env
+.env.*
 
 # Editor/IDE
-# .idea/
-# .vscode/
+.idea/
+.shared/
+.agent/
+.agents/
+.claude/
+.cline/
+.codex/
+.cursor/
+.gemini/
+.github/*
+!.github/workflows/
+!.github/workflows/*.yml
+.opencode
+.vscode
+
+# VSCode user-specific settings
+.vscode/*.json
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/extensions.json
+!.vscode/README.md
+
+*.log
+
+# macOS
+.DS_Store
+
+# Go compiled binary (dev)
+parkhub-api/server
+tmp/
+
+# Generated protobuf code
+parkhub-api/internal/gen/
+
+#
+.worktree/

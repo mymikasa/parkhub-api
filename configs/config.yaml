@@ -1,0 +1,10 @@
+server:
+  grpc_port: 50051
+
+database:
+  host: localhost
+  port: 3306
+  user: parkhub
+  password: parkhub
+  dbname: parkhub
+  sslmode: disable
