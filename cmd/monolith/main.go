@@ -96,8 +96,8 @@ func run() error {
 			otelgrpc.WithMeterProvider(telemetryProviders.MeterProvider),
 		)),
 		grpc.ChainUnaryInterceptor(
-			middleware.UnaryRecoveryInterceptor(logger),
 			middleware.UnaryLoggingInterceptor(logger),
+			middleware.UnaryRecoveryInterceptor(logger),
 		),
 	)
 	reflection.Register(grpcServer)
@@ -132,7 +132,17 @@ func run() error {
 	select {
 	case err := <-errCh:
 		stop()
-		grpcServer.GracefulStop()
+		done := make(chan struct{})
+		go func() {
+			grpcServer.GracefulStop()
+			close(done)
+		}()
+		select {
+		case <-done:
+		case <-time.After(15 * time.Second):
+			slog.Warn("gRPC graceful stop timed out, forcing stop")
+			grpcServer.Stop()
+		}
 		shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 		_ = metricsServer.Shutdown(shutdownCtx)
@@ -141,7 +151,21 @@ func run() error {
 		slog.Info("shutdown signal received")
 	}
 
-	grpcServer.GracefulStop()
+	gracefulStop := func() {
+		done := make(chan struct{})
+		go func() {
+			grpcServer.GracefulStop()
+			close(done)
+		}()
+		select {
+		case <-done:
+		case <-time.After(15 * time.Second):
+			slog.Warn("gRPC graceful stop timed out, forcing stop")
+			grpcServer.Stop()
+		}
+	}
+	gracefulStop()
+
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := metricsServer.Shutdown(shutdownCtx); err != nil && !errors.Is(err, http.ErrServerClosed) {
