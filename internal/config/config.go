@@ -1,0 +1,195 @@
+package config
+
+import (
+	"fmt"
+	"os"
+	"strconv"
+
+	"gopkg.in/yaml.v3"
+)
+
+const DefaultPath = "configs/config.yaml"
+
+type Config struct {
+	Server    ServerConfig    `yaml:"server"`
+	Database  DatabaseConfig  `yaml:"database"`
+	Telemetry TelemetryConfig `yaml:"telemetry"`
+}
+
+type ServerConfig struct {
+	GRPCPort    int `yaml:"grpc_port"`
+	MetricsPort int `yaml:"metrics_port"`
+}
+
+type DatabaseConfig struct {
+	URL      string `yaml:"url"`
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	DBName   string `yaml:"dbname"`
+}
+
+type TelemetryConfig struct {
+	ServiceName string        `yaml:"service_name"`
+	Environment string        `yaml:"environment"`
+	Log         LogConfig     `yaml:"log"`
+	Trace       TraceConfig   `yaml:"trace"`
+	Metrics     MetricsConfig `yaml:"metrics"`
+}
+
+type LogConfig struct {
+	Level  string `yaml:"level"`
+	Format string `yaml:"format"`
+}
+
+type TraceConfig struct {
+	Endpoint      string  `yaml:"endpoint"`
+	Insecure      bool    `yaml:"insecure"`
+	SamplingRatio float64 `yaml:"sampling_ratio"`
+}
+
+type MetricsConfig struct {
+	Path string `yaml:"path"`
+}
+
+func Default() Config {
+	return Config{
+		Server: ServerConfig{
+			GRPCPort:    50051,
+			MetricsPort: 9090,
+		},
+		Database: DatabaseConfig{
+			Host:     "localhost",
+			Port:     3306,
+			User:     "parkhub",
+			Password: "parkhub",
+			DBName:   "parkhub_identity",
+		},
+		Telemetry: TelemetryConfig{
+			ServiceName: "parkhub-monolith",
+			Environment: "development",
+			Log: LogConfig{
+				Level:  "info",
+				Format: "text",
+			},
+			Trace: TraceConfig{
+				Endpoint:      "localhost:4317",
+				Insecure:      true,
+				SamplingRatio: 1,
+			},
+			Metrics: MetricsConfig{
+				Path: "/metrics",
+			},
+		},
+	}
+}
+
+func Load(path string) (Config, error) {
+	if path == "" {
+		path = DefaultPath
+	}
+
+	cfg := Default()
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			return Config{}, fmt.Errorf("read config file: %w", err)
+		}
+	} else if err := yaml.Unmarshal(data, &cfg); err != nil {
+		return Config{}, fmt.Errorf("unmarshal config file: %w", err)
+	}
+
+	applyEnvOverrides(&cfg)
+	return cfg, nil
+}
+
+func (c DatabaseConfig) DSN() string {
+	if c.URL != "" {
+		return c.URL
+	}
+	return fmt.Sprintf(
+		"%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		c.User,
+		c.Password,
+		c.Host,
+		c.Port,
+		c.DBName,
+	)
+}
+
+func applyEnvOverrides(cfg *Config) {
+	if v := os.Getenv("GRPC_PORT"); v != "" {
+		cfg.Server.GRPCPort = mustInt(v, cfg.Server.GRPCPort)
+	}
+	if v := os.Getenv("METRICS_PORT"); v != "" {
+		cfg.Server.MetricsPort = mustInt(v, cfg.Server.MetricsPort)
+	}
+	if v := os.Getenv("DATABASE_URL"); v != "" {
+		cfg.Database.URL = v
+	}
+	if v := os.Getenv("DB_HOST"); v != "" {
+		cfg.Database.Host = v
+	}
+	if v := os.Getenv("DB_PORT"); v != "" {
+		cfg.Database.Port = mustInt(v, cfg.Database.Port)
+	}
+	if v := os.Getenv("DB_USER"); v != "" {
+		cfg.Database.User = v
+	}
+	if v := os.Getenv("DB_PASSWORD"); v != "" {
+		cfg.Database.Password = v
+	}
+	if v := os.Getenv("DB_NAME"); v != "" {
+		cfg.Database.DBName = v
+	}
+	if v := os.Getenv("OTEL_SERVICE_NAME"); v != "" {
+		cfg.Telemetry.ServiceName = v
+	}
+	if v := os.Getenv("OTEL_ENVIRONMENT"); v != "" {
+		cfg.Telemetry.Environment = v
+	}
+	if v := os.Getenv("LOG_LEVEL"); v != "" {
+		cfg.Telemetry.Log.Level = v
+	}
+	if v := os.Getenv("LOG_FORMAT"); v != "" {
+		cfg.Telemetry.Log.Format = v
+	}
+	if v := os.Getenv("OTEL_TRACE_ENDPOINT"); v != "" {
+		cfg.Telemetry.Trace.Endpoint = v
+	}
+	if v := os.Getenv("OTEL_TRACE_INSECURE"); v != "" {
+		cfg.Telemetry.Trace.Insecure = mustBool(v, cfg.Telemetry.Trace.Insecure)
+	}
+	if v := os.Getenv("OTEL_TRACE_SAMPLING_RATIO"); v != "" {
+		cfg.Telemetry.Trace.SamplingRatio = mustFloat(v, cfg.Telemetry.Trace.SamplingRatio)
+	}
+	if v := os.Getenv("METRICS_PATH"); v != "" {
+		cfg.Telemetry.Metrics.Path = v
+	}
+}
+
+func mustInt(value string, fallback int) int {
+	parsed, err := strconv.Atoi(value)
+	if err != nil {
+		return fallback
+	}
+	return parsed
+}
+
+func mustBool(value string, fallback bool) bool {
+	parsed, err := strconv.ParseBool(value)
+	if err != nil {
+		return fallback
+	}
+	return parsed
+}
+
+func mustFloat(value string, fallback float64) float64 {
+	parsed, err := strconv.ParseFloat(value, 64)
+	if err != nil {
+		return fallback
+	}
+	return parsed
+}

@@ -31,7 +31,7 @@
 | 数据库迁移 | goose (`github.com/pressly/goose/v3`) | 支持 `embed.FS` 单二进制部署 |
 | 缓存 | Redis (`github.com/redis/go-redis/v9`) | 车位计数、限流、计费规则缓存、JWT 黑名单 |
 | 配置管理 | Viper (`github.com/spf13/viper`) | YAML + 环境变量覆盖 |
-| 日志 | Zap (`go.uber.org/zap`) | JSON encoder (prod) / console encoder (dev) |
+| 日志 | `log/slog` | `JSONHandler` (prod) / `TextHandler` (dev) |
 | 认证 | JWT RS256 (`github.com/golang-jwt/jwt/v5`) | APISIX 网关验签，注入租户/用户头 |
 | 授权 | RBAC 中间件 | 基于 `OperatorRole` 枚举的权限矩阵 |
 | 依赖注入 | Google Wire (`github.com/google/wire`) | 编译期代码生成 |
