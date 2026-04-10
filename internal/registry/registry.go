@@ -1,7 +1,7 @@
 package registry
 
 import (
-	"log"
+	"log/slog"
 	"sync"
 
 	"google.golang.org/grpc"
@@ -31,7 +31,8 @@ func (r *Registry) MustRegister(name string, fn func(s *grpc.Server)) {
 
 	for _, svc := range r.services {
 		if svc.Name == name {
-			log.Fatalf("duplicate service registration: %s", name)
+			slog.Error("duplicate service registration", slog.String("service", name))
+			panic("duplicate service registration: " + name)
 		}
 	}
 	r.services = append(r.services, ServiceRegistration{Name: name, Register: fn})
@@ -43,7 +44,7 @@ func (r *Registry) RegisterAll(s *grpc.Server) {
 	defer r.mu.Unlock()
 
 	for _, svc := range r.services {
-		log.Printf("registering gRPC service: %s", svc.Name)
+		slog.Info("registering gRPC service", slog.String("service", svc.Name))
 		svc.Register(s)
 	}
 }

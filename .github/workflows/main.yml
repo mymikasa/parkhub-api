@@ -36,6 +36,10 @@ jobs:
       - name: make proto-lint
         run: make proto-lint
 
+      - name: Fetch main for breaking check
+        if: github.event_name == 'pull_request'
+        run: git fetch origin main:main
+
       - name: make proto-breaking
         if: github.event_name == 'pull_request'
         run: make proto-breaking
