@@ -17,8 +17,9 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	GRPCPort    int `yaml:"grpc_port"`
-	MetricsPort int `yaml:"metrics_port"`
+	GRPCPort       int `yaml:"grpc_port"`
+	MetricsPort    int `yaml:"metrics_port"`
+	HTTPHealthPort int `yaml:"http_health_port"`
 }
 
 type DatabaseConfig struct {
@@ -56,8 +57,9 @@ type MetricsConfig struct {
 func Default() Config {
 	return Config{
 		Server: ServerConfig{
-			GRPCPort:    50051,
-			MetricsPort: 9090,
+			GRPCPort:       50051,
+			MetricsPort:    9090,
+			HTTPHealthPort: 8080,
 		},
 		Database: DatabaseConfig{
 			Host:     "localhost",
@@ -71,7 +73,7 @@ func Default() Config {
 			Environment: "development",
 			Log: LogConfig{
 				Level:  "info",
-				Format: "text",
+				Format: "json",
 			},
 			Trace: TraceConfig{
 				Endpoint:      "localhost:4317",
@@ -125,6 +127,9 @@ func applyEnvOverrides(cfg *Config) {
 	}
 	if v := os.Getenv("METRICS_PORT"); v != "" {
 		cfg.Server.MetricsPort = mustInt(v, cfg.Server.MetricsPort)
+	}
+	if v := os.Getenv("HTTP_HEALTH_PORT"); v != "" {
+		cfg.Server.HTTPHealthPort = mustInt(v, cfg.Server.HTTPHealthPort)
 	}
 	if v := os.Getenv("DATABASE_URL"); v != "" {
 		cfg.Database.URL = v

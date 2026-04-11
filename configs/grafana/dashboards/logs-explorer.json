@@ -1,0 +1,57 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "title": "Application Logs",
+      "type": "logs",
+      "gridPos": { "h": 16, "w": 24, "x": 0, "y": 0 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "{service=~\"$service\",level=~\"$level\"} |= `$search`",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["logs", "loki", "parkhub"],
+  "templating": {
+    "list": [
+      {
+        "name": "service",
+        "type": "query",
+        "datasource": { "type": "loki", "uid": "loki" },
+        "query": "label_values(service)",
+        "includeAll": true,
+        "allValue": ".+",
+        "current": { "selected": true, "text": "All", "value": "$__all" }
+      },
+      {
+        "name": "level",
+        "type": "query",
+        "datasource": { "type": "loki", "uid": "loki" },
+        "query": "label_values(level)",
+        "includeAll": true,
+        "allValue": ".+",
+        "current": { "selected": true, "text": "All", "value": "$__all" }
+      },
+      {
+        "name": "search",
+        "type": "textbox",
+        "current": { "selected": true, "text": "", "value": "" }
+      }
+    ]
+  },
+  "time": { "from": "now-5m", "to": "now" },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Logs Explorer",
+  "uid": "logs-explorer",
+  "version": 1
+}

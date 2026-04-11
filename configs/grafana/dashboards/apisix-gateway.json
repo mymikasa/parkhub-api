@@ -1,0 +1,70 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "title": "Requests / sec",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "sum(rate(apisix_http_requests_total[1m]))", "legendFormat": "total rps" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "reqps" },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Upstream Response Time (p95)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum(rate(apisix_http_upstream_time_seconds_bucket[1m])) by (le))", "legendFormat": "upstream p95" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s" },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Status Code Distribution",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "sum(rate(apisix_http_status{code=~\"2..\"}[1m]))", "legendFormat": "2xx" },
+        { "expr": "sum(rate(apisix_http_status{code=~\"4..\"}[1m]))", "legendFormat": "4xx" },
+        { "expr": "sum(rate(apisix_http_status{code=~\"5..\"}[1m]))", "legendFormat": "5xx" }
+      ]
+    },
+    {
+      "title": "Bandwidth",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "sum(rate(apisix_bandwidth{type=\"ingress\"}[1m]))", "legendFormat": "ingress" },
+        { "expr": "sum(rate(apisix_bandwidth{type=\"egress\"}[1m]))", "legendFormat": "egress" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "Bps" },
+        "overrides": []
+      }
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["apisix", "gateway", "parkhub"],
+  "templating": { "list": [] },
+  "time": { "from": "now-5m", "to": "now" },
+  "timepicker": {},
+  "timezone": "",
+  "title": "APISIX Gateway",
+  "uid": "apisix-gateway",
+  "version": 1
+}

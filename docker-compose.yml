@@ -74,16 +74,58 @@ services:
       timeout: 5s
       retries: 5
 
+  monolith:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "50051:50051"
+      - "9090:9090"
+      - "8080:8080"
+    environment:
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_USER: parkhub
+      DB_PASSWORD: parkhub
+      DB_NAME: parkhub_identity
+      OTEL_TRACE_ENDPOINT: tempo:4317
+      GRPC_PORT: "50051"
+      METRICS_PORT: "9090"
+      HTTP_HEALTH_PORT: "8080"
+      LOG_FORMAT: json
+      LOG_LEVEL: info
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+
   apisix:
     image: apache/apisix:3.15.0-debian
     restart: unless-stopped
     ports:
       - "9080:9080"
+      - "9091:9091"
     depends_on:
       etcd:
         condition: service_healthy
     volumes:
       - ./configs/apisix/config.yaml:/usr/local/apisix/conf/config.yaml
+
+  init-apisix:
+    image: curlimages/curl:latest
+    restart: "no"
+    depends_on:
+      apisix:
+        condition: service_started
+      monolith:
+        condition: service_started
+    entrypoint: ["sh", "/scripts/init-apisix.sh"]
+    volumes:
+      - ./scripts/init-apisix.sh:/scripts/init-apisix.sh:ro
 
   victoriametrics:
     image: victoriametrics/victoria-metrics:latest
@@ -92,9 +134,11 @@ services:
       - "8428:8428"
     volumes:
       - vm_data:/victoria-metrics-data
+      - ./configs/victoriametrics/scrape.yaml:/etc/vm/scrape.yaml:ro
     command:
       - "--storageDataPath=/victoria-metrics-data"
       - "--httpListenAddr=:8428"
+      - "--promscrape.config=/etc/vm/scrape.yaml"
 
   tempo:
     image: grafana/tempo:2.3.1
@@ -119,6 +163,17 @@ services:
     command:
       - "-config.file=/etc/loki/local-config.yaml"
 
+  promtail:
+    image: grafana/promtail:latest
+    restart: unless-stopped
+    volumes:
+      - ./configs/promtail/promtail.yaml:/etc/promtail/config.yaml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command:
+      - "-config.file=/etc/promtail/config.yaml"
+    depends_on:
+      - loki
+
   grafana:
     image: grafana/grafana:latest
     restart: unless-stopped
@@ -129,6 +184,8 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: admin
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./configs/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./configs/grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
       - victoriametrics
       - loki

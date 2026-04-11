@@ -1,0 +1,12 @@
+bin/
+.git/
+.github/
+.opencode/
+.claude/
+.codex/
+docs/
+plans/
+scripts/
+*.md
+LICENSE
+monolith
