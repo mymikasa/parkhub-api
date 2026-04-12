@@ -191,7 +191,7 @@ apisix:
   enable_http2: true
   router:
     ssl: radixtree_sni
-    http: radixtree_host_uri
+    http: radixtree_uri_with_parameter
   enable_server_tokens: true
   resolver_timeout: 5
   disable_upstream_healthcheck: false

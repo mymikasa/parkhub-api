@@ -10,7 +10,7 @@ DOCKER_COMPOSE ?= docker compose
 BIN_DIR := bin
 MONOLITH_BIN := $(BIN_DIR)/parkhub
 
-.PHONY: help proto-gen proto-lint proto-breaking lint lint-tenant test test-integration build-monolith docker-build wire migrate docker-up docker-down docker-ps clean
+.PHONY: help proto-gen proto-lint proto-breaking proto-descriptor lint lint-tenant test test-integration build-monolith docker-build wire migrate docker-up docker-down docker-ps clean
 
 help:
 	@echo "Available targets:"
@@ -33,6 +33,11 @@ help:
 proto-gen:
 	@command -v $(BUF) >/dev/null 2>&1 || { echo "buf is required but not installed"; exit 1; }
 	$(BUF) generate
+	@$(MAKE) proto-descriptor
+
+proto-descriptor:
+	@command -v $(BUF) >/dev/null 2>&1 || { echo "buf is required but not installed"; exit 1; }
+	$(BUF) build -o configs/apisix/proto-descriptor.pb
 
 proto-lint:
 	@command -v $(BUF) >/dev/null 2>&1 || { echo "buf is required but not installed"; exit 1; }
