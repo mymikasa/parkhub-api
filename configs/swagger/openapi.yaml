@@ -1,0 +1,276 @@
+openapi: 3.0.3
+
+info:
+  title: ParkHub API
+  description: ParkHub SaaS 停车管理系统后端 API
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:9080
+    description: 本地开发环境
+
+tags:
+  - name: Tenant
+    description: 租户管理
+
+components:
+  parameters:
+    TenantId:
+      name: tenant_id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: 租户ID
+
+  schemas:
+    PaginationRequest:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int32
+          default: 1
+        page_size:
+          type: integer
+          format: int32
+          default: 20
+
+    PaginationResponse:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int32
+        page_size:
+          type: integer
+          format: int32
+        total:
+          type: integer
+          format: int64
+        total_pages:
+          type: integer
+          format: int32
+
+    TenantStatus:
+      type: string
+      enum:
+        - TENANT_STATUS_UNSPECIFIED
+        - TENANT_STATUS_ACTIVE
+        - TENANT_STATUS_FROZEN
+
+    PlanType:
+      type: string
+      enum:
+        - PLAN_TYPE_UNSPECIFIED
+        - PLAN_TYPE_FREE
+        - PLAN_TYPE_BASIC
+        - PLAN_TYPE_PRO
+        - PLAN_TYPE_ENTERPRISE
+
+    Timestamp:
+      type: object
+      properties:
+        seconds:
+          type: integer
+          format: int64
+        nanos:
+          type: integer
+          format: int32
+
+    Tenant:
+      type: object
+      properties:
+        tenant_id:
+          type: string
+        name:
+          type: string
+        contact_name:
+          type: string
+        contact_phone:
+          type: string
+        contact_email:
+          type: string
+        status:
+          $ref: '#/components/schemas/TenantStatus'
+        address:
+          type: string
+        plan_type:
+          $ref: '#/components/schemas/PlanType'
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+        updated_at:
+          $ref: '#/components/schemas/Timestamp'
+
+    CreateTenantRequest:
+      type: object
+      required:
+        - name
+        - contact_name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        contact_name:
+          type: string
+          minLength: 1
+        contact_phone:
+          type: string
+        contact_email:
+          type: string
+        address:
+          type: string
+        plan_type:
+          $ref: '#/components/schemas/PlanType'
+
+    UpdateTenantRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        contact_name:
+          type: string
+        contact_phone:
+          type: string
+        contact_email:
+          type: string
+        address:
+          type: string
+        plan_type:
+          $ref: '#/components/schemas/PlanType'
+        status:
+          $ref: '#/components/schemas/TenantStatus'
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+paths:
+  /api/v1/tenants:
+    post:
+      tags: [Tenant]
+      operationId: createTenant
+      summary: 创建租户
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTenantRequest'
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tenant:
+                    $ref: '#/components/schemas/Tenant'
+        '400':
+          description: 参数错误
+        '409':
+          description: 租户已存在
+
+    get:
+      tags: [Tenant]
+      operationId: listTenants
+      summary: 获取租户列表
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/TenantStatus'
+        - name: keyword
+          in: query
+          schema:
+            type: string
+          description: 按名称/联系人搜索
+        - name: page
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 20
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tenants:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tenant'
+                  pagination:
+                    $ref: '#/components/schemas/PaginationResponse'
+
+  /api/v1/tenants/{tenant_id}:
+    get:
+      tags: [Tenant]
+      operationId: getTenant
+      summary: 获取租户详情
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tenant:
+                    $ref: '#/components/schemas/Tenant'
+        '404':
+          description: 租户不存在
+
+    put:
+      tags: [Tenant]
+      operationId: updateTenant
+      summary: 更新租户
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTenantRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tenant:
+                    $ref: '#/components/schemas/Tenant'
+        '404':
+          description: 租户不存在
+
+    delete:
+      tags: [Tenant]
+      operationId: deleteTenant
+      summary: 删除租户
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: 删除成功
+        '404':
+          description: 租户不存在
