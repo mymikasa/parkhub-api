@@ -12,8 +12,9 @@ import (
 
 type Server struct {
 	grpc_health_v1.UnimplementedHealthServer
-	mu     sync.RWMutex
-	status map[string]grpc_health_v1.HealthCheckResponse_ServingStatus
+	mu       sync.RWMutex
+	status   map[string]grpc_health_v1.HealthCheckResponse_ServingStatus
+	watchers map[string][]chan grpc_health_v1.HealthCheckResponse_ServingStatus
 }
 
 func NewServer() *Server {
@@ -21,6 +22,7 @@ func NewServer() *Server {
 		status: map[string]grpc_health_v1.HealthCheckResponse_ServingStatus{
 			"": grpc_health_v1.HealthCheckResponse_SERVING,
 		},
+		watchers: make(map[string][]chan grpc_health_v1.HealthCheckResponse_ServingStatus),
 	}
 }
 
@@ -36,19 +38,53 @@ func (s *Server) Check(_ context.Context, req *grpc_health_v1.HealthCheckRequest
 }
 
 func (s *Server) Watch(req *grpc_health_v1.HealthCheckRequest, stream grpc_health_v1.Health_WatchServer) error {
-	s.mu.RLock()
-	st, ok := s.status[req.Service]
-	s.mu.RUnlock()
-	if !ok {
-		return status.Error(codes.NotFound, "unknown service")
+	ch := s.addWatcher(req.Service)
+	defer s.removeWatcher(req.Service, ch)
+
+	for {
+		select {
+		case <-stream.Context().Done():
+			return nil
+		case st := <-ch:
+			if err := stream.Send(&grpc_health_v1.HealthCheckResponse{Status: st}); err != nil {
+				return err
+			}
+		}
 	}
-	return stream.Send(&grpc_health_v1.HealthCheckResponse{Status: st})
+}
+
+func (s *Server) addWatcher(service string) chan grpc_health_v1.HealthCheckResponse_ServingStatus {
+	ch := make(chan grpc_health_v1.HealthCheckResponse_ServingStatus, 1)
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.watchers[service] = append(s.watchers[service], ch)
+
+	if st, ok := s.status[service]; ok {
+		ch <- st
+	} else {
+		ch <- grpc_health_v1.HealthCheckResponse_SERVICE_UNKNOWN
+	}
+	return ch
+}
+
+func (s *Server) removeWatcher(service string, ch chan grpc_health_v1.HealthCheckResponse_ServingStatus) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	watchers := s.watchers[service]
+	for i, w := range watchers {
+		if w == ch {
+			s.watchers[service] = append(watchers[:i], watchers[i+1:]...)
+			break
+		}
+	}
 }
 
 func (s *Server) SetServing(service string, st grpc_health_v1.HealthCheckResponse_ServingStatus) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.status[service] = st
+	s.notifyWatchers(service, st)
 }
 
 func (s *Server) SetNotServing() {
@@ -56,6 +92,24 @@ func (s *Server) SetNotServing() {
 	defer s.mu.Unlock()
 	for k := range s.status {
 		s.status[k] = grpc_health_v1.HealthCheckResponse_NOT_SERVING
+		s.notifyWatchers(k, grpc_health_v1.HealthCheckResponse_NOT_SERVING)
+	}
+}
+
+func (s *Server) notifyWatchers(service string, st grpc_health_v1.HealthCheckResponse_ServingStatus) {
+	for _, ch := range s.watchers[service] {
+		select {
+		case ch <- st:
+		default:
+		}
+	}
+	if service != "" {
+		for _, ch := range s.watchers[""] {
+			select {
+			case ch <- st:
+			default:
+			}
+		}
 	}
 }
 

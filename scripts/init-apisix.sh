@@ -35,11 +35,18 @@ curl -sf "${APISIX_ADMIN}/upstreams/1" \
     "checks": {
       "active": {
         "type": "http",
+        "port": 8080,
         "http_path": "/healthz",
         "healthy": {
           "interval": 5,
           "successes": 2
         },
+        "unhealthy": {
+          "interval": 5,
+          "http_failures": 3
+        }
+      }
+    },
         "unhealthy": {
           "interval": 5,
           "http_failures": 3

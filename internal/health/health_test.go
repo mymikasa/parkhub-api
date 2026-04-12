@@ -3,6 +3,7 @@ package health
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -53,28 +54,109 @@ func TestSetNotServing(t *testing.T) {
 	assert.Equal(t, grpc_health_v1.HealthCheckResponse_NOT_SERVING, resp.Status)
 }
 
-func TestWatch_SendsStatus(t *testing.T) {
+func TestWatch_SendsInitialStatus(t *testing.T) {
 	s := NewServer()
 	s.SetServing("parkhub.identity.v1.TenantService", grpc_health_v1.HealthCheckResponse_SERVING)
 
-	fakeStream := &watchStream{respCh: make(chan *grpc_health_v1.HealthCheckResponse, 1)}
-	err := s.Watch(&grpc_health_v1.HealthCheckRequest{Service: "parkhub.identity.v1.TenantService"}, fakeStream)
-	require.NoError(t, err)
+	fakeStream := &watchStream{
+		ctx:    context.Background(),
+		respCh: make(chan *grpc_health_v1.HealthCheckResponse, 4),
+	}
+	go func() {
+		_ = s.Watch(&grpc_health_v1.HealthCheckRequest{Service: "parkhub.identity.v1.TenantService"}, fakeStream)
+	}()
 
 	select {
 	case resp := <-fakeStream.respCh:
 		assert.Equal(t, grpc_health_v1.HealthCheckResponse_SERVING, resp.Status)
-	default:
-		t.Fatal("expected Watch to send a response")
+	case <-time.After(time.Second):
+		t.Fatal("expected Watch to send initial status")
+	}
+}
+
+func TestWatch_UnknownService_SendsServiceUnknown(t *testing.T) {
+	s := NewServer()
+
+	fakeStream := &watchStream{
+		ctx:    context.Background(),
+		respCh: make(chan *grpc_health_v1.HealthCheckResponse, 4),
+	}
+	go func() {
+		_ = s.Watch(&grpc_health_v1.HealthCheckRequest{Service: "nonexistent.Service"}, fakeStream)
+	}()
+
+	select {
+	case resp := <-fakeStream.respCh:
+		assert.Equal(t, grpc_health_v1.HealthCheckResponse_SERVICE_UNKNOWN, resp.Status)
+	case <-time.After(time.Second):
+		t.Fatal("expected Watch to send SERVICE_UNKNOWN")
+	}
+}
+
+func TestWatch_ReceivesStatusUpdate(t *testing.T) {
+	s := NewServer()
+
+	fakeStream := &watchStream{
+		ctx:    context.Background(),
+		respCh: make(chan *grpc_health_v1.HealthCheckResponse, 4),
+	}
+	go func() {
+		_ = s.Watch(&grpc_health_v1.HealthCheckRequest{Service: ""}, fakeStream)
+	}()
+
+	select {
+	case resp := <-fakeStream.respCh:
+		assert.Equal(t, grpc_health_v1.HealthCheckResponse_SERVING, resp.Status)
+	case <-time.After(time.Second):
+		t.Fatal("expected initial SERVING")
+	}
+
+	s.SetNotServing()
+
+	select {
+	case resp := <-fakeStream.respCh:
+		assert.Equal(t, grpc_health_v1.HealthCheckResponse_NOT_SERVING, resp.Status)
+	case <-time.After(time.Second):
+		t.Fatal("expected status update to NOT_SERVING")
+	}
+}
+
+func TestWatch_ContextCancel(t *testing.T) {
+	s := NewServer()
+	ctx, cancel := context.WithCancel(context.Background())
+
+	fakeStream := &watchStream{
+		ctx:    ctx,
+		respCh: make(chan *grpc_health_v1.HealthCheckResponse, 4),
+	}
+	done := make(chan error, 1)
+	go func() {
+		done <- s.Watch(&grpc_health_v1.HealthCheckRequest{Service: ""}, fakeStream)
+	}()
+
+	<-fakeStream.respCh
+
+	cancel()
+
+	select {
+	case err := <-done:
+		assert.NoError(t, err)
+	case <-time.After(time.Second):
+		t.Fatal("expected Watch to return on context cancel")
 	}
 }
 
 type watchStream struct {
 	grpc_health_v1.Health_WatchServer
+	ctx    context.Context
 	respCh chan *grpc_health_v1.HealthCheckResponse
 }
 
 func (w *watchStream) Send(resp *grpc_health_v1.HealthCheckResponse) error {
 	w.respCh <- resp
 	return nil
+}
+
+func (w *watchStream) Context() context.Context {
+	return w.ctx
 }
