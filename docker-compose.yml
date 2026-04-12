@@ -129,6 +129,17 @@ services:
       - ./scripts/init-apisix.sh:/scripts/init-apisix.sh:ro
       - ./configs/apisix/proto-descriptor.pb:/proto/proto-descriptor.pb:ro
 
+  swagger-ui:
+    image: swaggerapi/swagger-ui:latest
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./configs/swagger/openapi.yaml:/usr/share/nginx/html/openapi.yaml:ro
+    environment:
+      SWAGGER_JSON_URL: openapi.yaml
+      API_URL: ""
+
   victoriametrics:
     image: victoriametrics/victoria-metrics:latest
     restart: unless-stopped
