@@ -1,0 +1,143 @@
+{
+	"info": {
+		"name": "ParkHub API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "TenantService",
+			"item": [
+				{
+					"name": "CreateTenant",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"测试车场\",\n  \"contact_name\": \"张三\",\n  \"contact_phone\": \"13800138000\",\n  \"contact_email\": \"zhangsan@test.com\",\n  \"address\": \"北京市朝阳区\",\n  \"plan_type\": \"PLAN_TYPE_FREE\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "tenants"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ListTenants",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants?status=TENANT_STATUS_ACTIVE&keyword=&page=1&page_size=10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "tenants"],
+							"query": [
+								{
+									"key": "status",
+									"value": "TENANT_STATUS_ACTIVE",
+									"description": "TENANT_STATUS_ACTIVE | TENANT_STATUS_FROZEN"
+								},
+								{
+									"key": "keyword",
+									"value": "",
+									"description": "搜索关键词"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "page_size",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetTenant",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/:tenant_id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "tenants", ":tenant_id"],
+							"variable": [
+								{
+									"key": "tenant_id",
+									"value": "",
+									"description": "租户ID"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateTenant",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"测试车场V2\",\n  \"contact_name\": \"李四\",\n  \"contact_phone\": \"13900139000\",\n  \"status\": \"TENANT_STATUS_ACTIVE\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/:tenant_id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "tenants", ":tenant_id"],
+							"variable": [
+								{
+									"key": "tenant_id",
+									"value": "",
+									"description": "租户ID"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteTenant",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/:tenant_id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "tenants", ":tenant_id"],
+							"variable": [
+								{
+									"key": "tenant_id",
+									"value": "",
+									"description": "租户ID"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:9080"
+		}
+	]
+}

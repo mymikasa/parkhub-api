@@ -63,6 +63,7 @@ go.work.sum
 
 # Go compiled binary (dev)
 parkhub-api/server
+monolith
 tmp/
 
 # Generated protobuf code
