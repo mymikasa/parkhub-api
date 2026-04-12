@@ -108,9 +108,13 @@ curl -sf "${APISIX_ADMIN}/routes/12" \
   -d '{
     "name": "tenant-get",
     "methods": ["GET"],
-    "uri": "/api/v1/tenants/:tenant_id",
+    "uri": "/api/v1/tenants/*",
     "upstream_id": "1",
     "plugins": {
+      "serverless-pre-function": {
+        "phase": "rewrite",
+        "functions": ["return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/tenants/(.+)$\"); if id then ngx.req.set_uri_args({tenant_id = id}) end end"]
+      },
       "grpc-transcode": {
         "proto_id": "1",
         "service": "parkhub.identity.v1.TenantService",
@@ -128,9 +132,13 @@ curl -sf "${APISIX_ADMIN}/routes/13" \
   -d '{
     "name": "tenant-update",
     "methods": ["PUT"],
-    "uri": "/api/v1/tenants/:tenant_id",
+    "uri": "/api/v1/tenants/*",
     "upstream_id": "1",
     "plugins": {
+      "serverless-pre-function": {
+        "phase": "rewrite",
+        "functions": ["return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/tenants/(.+)$\"); ngx.req.read_body(); local body = ngx.req.get_body_data(); if body then local cjson = require(\"cjson.safe\"); local t = cjson.decode(body); if t and id then t.tenant_id = id; ngx.req.set_body_data(cjson.encode(t)) end end end"]
+      },
       "grpc-transcode": {
         "proto_id": "1",
         "service": "parkhub.identity.v1.TenantService",
@@ -148,9 +156,13 @@ curl -sf "${APISIX_ADMIN}/routes/14" \
   -d '{
     "name": "tenant-delete",
     "methods": ["DELETE"],
-    "uri": "/api/v1/tenants/:tenant_id",
+    "uri": "/api/v1/tenants/*",
     "upstream_id": "1",
     "plugins": {
+      "serverless-pre-function": {
+        "phase": "rewrite",
+        "functions": ["return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/tenants/(.+)$\"); if id then ngx.req.set_uri_args({tenant_id = id}) end end"]
+      },
       "grpc-transcode": {
         "proto_id": "1",
         "service": "parkhub.identity.v1.TenantService",
