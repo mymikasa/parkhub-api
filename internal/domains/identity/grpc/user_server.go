@@ -26,6 +26,8 @@ var userErrorMappings = []grpcutil.ErrorMapping{
 	{Target: errs.ErrUserInvalidStatus, Code: codes.InvalidArgument},
 	{Target: errs.ErrUserFrozen, Code: codes.FailedPrecondition},
 	{Target: errs.ErrPasswordIncorrect, Code: codes.InvalidArgument},
+	{Target: errs.ErrPasswordTooShort, Code: codes.InvalidArgument},
+	{Target: errs.ErrInvalidRole, Code: codes.InvalidArgument},
 }
 
 func toUserGRPCError(err error) error {
@@ -33,6 +35,11 @@ func toUserGRPCError(err error) error {
 }
 
 func (s *UserGRPCServer) CreateUser(ctx context.Context, req *identityv1.CreateUserRequest) (*identityv1.CreateUserResponse, error) {
+	role := domainRoleFromProto(req.Role)
+	if role == "" {
+		return nil, toUserGRPCError(errs.ErrInvalidRole)
+	}
+
 	user, err := s.userSvc.Create(ctx, &service.CreateUserRequest{
 		TenantID: req.TenantId,
 		Username: req.Username,
@@ -40,7 +47,7 @@ func (s *UserGRPCServer) CreateUser(ctx context.Context, req *identityv1.CreateU
 		Email:    req.Email,
 		Phone:    req.Phone,
 		RealName: req.RealName,
-		Role:     domainRoleFromProto(req.Role),
+		Role:     role,
 	})
 	if err != nil {
 		return nil, toUserGRPCError(err)

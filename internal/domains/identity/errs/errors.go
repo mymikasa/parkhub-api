@@ -12,4 +12,6 @@ var (
 	ErrUserInvalidStatus = errors.New("invalid user status transition")
 	ErrUserFrozen        = errors.New("user is frozen")
 	ErrPasswordIncorrect = errors.New("incorrect password")
+	ErrPasswordTooShort  = errors.New("password must be at least 8 characters")
+	ErrInvalidRole       = errors.New("invalid user role")
 )

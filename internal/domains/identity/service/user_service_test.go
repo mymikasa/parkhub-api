@@ -205,7 +205,7 @@ func TestUserService_ChangePassword_Success(t *testing.T) {
 
 	err := svc.ChangePassword(ctx, "user-1", &ChangePasswordRequest{
 		OldPassword: "oldpass",
-		NewPassword: "newpass",
+		NewPassword: "newpassword",
 	})
 	assert.NoError(t, err)
 }
@@ -222,7 +222,7 @@ func TestUserService_ChangePassword_WrongOldPassword(t *testing.T) {
 
 	err := svc.ChangePassword(ctx, "user-1", &ChangePasswordRequest{
 		OldPassword: "wrongpass",
-		NewPassword: "newpass",
+		NewPassword: "newpassword",
 	})
 	assert.ErrorIs(t, err, errs.ErrPasswordIncorrect)
 }
@@ -256,17 +256,15 @@ func TestUserService_ImportUsers(t *testing.T) {
 
 	tenantID := "t1"
 
-	// First user: success
 	mockRepo.EXPECT().GetByUsername(gomock.Any(), "alice").Return(nil, errs.ErrUserNotFound)
 	mockRepo.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
 
-	// Second user: duplicate
 	mockRepo.EXPECT().GetByUsername(gomock.Any(), "bob").Return(&domain.User{Username: "bob"}, nil)
 
 	result, err := svc.ImportUsers(ctx, &ImportUsersRequest{
 		Users: []ImportUserItem{
-			{TenantID: &tenantID, Username: "alice", Password: "pass1", RealName: "Alice", Role: domain.RoleOperator},
-			{TenantID: &tenantID, Username: "bob", Password: "pass2", RealName: "Bob", Role: domain.RoleOperator},
+			{TenantID: &tenantID, Username: "alice", Password: "password1", RealName: "Alice", Role: domain.RoleOperator},
+			{TenantID: &tenantID, Username: "bob", Password: "password2", RealName: "Bob", Role: domain.RoleOperator},
 		},
 	})
 

@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"math"
 
 	"github.com/google/uuid"
@@ -20,8 +21,18 @@ func NewUserService(repo repository.UserRepo) UserService {
 }
 
 func (s *userService) Create(ctx context.Context, req *CreateUserRequest) (*domain.User, error) {
+	if len(req.Password) < 8 {
+		return nil, errs.ErrPasswordTooShort
+	}
+	if req.Role == "" {
+		return nil, errs.ErrInvalidRole
+	}
+
 	existing, err := s.userRepo.GetByUsername(ctx, req.Username)
-	if err == nil && existing != nil {
+	if err != nil && !errors.Is(err, errs.ErrUserNotFound) {
+		return nil, err
+	}
+	if existing != nil {
 		return nil, errs.ErrUserAlreadyExists
 	}
 
@@ -138,6 +149,10 @@ func (s *userService) Unfreeze(ctx context.Context, req *UserActionRequest) erro
 }
 
 func (s *userService) ResetPassword(ctx context.Context, req *ResetPasswordRequest) error {
+	if len(req.NewPassword) < 8 {
+		return errs.ErrPasswordTooShort
+	}
+
 	user, err := s.userRepo.GetByID(ctx, req.UserID)
 	if err != nil {
 		return err
@@ -176,6 +191,10 @@ func (s *userService) UpdateProfile(ctx context.Context, userID string, req *Upd
 }
 
 func (s *userService) ChangePassword(ctx context.Context, userID string, req *ChangePasswordRequest) error {
+	if len(req.NewPassword) < 8 {
+		return errs.ErrPasswordTooShort
+	}
+
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
 		return err

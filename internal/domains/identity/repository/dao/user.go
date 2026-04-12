@@ -11,8 +11,8 @@ import (
 
 type User struct {
 	ID           string  `gorm:"primaryKey;type:varchar(36)"`
-	TenantID     *string `gorm:"type:varchar(36);index"`
-	Username     string  `gorm:"type:varchar(100);uniqueIndex"`
+	TenantID     *string `gorm:"type:varchar(36);uniqueIndex:idx_tenant_username"`
+	Username     string  `gorm:"type:varchar(100);uniqueIndex:idx_tenant_username"`
 	Email        *string `gorm:"type:varchar(100)"`
 	Phone        *string `gorm:"type:varchar(20)"`
 	PasswordHash string  `gorm:"type:varchar(255)"`

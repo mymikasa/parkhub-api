@@ -90,8 +90,9 @@ func TestGRPC_CreateUser_AlreadyExists(t *testing.T) {
 
 	_, err := client.CreateUser(context.Background(), &identityv1.CreateUserRequest{
 		Username: "dup",
-		Password: "pass",
+		Password: "password123",
 		RealName: "Dup",
+		Role:     identityv1.UserRole_USER_ROLE_OPERATOR,
 	})
 	assert.Equal(t, codes.AlreadyExists, status.Code(err))
 }

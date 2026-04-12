@@ -104,8 +104,12 @@ func toUserEntity(u *domain.User) *dao.User {
 		RealName:     u.RealName,
 		Role:         string(u.Role),
 		Status:       string(u.Status),
-		CreatedAt:    u.CreatedAt.UnixMilli(),
-		UpdatedAt:    u.UpdatedAt.UnixMilli(),
+	}
+	if !u.CreatedAt.IsZero() {
+		d.CreatedAt = u.CreatedAt.UnixMilli()
+	}
+	if !u.UpdatedAt.IsZero() {
+		d.UpdatedAt = u.UpdatedAt.UnixMilli()
 	}
 	if u.LastLoginAt != nil {
 		millis := u.LastLoginAt.UnixMilli()

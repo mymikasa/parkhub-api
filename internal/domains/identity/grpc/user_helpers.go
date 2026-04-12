@@ -50,7 +50,7 @@ func domainRoleFromProto(r identityv1.UserRole) domain.UserRole {
 	case identityv1.UserRole_USER_ROLE_OPERATOR:
 		return domain.RoleOperator
 	default:
-		return domain.RoleOperator
+		return ""
 	}
 }
 
@@ -72,6 +72,6 @@ func domainUserStatusFromProto(s identityv1.UserStatus) domain.UserStatus {
 	case identityv1.UserStatus_USER_STATUS_FROZEN:
 		return domain.UserStatusFrozen
 	default:
-		return domain.UserStatusActive
+		return ""
 	}
 }
