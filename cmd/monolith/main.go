@@ -82,7 +82,7 @@ func run() error {
 		return fmt.Errorf("connect database: %w", err)
 	}
 
-	if err := db.AutoMigrate(&dao.Tenant{}); err != nil {
+	if err := db.AutoMigrate(&dao.Tenant{}, &dao.User{}); err != nil {
 		return fmt.Errorf("auto migrate: %w", err)
 	}
 
