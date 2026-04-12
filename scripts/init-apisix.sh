@@ -59,6 +59,27 @@ curl -sf "${APISIX_ADMIN}/protos/1" \
   -X PUT \
   -d "{\"content\": \"${B64}\"}" && echo ""
 
+# ── Plugin Metadata: opentelemetry ───────────────────────────────────
+echo "Registering opentelemetry plugin metadata"
+curl -sf "${APISIX_ADMIN}/plugin_metadata/opentelemetry" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "collector": {
+      "address": "tempo:4318",
+      "request_timeout": 3
+    },
+    "resource": {
+      "service.name": "APISIX"
+    },
+    "batch_span_processor": {
+      "max_queue_size": 1024,
+      "batch_timeout": 2,
+      "inactive_timeout": 1,
+      "max_export_batch_size": 16
+    }
+  }' && echo ""
+
 # ── Routes: TenantService ────────────────────────────────────────────
 
 echo "Creating route: CreateTenant (POST /api/v1/tenants)"
@@ -76,6 +97,11 @@ curl -sf "${APISIX_ADMIN}/routes/10" \
         "service": "parkhub.identity.v1.TenantService",
         "method": "CreateTenant",
         "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": {
+        "sampler": {
+          "name": "always_on"
+        }
       },
       "prometheus": {}
     }
@@ -96,6 +122,11 @@ curl -sf "${APISIX_ADMIN}/routes/11" \
         "service": "parkhub.identity.v1.TenantService",
         "method": "ListTenants",
         "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": {
+        "sampler": {
+          "name": "always_on"
+        }
       },
       "prometheus": {}
     }
@@ -121,6 +152,11 @@ curl -sf "${APISIX_ADMIN}/routes/12" \
         "method": "GetTenant",
         "pb_option": ["enum_as_name", "int64_as_number"]
       },
+      "opentelemetry": {
+        "sampler": {
+          "name": "always_on"
+        }
+      },
       "prometheus": {}
     }
   }' && echo ""
@@ -145,6 +181,11 @@ curl -sf "${APISIX_ADMIN}/routes/13" \
         "method": "UpdateTenant",
         "pb_option": ["enum_as_name", "int64_as_number"]
       },
+      "opentelemetry": {
+        "sampler": {
+          "name": "always_on"
+        }
+      },
       "prometheus": {}
     }
   }' && echo ""
@@ -168,6 +209,11 @@ curl -sf "${APISIX_ADMIN}/routes/14" \
         "service": "parkhub.identity.v1.TenantService",
         "method": "DeleteTenant",
         "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": {
+        "sampler": {
+          "name": "always_on"
+        }
       },
       "prometheus": {}
     }
