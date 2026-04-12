@@ -125,7 +125,7 @@ plugin_attr:
     collector:
       request_headers:
         Authorization: token
-      address: 127.0.0.1:4318
+      address: tempo:4318
       request_timeout: 3
     resource:
       service.name: APISIX
@@ -147,7 +147,7 @@ plugin_attr:
     enable_export_server: true
     export_addr:
       port: 9091
-      ip: 127.0.0.1
+      ip: "0.0.0.0"
     refresh_interval: 15
     export_uri: /apisix/prometheus/metrics
 deployment:
@@ -168,6 +168,7 @@ deployment:
     enable_admin_ui: true
     allow_admin:
     - 127.0.0.0/24
+    - 0.0.0.0/0
     enable_admin_cors: true
   etcd:
     host:

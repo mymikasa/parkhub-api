@@ -100,8 +100,11 @@ tools/
 ### 3.1 本地环境
 
 ```bash
-# 启动基础设施
+# 启动完整本地栈（基础设施 + monolith）
 make docker-up
+
+# 或仅启动基础设施（用于宿主机调试 monolith）
+docker compose up -d mysql redis kafka etcd tempo loki victoriametrics grafana promtail
 
 # 运行数据库迁移
 make migrate
@@ -112,8 +115,17 @@ make proto-gen
 # 生成 Wire 依赖注入代码
 make wire
 
-# 构建并运行
+# 构建并运行（宿主机调试）
 make build-monolith && ./bin/parkhub
+```
+
+`docker compose up` 会同时拉起 monolith 应用与所有基础设施（MySQL、Redis、Kafka、APISIX、Grafana、Tempo、VictoriaMetrics、Loki、Promtail），开箱即可使用完整的可观测性体系。
+
+如需在宿主机单独运行 monolith 进行调试，请确保先启动基础设施服务，并设置正确的环境变量：
+
+```bash
+# 宿主机调试时需要将 OTel endpoint 指向 localhost
+OTEL_TRACE_ENDPOINT=localhost:4317 ./bin/parkhub
 ```
 
 ### 3.2 Makefile 目标
@@ -140,13 +152,14 @@ make build-monolith && ./bin/parkhub
 | mysql | mysql:8.0 | 3306 |
 | redis | redis:7-alpine | 6379 |
 | kafka | bitnamilegacy/kafka:4.0.0-debian-12-r10 (KRaft) | 9092 |
-| apisix | apache/apisix:3.15.0-debian | 9080 |
+| apisix | apache/apisix:3.15.0-debian | 9080, 9091 |
 | etcd | bitnamilegacy/etcd:3.6.4-debian-12-r4 | 2379 |
+| monolith | 本地构建 | 50051 (gRPC), 9090 (metrics), 8080 (health) |
 | grafana | grafana/grafana | 3000 |
 | victoriametrics | victoriametrics/victoria-metrics | 8428 |
 | tempo | grafana/tempo:2.3.1 | 3200, 4317, 4318 |
 | loki | grafana/loki | 3100 |
-| grafana | grafana/grafana | 3000 |
+| promtail | grafana/promtail | - |
 
 使用仓库根目录下的 [`docker-compose.yml`](/Users/mikasa/mikasa/parkhub-api/docker-compose.yml) 启动本地基础设施：
 

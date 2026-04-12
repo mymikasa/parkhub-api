@@ -1,0 +1,66 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "title": "gRPC Requests / sec",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        {
+          "expr": "sum(rate(rpc_server_call_duration_seconds_count{rpc_system_name=\"grpc\"}[1m])) by (rpc_method)",
+          "legendFormat": "{{rpc_method}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "reqps" },
+        "overrides": []
+      }
+    },
+    {
+      "title": "gRPC Duration p50 / p95 / p99",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "histogram_quantile(0.50, sum(rate(rpc_server_call_duration_seconds_bucket{rpc_system_name=\"grpc\"}[1m])) by (le, rpc_method))", "legendFormat": "p50 {{rpc_method}}" },
+        { "expr": "histogram_quantile(0.95, sum(rate(rpc_server_call_duration_seconds_bucket{rpc_system_name=\"grpc\"}[1m])) by (le, rpc_method))", "legendFormat": "p95 {{rpc_method}}" },
+        { "expr": "histogram_quantile(0.99, sum(rate(rpc_server_call_duration_seconds_bucket{rpc_system_name=\"grpc\"}[1m])) by (le, rpc_method))", "legendFormat": "p99 {{rpc_method}}" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s" },
+        "overrides": []
+      }
+    },
+    {
+      "title": "gRPC Error Rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        {
+          "expr": "sum(rate(rpc_server_call_duration_seconds_count{rpc_system_name=\"grpc\",rpc_response_status_code!=\"OK\"}[1m])) by (rpc_method) / sum(rate(rpc_server_call_duration_seconds_count{rpc_system_name=\"grpc\"}[1m])) by (rpc_method)",
+          "legendFormat": "{{rpc_method}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "percentunit", "max": 1, "min": 0 },
+        "overrides": []
+      }
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["grpc", "parkhub"],
+  "templating": { "list": [] },
+  "time": { "from": "now-5m", "to": "now" },
+  "timepicker": {},
+  "timezone": "",
+  "title": "gRPC Service Overview",
+  "uid": "grpc-overview",
+  "version": 1
+}

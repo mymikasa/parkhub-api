@@ -15,8 +15,10 @@ import (
 	"github.com/parkhub/api/internal/config"
 	identitygrpc "github.com/parkhub/api/internal/domains/identity/grpc"
 	"github.com/parkhub/api/internal/domains/identity/repository/dao"
+	"github.com/parkhub/api/internal/health"
 	"github.com/parkhub/api/internal/middleware"
 	"github.com/parkhub/api/internal/registry"
+	pkgmetrics "github.com/parkhub/api/pkg/metrics"
 	"github.com/parkhub/api/pkg/slogutil"
 	"github.com/parkhub/api/pkg/telemetry"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
@@ -73,6 +75,8 @@ func run() error {
 		}
 	}()
 
+	pkgmetrics.Init(telemetryProviders.MeterProvider)
+
 	db, err := gorm.Open(mysql.Open(cfg.Database.DSN()), &gorm.Config{})
 	if err != nil {
 		return fmt.Errorf("connect database: %w", err)
@@ -103,22 +107,47 @@ func run() error {
 	reflection.Register(grpcServer)
 	reg.RegisterAll(grpcServer)
 
+	healthServer := health.NewServer()
+	health.RegisterGRPC(grpcServer, healthServer)
+
+	ready := true
+
 	metricsMux := http.NewServeMux()
 	metricsMux.Handle(cfg.Telemetry.Metrics.Path, telemetryProviders.MetricsHandler)
-	metricsServer := &http.Server{
+	metricsHTTP := &http.Server{
 		Addr:    fmt.Sprintf(":%d", cfg.Server.MetricsPort),
 		Handler: metricsMux,
 	}
 
-	errCh := make(chan error, 2)
+	healthMux := http.NewServeMux()
+	healthMux.HandleFunc("/healthz", func(w http.ResponseWriter, _ *http.Request) {
+		if !ready {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	})
+	healthHTTP := &http.Server{
+		Addr:    fmt.Sprintf(":%d", cfg.Server.HTTPHealthPort),
+		Handler: healthMux,
+	}
+
+	errCh := make(chan error, 3)
 
 	go func() {
 		slog.Info("metrics server listening",
 			slog.Int("port", cfg.Server.MetricsPort),
 			slog.String("path", cfg.Telemetry.Metrics.Path),
 		)
-		if err := metricsServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		if err := metricsHTTP.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			errCh <- fmt.Errorf("serve metrics: %w", err)
+		}
+	}()
+
+	go func() {
+		slog.Info("health server listening", slog.Int("port", cfg.Server.HTTPHealthPort))
+		if err := healthHTTP.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			errCh <- fmt.Errorf("serve health: %w", err)
 		}
 	}()
 
@@ -132,45 +161,41 @@ func run() error {
 	select {
 	case err := <-errCh:
 		stop()
-		done := make(chan struct{})
-		go func() {
-			grpcServer.GracefulStop()
-			close(done)
-		}()
-		select {
-		case <-done:
-		case <-time.After(15 * time.Second):
-			slog.Warn("gRPC graceful stop timed out, forcing stop")
-			grpcServer.Stop()
-		}
-		shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-		_ = metricsServer.Shutdown(shutdownCtx)
+		ready = false
+		healthServer.SetNotServing()
+		gracefulStopGRPC(grpcServer)
+		shutdownHTTP(metricsHTTP, healthHTTP)
 		return err
 	case <-ctx.Done():
 		slog.Info("shutdown signal received")
 	}
 
-	gracefulStop := func() {
-		done := make(chan struct{})
-		go func() {
-			grpcServer.GracefulStop()
-			close(done)
-		}()
-		select {
-		case <-done:
-		case <-time.After(15 * time.Second):
-			slog.Warn("gRPC graceful stop timed out, forcing stop")
-			grpcServer.Stop()
-		}
-	}
-	gracefulStop()
-
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	if err := metricsServer.Shutdown(shutdownCtx); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		return fmt.Errorf("shutdown metrics server: %w", err)
-	}
+	ready = false
+	healthServer.SetNotServing()
+	gracefulStopGRPC(grpcServer)
+	shutdownHTTP(metricsHTTP, healthHTTP)
 
 	return nil
+}
+
+func shutdownHTTP(servers ...*http.Server) {
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	for _, s := range servers {
+		_ = s.Shutdown(shutdownCtx)
+	}
+}
+
+func gracefulStopGRPC(grpcServer *grpc.Server) {
+	done := make(chan struct{})
+	go func() {
+		grpcServer.GracefulStop()
+		close(done)
+	}()
+	select {
+	case <-done:
+	case <-time.After(15 * time.Second):
+		slog.Warn("gRPC graceful stop timed out, forcing stop")
+		grpcServer.Stop()
+	}
 }

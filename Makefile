@@ -10,7 +10,7 @@ DOCKER_COMPOSE ?= docker compose
 BIN_DIR := bin
 MONOLITH_BIN := $(BIN_DIR)/parkhub
 
-.PHONY: help proto-gen proto-lint proto-breaking lint lint-tenant test test-integration build-monolith wire migrate docker-up docker-down docker-ps clean
+.PHONY: help proto-gen proto-lint proto-breaking lint lint-tenant test test-integration build-monolith docker-build wire migrate docker-up docker-down docker-ps clean
 
 help:
 	@echo "Available targets:"
@@ -22,6 +22,7 @@ help:
 	@echo "  test              Run unit tests"
 	@echo "  test-integration  Run integration tests"
 	@echo "  build-monolith    Build cmd/monolith to bin/parkhub"
+	@echo "  docker-build      Build monolith Docker image"
 	@echo "  wire              Generate Wire DI code if configured"
 	@echo "  migrate           Run goose migrations if configured"
 	@echo "  docker-up         Start docker compose services"
@@ -62,6 +63,9 @@ test-integration:
 build-monolith:
 	@mkdir -p $(BIN_DIR)
 	$(GO) build -o $(MONOLITH_BIN) ./cmd/monolith
+
+docker-build:
+	docker build -t parkhub-monolith .
 
 wire:
 	@command -v $(WIRE) >/dev/null 2>&1 || { echo "wire is required but not installed"; exit 1; }

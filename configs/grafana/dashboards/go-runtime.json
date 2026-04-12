@@ -1,0 +1,86 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "title": "Goroutines",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "go_goroutine_count", "legendFormat": "{{job}}" }
+      ]
+    },
+    {
+      "title": "Memory Used",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "go_memory_used_bytes", "legendFormat": "{{go_memory_type}} {{job}}" },
+        { "expr": "go_memory_gc_goal_bytes", "legendFormat": "gc goal {{job}}" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "bytes" },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Memory Allocated Total",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "rate(go_memory_allocated_bytes_total[1m])", "legendFormat": "alloc rate {{job}}" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "Bps" },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Processors",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "go_processor_limit", "legendFormat": "{{job}}" }
+      ]
+    },
+    {
+      "title": "Allocations / sec",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "rate(go_memory_allocations_total[1m])", "legendFormat": "{{job}}" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "ops" },
+        "overrides": []
+      }
+    },
+    {
+      "title": "GOGC",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 12 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "go_config_gogc_percent", "legendFormat": "{{job}}" }
+      ]
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["go", "runtime", "parkhub"],
+  "templating": { "list": [] },
+  "time": { "from": "now-5m", "to": "now" },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Go Runtime",
+  "uid": "go-runtime",
+  "version": 1
+}
