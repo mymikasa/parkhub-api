@@ -14,6 +14,6 @@ type SmsRepository interface {
 	SaveSendFailure(ctx context.Context, phone string, purpose domain.SmsPurpose, providerErr string) error
 	GetCode(ctx context.Context, phone string, purpose domain.SmsPurpose) (*domain.SmsCode, error)
 	VerifyAndConsume(ctx context.Context, phone string, purpose domain.SmsPurpose, input string) error
-	SetRateLimit(ctx context.Context, phone string, ttl time.Duration) error
-	CheckRateLimit(ctx context.Context, phone string) (bool, error)
+	TryReserveRateLimit(ctx context.Context, phone string, ttl time.Duration) (bool, error)
+	ReleaseRateLimit(ctx context.Context, phone string) error
 }

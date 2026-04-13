@@ -33,29 +33,27 @@ func (s *smsService) SendCode(ctx context.Context, req *SendCodeRequest) error {
 		return errs.ErrInvalidPhone
 	}
 
-	limited, err := s.repo.CheckRateLimit(ctx, req.Phone)
+	reserved, err := s.repo.TryReserveRateLimit(ctx, req.Phone, rateLimitTTL)
 	if err != nil {
 		return err
 	}
-	if limited {
+	if !reserved {
 		return errs.ErrPhoneRateLimit
 	}
 
 	code, err := domain.NewSmsCode(req.Phone, req.Purpose, codeTTL)
 	if err != nil {
+		_ = s.repo.ReleaseRateLimit(ctx, req.Phone)
 		return err
 	}
 	code.ID = uuid.New().String()
 
 	if err := s.gateway.Send(ctx, code.Phone, code.Code, string(code.Purpose)); err != nil {
+		_ = s.repo.ReleaseRateLimit(ctx, req.Phone)
 		return s.repo.SaveSendFailure(ctx, req.Phone, req.Purpose, err.Error())
 	}
 
-	if err := s.repo.SaveCode(ctx, code); err != nil {
-		return err
-	}
-
-	return s.repo.SetRateLimit(ctx, req.Phone, rateLimitTTL)
+	return s.repo.SaveCode(ctx, code)
 }
 
 func (s *smsService) VerifyCode(ctx context.Context, req *VerifyCodeRequest) error {

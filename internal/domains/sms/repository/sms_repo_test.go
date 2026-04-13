@@ -106,23 +106,23 @@ func TestSmsRepository_VerifyAndConsume_NotFound(t *testing.T) {
 	assert.ErrorIs(t, err, errs.ErrCodeNotFound)
 }
 
-func TestSmsRepository_SetRateLimit(t *testing.T) {
+func TestSmsRepository_TryReserveRateLimit(t *testing.T) {
 	repo, _, mockCache := setupSmsRepo(t)
 	ctx := context.Background()
 
-	mockCache.EXPECT().SetRateLimit(go_mock.Any(), "13800138000", 60*time.Second).Return(nil)
+	mockCache.EXPECT().TryReserveRateLimit(go_mock.Any(), "13800138000", 60*time.Second).Return(true, nil)
 
-	err := repo.SetRateLimit(ctx, "13800138000", 60*time.Second)
-	assert.NoError(t, err)
+	reserved, err := repo.TryReserveRateLimit(ctx, "13800138000", 60*time.Second)
+	require.NoError(t, err)
+	assert.True(t, reserved)
 }
 
-func TestSmsRepository_CheckRateLimit(t *testing.T) {
+func TestSmsRepository_ReleaseRateLimit(t *testing.T) {
 	repo, _, mockCache := setupSmsRepo(t)
 	ctx := context.Background()
 
-	mockCache.EXPECT().CheckRateLimit(go_mock.Any(), "13800138000").Return(true, nil)
+	mockCache.EXPECT().ReleaseRateLimit(go_mock.Any(), "13800138000").Return(nil)
 
-	limited, err := repo.CheckRateLimit(ctx, "13800138000")
-	require.NoError(t, err)
-	assert.True(t, limited)
+	err := repo.ReleaseRateLimit(ctx, "13800138000")
+	assert.NoError(t, err)
 }

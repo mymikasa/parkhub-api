@@ -42,19 +42,18 @@ func (m *MockSmsCache) EXPECT() *MockSmsCacheMockRecorder {
 	return m.recorder
 }
 
-// CheckRateLimit mocks base method.
-func (m *MockSmsCache) CheckRateLimit(ctx context.Context, phone string) (bool, error) {
+// ReleaseRateLimit mocks base method.
+func (m *MockSmsCache) ReleaseRateLimit(ctx context.Context, phone string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckRateLimit", ctx, phone)
-	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret := m.ctrl.Call(m, "ReleaseRateLimit", ctx, phone)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
-// CheckRateLimit indicates an expected call of CheckRateLimit.
-func (mr *MockSmsCacheMockRecorder) CheckRateLimit(ctx, phone any) *gomock.Call {
+// ReleaseRateLimit indicates an expected call of ReleaseRateLimit.
+func (mr *MockSmsCacheMockRecorder) ReleaseRateLimit(ctx, phone any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckRateLimit", reflect.TypeOf((*MockSmsCache)(nil).CheckRateLimit), ctx, phone)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReleaseRateLimit", reflect.TypeOf((*MockSmsCache)(nil).ReleaseRateLimit), ctx, phone)
 }
 
 // Retrieve mocks base method.
@@ -72,20 +71,6 @@ func (mr *MockSmsCacheMockRecorder) Retrieve(ctx, phone, purpose any) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Retrieve", reflect.TypeOf((*MockSmsCache)(nil).Retrieve), ctx, phone, purpose)
 }
 
-// SetRateLimit mocks base method.
-func (m *MockSmsCache) SetRateLimit(ctx context.Context, phone string, ttl time.Duration) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetRateLimit", ctx, phone, ttl)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// SetRateLimit indicates an expected call of SetRateLimit.
-func (mr *MockSmsCacheMockRecorder) SetRateLimit(ctx, phone, ttl any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetRateLimit", reflect.TypeOf((*MockSmsCache)(nil).SetRateLimit), ctx, phone, ttl)
-}
-
 // Store mocks base method.
 func (m *MockSmsCache) Store(ctx context.Context, code *domain.SmsCode) error {
 	m.ctrl.T.Helper()
@@ -98,6 +83,21 @@ func (m *MockSmsCache) Store(ctx context.Context, code *domain.SmsCode) error {
 func (mr *MockSmsCacheMockRecorder) Store(ctx, code any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Store", reflect.TypeOf((*MockSmsCache)(nil).Store), ctx, code)
+}
+
+// TryReserveRateLimit mocks base method.
+func (m *MockSmsCache) TryReserveRateLimit(ctx context.Context, phone string, ttl time.Duration) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "TryReserveRateLimit", ctx, phone, ttl)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// TryReserveRateLimit indicates an expected call of TryReserveRateLimit.
+func (mr *MockSmsCacheMockRecorder) TryReserveRateLimit(ctx, phone, ttl any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TryReserveRateLimit", reflect.TypeOf((*MockSmsCache)(nil).TryReserveRateLimit), ctx, phone, ttl)
 }
 
 // VerifyAndConsume mocks base method.

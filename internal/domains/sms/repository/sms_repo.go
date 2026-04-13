@@ -58,10 +58,10 @@ func (r *smsRepository) VerifyAndConsume(ctx context.Context, phone string, purp
 	return r.cache.VerifyAndConsume(ctx, phone, purpose, input)
 }
 
-func (r *smsRepository) SetRateLimit(ctx context.Context, phone string, ttl time.Duration) error {
-	return r.cache.SetRateLimit(ctx, phone, ttl)
+func (r *smsRepository) TryReserveRateLimit(ctx context.Context, phone string, ttl time.Duration) (bool, error) {
+	return r.cache.TryReserveRateLimit(ctx, phone, ttl)
 }
 
-func (r *smsRepository) CheckRateLimit(ctx context.Context, phone string) (bool, error) {
-	return r.cache.CheckRateLimit(ctx, phone)
+func (r *smsRepository) ReleaseRateLimit(ctx context.Context, phone string) error {
+	return r.cache.ReleaseRateLimit(ctx, phone)
 }

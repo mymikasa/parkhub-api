@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"testing"
-	"time"
 
 	"github.com/parkhub/api/internal/domains/sms/domain"
 	"github.com/parkhub/api/internal/domains/sms/errs"
@@ -24,22 +23,12 @@ func setupSmsService(t *testing.T) (SmsService, *repomocks.MockSmsRepository, *g
 	return NewSmsService(mockRepo, mockGW), mockRepo, mockGW
 }
 
-func setupSmsServiceWithMockGW(t *testing.T) (SmsService, *repomocks.MockSmsRepository, *gateway.MockSmsGateway) {
-	t.Helper()
-	ctrl := go_mock.NewController(t)
-	t.Cleanup(ctrl.Finish)
-	mockRepo := repomocks.NewMockSmsRepository(ctrl)
-	mockGW := gateway.NewMockSmsGateway()
-	return NewSmsService(mockRepo, mockGW), mockRepo, mockGW
-}
-
 func TestSmsService_SendCode_Success(t *testing.T) {
-	svc, mockRepo, mockGW := setupSmsServiceWithMockGW(t)
+	svc, mockRepo, mockGW := setupSmsService(t)
 	ctx := context.Background()
 
-	mockRepo.EXPECT().CheckRateLimit(go_mock.Any(), "13800138000").Return(false, nil)
+	mockRepo.EXPECT().TryReserveRateLimit(go_mock.Any(), "13800138000", go_mock.Any()).Return(true, nil)
 	mockRepo.EXPECT().SaveCode(go_mock.Any(), go_mock.Any()).Return(nil)
-	mockRepo.EXPECT().SetRateLimit(go_mock.Any(), "13800138000", 60*time.Second).Return(nil)
 
 	err := svc.SendCode(ctx, &SendCodeRequest{
 		Phone:   "13800138000",
@@ -65,7 +54,7 @@ func TestSmsService_SendCode_RateLimited(t *testing.T) {
 	svc, mockRepo, _ := setupSmsService(t)
 	ctx := context.Background()
 
-	mockRepo.EXPECT().CheckRateLimit(go_mock.Any(), "13800138000").Return(true, nil)
+	mockRepo.EXPECT().TryReserveRateLimit(go_mock.Any(), "13800138000", go_mock.Any()).Return(false, nil)
 
 	err := svc.SendCode(ctx, &SendCodeRequest{
 		Phone:   "13800138000",
@@ -83,7 +72,8 @@ func TestSmsService_SendCode_GatewayFailure(t *testing.T) {
 	svc := NewSmsService(mockRepo, mockGW)
 	ctx := context.Background()
 
-	mockRepo.EXPECT().CheckRateLimit(go_mock.Any(), "13800138000").Return(false, nil)
+	mockRepo.EXPECT().TryReserveRateLimit(go_mock.Any(), "13800138000", go_mock.Any()).Return(true, nil)
+	mockRepo.EXPECT().ReleaseRateLimit(go_mock.Any(), "13800138000").Return(nil)
 	mockRepo.EXPECT().SaveSendFailure(go_mock.Any(), "13800138000", domain.SmsPurposeLogin, "gateway timeout").Return(nil)
 
 	err := svc.SendCode(ctx, &SendCodeRequest{

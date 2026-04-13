@@ -82,18 +82,15 @@ func (c *RedisSmsCache) VerifyAndConsume(ctx context.Context, phone string, purp
 	}
 }
 
-func (c *RedisSmsCache) SetRateLimit(ctx context.Context, phone string, ttl time.Duration) error {
+func (c *RedisSmsCache) TryReserveRateLimit(ctx context.Context, phone string, ttl time.Duration) (bool, error) {
 	key := rateLimitKey(phone)
-	return c.client.Set(ctx, key, "1", ttl).Err()
+	ok, err := c.client.SetNX(ctx, key, "1", ttl).Result()
+	return ok, err
 }
 
-func (c *RedisSmsCache) CheckRateLimit(ctx context.Context, phone string) (bool, error) {
+func (c *RedisSmsCache) ReleaseRateLimit(ctx context.Context, phone string) error {
 	key := rateLimitKey(phone)
-	val, err := c.client.Exists(ctx, key).Result()
-	if err != nil {
-		return false, err
-	}
-	return val > 0, nil
+	return c.client.Del(ctx, key).Err()
 }
 
 func smsKey(phone string, purpose domain.SmsPurpose) string {

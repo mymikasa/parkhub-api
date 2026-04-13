@@ -89,7 +89,6 @@ func TestRedisSmsCache_VerifyAndConsume_Mismatch(t *testing.T) {
 	err := cache.VerifyAndConsume(ctx, code.Phone, code.Purpose, "000000")
 	assert.ErrorIs(t, err, errs.ErrCodeMismatch)
 
-	// code is burned after mismatch
 	err = cache.VerifyAndConsume(ctx, code.Phone, code.Purpose, code.Code)
 	assert.ErrorIs(t, err, errs.ErrCodeNotFound)
 }
@@ -144,34 +143,80 @@ func TestRedisSmsCache_VerifyAndConsume_ConcurrentOnlyOneWins(t *testing.T) {
 	assert.Equal(t, int64(1), successCount)
 }
 
-func TestRedisSmsCache_RateLimit(t *testing.T) {
+func TestRedisSmsCache_TryReserveRateLimit_FirstWins(t *testing.T) {
 	cache, _ := setupTestCache(t)
 	ctx := context.Background()
 
-	limited, err := cache.CheckRateLimit(ctx, "13800138000")
+	reserved, err := cache.TryReserveRateLimit(ctx, "13800138000", 60*time.Second)
 	require.NoError(t, err)
-	assert.False(t, limited)
-
-	require.NoError(t, cache.SetRateLimit(ctx, "13800138000", 60*time.Second))
-
-	limited, err = cache.CheckRateLimit(ctx, "13800138000")
-	require.NoError(t, err)
-	assert.True(t, limited)
+	assert.True(t, reserved)
 }
 
-func TestRedisSmsCache_RateLimit_Expired(t *testing.T) {
+func TestRedisSmsCache_TryReserveRateLimit_SecondLoses(t *testing.T) {
+	cache, _ := setupTestCache(t)
+	ctx := context.Background()
+
+	reserved, err := cache.TryReserveRateLimit(ctx, "13800138000", 60*time.Second)
+	require.NoError(t, err)
+	assert.True(t, reserved)
+
+	reserved, err = cache.TryReserveRateLimit(ctx, "13800138000", 60*time.Second)
+	require.NoError(t, err)
+	assert.False(t, reserved)
+}
+
+func TestRedisSmsCache_TryReserveRateLimit_Expired(t *testing.T) {
 	cache, mr := setupTestCache(t)
 	ctx := context.Background()
 
-	require.NoError(t, cache.SetRateLimit(ctx, "13800138000", 5*time.Second))
-
-	limited, err := cache.CheckRateLimit(ctx, "13800138000")
+	reserved, err := cache.TryReserveRateLimit(ctx, "13800138000", 5*time.Second)
 	require.NoError(t, err)
-	assert.True(t, limited)
+	assert.True(t, reserved)
 
 	mr.FastForward(6 * time.Second)
 
-	limited, err = cache.CheckRateLimit(ctx, "13800138000")
+	reserved, err = cache.TryReserveRateLimit(ctx, "13800138000", 60*time.Second)
 	require.NoError(t, err)
-	assert.False(t, limited)
+	assert.True(t, reserved)
+}
+
+func TestRedisSmsCache_ReleaseRateLimit(t *testing.T) {
+	cache, _ := setupTestCache(t)
+	ctx := context.Background()
+
+	reserved, err := cache.TryReserveRateLimit(ctx, "13800138000", 60*time.Second)
+	require.NoError(t, err)
+	assert.True(t, reserved)
+
+	require.NoError(t, cache.ReleaseRateLimit(ctx, "13800138000"))
+
+	reserved, err = cache.TryReserveRateLimit(ctx, "13800138000", 60*time.Second)
+	require.NoError(t, err)
+	assert.True(t, reserved)
+}
+
+func TestRedisSmsCache_TryReserveRateLimit_ConcurrentOnlyOneWins(t *testing.T) {
+	cache, _ := setupTestCache(t)
+	ctx := context.Background()
+
+	const goroutines = 10
+	var wg sync.WaitGroup
+	winCount := int64(0)
+	mu := sync.Mutex{}
+
+	for i := 0; i < goroutines; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			reserved, err := cache.TryReserveRateLimit(ctx, "13800138000", 60*time.Second)
+			if err == nil && reserved {
+				mu.Lock()
+				winCount++
+				mu.Unlock()
+			}
+		}()
+	}
+	wg.Wait()
+
+	assert.Equal(t, int64(1), winCount)
 }

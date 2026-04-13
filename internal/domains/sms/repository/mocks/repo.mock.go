@@ -42,21 +42,6 @@ func (m *MockSmsRepository) EXPECT() *MockSmsRepositoryMockRecorder {
 	return m.recorder
 }
 
-// CheckRateLimit mocks base method.
-func (m *MockSmsRepository) CheckRateLimit(ctx context.Context, phone string) (bool, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckRateLimit", ctx, phone)
-	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CheckRateLimit indicates an expected call of CheckRateLimit.
-func (mr *MockSmsRepositoryMockRecorder) CheckRateLimit(ctx, phone any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckRateLimit", reflect.TypeOf((*MockSmsRepository)(nil).CheckRateLimit), ctx, phone)
-}
-
 // GetCode mocks base method.
 func (m *MockSmsRepository) GetCode(ctx context.Context, phone string, purpose domain.SmsPurpose) (*domain.SmsCode, error) {
 	m.ctrl.T.Helper()
@@ -70,6 +55,20 @@ func (m *MockSmsRepository) GetCode(ctx context.Context, phone string, purpose d
 func (mr *MockSmsRepositoryMockRecorder) GetCode(ctx, phone, purpose any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCode", reflect.TypeOf((*MockSmsRepository)(nil).GetCode), ctx, phone, purpose)
+}
+
+// ReleaseRateLimit mocks base method.
+func (m *MockSmsRepository) ReleaseRateLimit(ctx context.Context, phone string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReleaseRateLimit", ctx, phone)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ReleaseRateLimit indicates an expected call of ReleaseRateLimit.
+func (mr *MockSmsRepositoryMockRecorder) ReleaseRateLimit(ctx, phone any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReleaseRateLimit", reflect.TypeOf((*MockSmsRepository)(nil).ReleaseRateLimit), ctx, phone)
 }
 
 // SaveCode mocks base method.
@@ -100,18 +99,19 @@ func (mr *MockSmsRepositoryMockRecorder) SaveSendFailure(ctx, phone, purpose, pr
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveSendFailure", reflect.TypeOf((*MockSmsRepository)(nil).SaveSendFailure), ctx, phone, purpose, providerErr)
 }
 
-// SetRateLimit mocks base method.
-func (m *MockSmsRepository) SetRateLimit(ctx context.Context, phone string, ttl time.Duration) error {
+// TryReserveRateLimit mocks base method.
+func (m *MockSmsRepository) TryReserveRateLimit(ctx context.Context, phone string, ttl time.Duration) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetRateLimit", ctx, phone, ttl)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret := m.ctrl.Call(m, "TryReserveRateLimit", ctx, phone, ttl)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
-// SetRateLimit indicates an expected call of SetRateLimit.
-func (mr *MockSmsRepositoryMockRecorder) SetRateLimit(ctx, phone, ttl any) *gomock.Call {
+// TryReserveRateLimit indicates an expected call of TryReserveRateLimit.
+func (mr *MockSmsRepositoryMockRecorder) TryReserveRateLimit(ctx, phone, ttl any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetRateLimit", reflect.TypeOf((*MockSmsRepository)(nil).SetRateLimit), ctx, phone, ttl)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TryReserveRateLimit", reflect.TypeOf((*MockSmsRepository)(nil).TryReserveRateLimit), ctx, phone, ttl)
 }
 
 // VerifyAndConsume mocks base method.
