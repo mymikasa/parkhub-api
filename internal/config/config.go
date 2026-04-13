@@ -13,6 +13,7 @@ const DefaultPath = "configs/config.yaml"
 type Config struct {
 	Server    ServerConfig    `yaml:"server"`
 	Database  DatabaseConfig  `yaml:"database"`
+	Redis     RedisConfig     `yaml:"redis"`
 	Telemetry TelemetryConfig `yaml:"telemetry"`
 }
 
@@ -29,6 +30,12 @@ type DatabaseConfig struct {
 	User     string `yaml:"user"`
 	Password string `yaml:"password"`
 	DBName   string `yaml:"dbname"`
+}
+
+type RedisConfig struct {
+	Addr     string `yaml:"addr"`
+	Password string `yaml:"password"`
+	DB       int    `yaml:"db"`
 }
 
 type TelemetryConfig struct {
@@ -67,6 +74,9 @@ func Default() Config {
 			User:     "parkhub",
 			Password: "parkhub",
 			DBName:   "parkhub_identity",
+		},
+		Redis: RedisConfig{
+			Addr: "localhost:6379",
 		},
 		Telemetry: TelemetryConfig{
 			ServiceName: "parkhub-monolith",
@@ -148,6 +158,15 @@ func applyEnvOverrides(cfg *Config) {
 	}
 	if v := os.Getenv("DB_NAME"); v != "" {
 		cfg.Database.DBName = v
+	}
+	if v := os.Getenv("REDIS_ADDR"); v != "" {
+		cfg.Redis.Addr = v
+	}
+	if v := os.Getenv("REDIS_PASSWORD"); v != "" {
+		cfg.Redis.Password = v
+	}
+	if v := os.Getenv("REDIS_DB"); v != "" {
+		cfg.Redis.DB = mustInt(v, cfg.Redis.DB)
 	}
 	if v := os.Getenv("OTEL_SERVICE_NAME"); v != "" {
 		cfg.Telemetry.ServiceName = v

@@ -15,12 +15,15 @@ import (
 	"github.com/parkhub/api/internal/config"
 	identitygrpc "github.com/parkhub/api/internal/domains/identity/grpc"
 	"github.com/parkhub/api/internal/domains/identity/repository/dao"
+	smsgrpc "github.com/parkhub/api/internal/domains/sms/grpc"
+	smsdao "github.com/parkhub/api/internal/domains/sms/repository/dao"
 	"github.com/parkhub/api/internal/health"
 	"github.com/parkhub/api/internal/middleware"
 	"github.com/parkhub/api/internal/registry"
 	pkgmetrics "github.com/parkhub/api/pkg/metrics"
 	"github.com/parkhub/api/pkg/slogutil"
 	"github.com/parkhub/api/pkg/telemetry"
+	"github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	grpc "google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -82,12 +85,19 @@ func run() error {
 		return fmt.Errorf("connect database: %w", err)
 	}
 
-	if err := db.AutoMigrate(&dao.Tenant{}, &dao.User{}); err != nil {
+	if err := db.AutoMigrate(&dao.Tenant{}, &dao.User{}, &smsdao.SmsRecord{}); err != nil {
 		return fmt.Errorf("auto migrate: %w", err)
 	}
 
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     cfg.Redis.Addr,
+		Password: cfg.Redis.Password,
+		DB:       cfg.Redis.DB,
+	})
+
 	reg := registry.New()
 	identitygrpc.RegisterServices(reg, db)
+	smsgrpc.RegisterServices(reg, db, rdb)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Server.GRPCPort))
 	if err != nil {
