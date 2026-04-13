@@ -57,20 +57,6 @@ func (mr *MockSmsCacheMockRecorder) CheckRateLimit(ctx, phone any) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckRateLimit", reflect.TypeOf((*MockSmsCache)(nil).CheckRateLimit), ctx, phone)
 }
 
-// MarkUsed mocks base method.
-func (m *MockSmsCache) MarkUsed(ctx context.Context, phone string, purpose domain.SmsPurpose) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "MarkUsed", ctx, phone, purpose)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// MarkUsed indicates an expected call of MarkUsed.
-func (mr *MockSmsCacheMockRecorder) MarkUsed(ctx, phone, purpose any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MarkUsed", reflect.TypeOf((*MockSmsCache)(nil).MarkUsed), ctx, phone, purpose)
-}
-
 // Retrieve mocks base method.
 func (m *MockSmsCache) Retrieve(ctx context.Context, phone string, purpose domain.SmsPurpose) (*domain.SmsCode, error) {
 	m.ctrl.T.Helper()
@@ -112,4 +98,18 @@ func (m *MockSmsCache) Store(ctx context.Context, code *domain.SmsCode) error {
 func (mr *MockSmsCacheMockRecorder) Store(ctx, code any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Store", reflect.TypeOf((*MockSmsCache)(nil).Store), ctx, code)
+}
+
+// VerifyAndConsume mocks base method.
+func (m *MockSmsCache) VerifyAndConsume(ctx context.Context, phone string, purpose domain.SmsPurpose, input string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifyAndConsume", ctx, phone, purpose, input)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// VerifyAndConsume indicates an expected call of VerifyAndConsume.
+func (mr *MockSmsCacheMockRecorder) VerifyAndConsume(ctx, phone, purpose, input any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyAndConsume", reflect.TypeOf((*MockSmsCache)(nil).VerifyAndConsume), ctx, phone, purpose, input)
 }

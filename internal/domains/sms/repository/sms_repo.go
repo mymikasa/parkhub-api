@@ -51,7 +51,11 @@ func (r *smsRepository) GetCode(ctx context.Context, phone string, purpose domai
 }
 
 func (r *smsRepository) MarkCodeUsed(ctx context.Context, phone string, purpose domain.SmsPurpose) error {
-	return r.cache.MarkUsed(ctx, phone, purpose)
+	return r.cache.VerifyAndConsume(ctx, phone, purpose, "")
+}
+
+func (r *smsRepository) VerifyAndConsume(ctx context.Context, phone string, purpose domain.SmsPurpose, input string) error {
+	return r.cache.VerifyAndConsume(ctx, phone, purpose, input)
 }
 
 func (r *smsRepository) SetRateLimit(ctx context.Context, phone string, ttl time.Duration) error {

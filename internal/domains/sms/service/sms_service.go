@@ -59,16 +59,7 @@ func (s *smsService) SendCode(ctx context.Context, req *SendCodeRequest) error {
 }
 
 func (s *smsService) VerifyCode(ctx context.Context, req *VerifyCodeRequest) error {
-	code, err := s.repo.GetCode(ctx, req.Phone, req.Purpose)
-	if err != nil {
-		return err
-	}
-
-	if err := code.Verify(req.Code); err != nil {
-		return err
-	}
-
-	return s.repo.MarkCodeUsed(ctx, req.Phone, req.Purpose)
+	return s.repo.VerifyAndConsume(ctx, req.Phone, req.Purpose, req.Code)
 }
 
 func isValidPhone(phone string) bool {

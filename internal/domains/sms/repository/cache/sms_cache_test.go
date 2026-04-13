@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"sync"
 	"testing"
 	"time"
 
@@ -53,26 +54,94 @@ func TestRedisSmsCache_Retrieve_NotFound(t *testing.T) {
 	assert.ErrorIs(t, err, errs.ErrCodeNotFound)
 }
 
-func TestRedisSmsCache_MarkUsed(t *testing.T) {
+func TestRedisSmsCache_VerifyAndConsume_Success(t *testing.T) {
 	cache, _ := setupTestCache(t)
 	ctx := context.Background()
 
 	code := newTestSmsCode(t)
 	require.NoError(t, cache.Store(ctx, code))
 
-	require.NoError(t, cache.MarkUsed(ctx, code.Phone, code.Purpose))
-
-	retrieved, err := cache.Retrieve(ctx, code.Phone, code.Purpose)
-	require.NoError(t, err)
-	assert.True(t, retrieved.Used)
+	err := cache.VerifyAndConsume(ctx, code.Phone, code.Purpose, code.Code)
+	assert.NoError(t, err)
 }
 
-func TestRedisSmsCache_MarkUsed_NotFound(t *testing.T) {
+func TestRedisSmsCache_VerifyAndConsume_ConsumesOnlyOnce(t *testing.T) {
 	cache, _ := setupTestCache(t)
 	ctx := context.Background()
 
-	err := cache.MarkUsed(ctx, "13800138000", domain.SmsPurposeLogin)
+	code := newTestSmsCode(t)
+	require.NoError(t, cache.Store(ctx, code))
+
+	err := cache.VerifyAndConsume(ctx, code.Phone, code.Purpose, code.Code)
+	assert.NoError(t, err)
+
+	err = cache.VerifyAndConsume(ctx, code.Phone, code.Purpose, code.Code)
 	assert.ErrorIs(t, err, errs.ErrCodeNotFound)
+}
+
+func TestRedisSmsCache_VerifyAndConsume_Mismatch(t *testing.T) {
+	cache, _ := setupTestCache(t)
+	ctx := context.Background()
+
+	code := newTestSmsCode(t)
+	require.NoError(t, cache.Store(ctx, code))
+
+	err := cache.VerifyAndConsume(ctx, code.Phone, code.Purpose, "000000")
+	assert.ErrorIs(t, err, errs.ErrCodeMismatch)
+
+	// code is burned after mismatch
+	err = cache.VerifyAndConsume(ctx, code.Phone, code.Purpose, code.Code)
+	assert.ErrorIs(t, err, errs.ErrCodeNotFound)
+}
+
+func TestRedisSmsCache_VerifyAndConsume_NotFound(t *testing.T) {
+	cache, _ := setupTestCache(t)
+	ctx := context.Background()
+
+	err := cache.VerifyAndConsume(ctx, "13800138000", domain.SmsPurposeLogin, "123456")
+	assert.ErrorIs(t, err, errs.ErrCodeNotFound)
+}
+
+func TestRedisSmsCache_VerifyAndConsume_Expired(t *testing.T) {
+	cache, mr := setupTestCache(t)
+	ctx := context.Background()
+
+	code := newTestSmsCode(t)
+	require.NoError(t, cache.Store(ctx, code))
+
+	mr.FastForward(6 * time.Minute)
+
+	err := cache.VerifyAndConsume(ctx, code.Phone, code.Purpose, code.Code)
+	assert.ErrorIs(t, err, errs.ErrCodeNotFound)
+}
+
+func TestRedisSmsCache_VerifyAndConsume_ConcurrentOnlyOneWins(t *testing.T) {
+	cache, _ := setupTestCache(t)
+	ctx := context.Background()
+
+	code := newTestSmsCode(t)
+	require.NoError(t, cache.Store(ctx, code))
+
+	const goroutines = 10
+	var wg sync.WaitGroup
+	successCount := int64(0)
+	mu := sync.Mutex{}
+
+	for i := 0; i < goroutines; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			err := cache.VerifyAndConsume(ctx, code.Phone, code.Purpose, code.Code)
+			if err == nil {
+				mu.Lock()
+				successCount++
+				mu.Unlock()
+			}
+		}()
+	}
+	wg.Wait()
+
+	assert.Equal(t, int64(1), successCount)
 }
 
 func TestRedisSmsCache_RateLimit(t *testing.T) {

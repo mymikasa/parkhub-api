@@ -13,7 +13,7 @@ type SmsRepository interface {
 	SaveCode(ctx context.Context, code *domain.SmsCode) error
 	SaveSendFailure(ctx context.Context, phone string, purpose domain.SmsPurpose, providerErr string) error
 	GetCode(ctx context.Context, phone string, purpose domain.SmsPurpose) (*domain.SmsCode, error)
-	MarkCodeUsed(ctx context.Context, phone string, purpose domain.SmsPurpose) error
+	VerifyAndConsume(ctx context.Context, phone string, purpose domain.SmsPurpose, input string) error
 	SetRateLimit(ctx context.Context, phone string, ttl time.Duration) error
 	CheckRateLimit(ctx context.Context, phone string) (bool, error)
 }

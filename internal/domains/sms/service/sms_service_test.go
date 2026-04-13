@@ -97,17 +97,7 @@ func TestSmsService_VerifyCode_Success(t *testing.T) {
 	svc, mockRepo, _ := setupSmsService(t)
 	ctx := context.Background()
 
-	smsCode := &domain.SmsCode{
-		ID:        "test-id",
-		Phone:     "13800138000",
-		Code:      "123456",
-		Purpose:   domain.SmsPurposeLogin,
-		ExpiresAt: time.Now().Add(5 * time.Minute),
-		Used:      false,
-	}
-
-	mockRepo.EXPECT().GetCode(go_mock.Any(), "13800138000", domain.SmsPurposeLogin).Return(smsCode, nil)
-	mockRepo.EXPECT().MarkCodeUsed(go_mock.Any(), "13800138000", domain.SmsPurposeLogin).Return(nil)
+	mockRepo.EXPECT().VerifyAndConsume(go_mock.Any(), "13800138000", domain.SmsPurposeLogin, "123456").Return(nil)
 
 	err := svc.VerifyCode(ctx, &VerifyCodeRequest{
 		Phone:   "13800138000",
@@ -121,16 +111,7 @@ func TestSmsService_VerifyCode_Mismatch(t *testing.T) {
 	svc, mockRepo, _ := setupSmsService(t)
 	ctx := context.Background()
 
-	smsCode := &domain.SmsCode{
-		ID:        "test-id",
-		Phone:     "13800138000",
-		Code:      "123456",
-		Purpose:   domain.SmsPurposeLogin,
-		ExpiresAt: time.Now().Add(5 * time.Minute),
-		Used:      false,
-	}
-
-	mockRepo.EXPECT().GetCode(go_mock.Any(), "13800138000", domain.SmsPurposeLogin).Return(smsCode, nil)
+	mockRepo.EXPECT().VerifyAndConsume(go_mock.Any(), "13800138000", domain.SmsPurposeLogin, "000000").Return(errs.ErrCodeMismatch)
 
 	err := svc.VerifyCode(ctx, &VerifyCodeRequest{
 		Phone:   "13800138000",
@@ -140,57 +121,11 @@ func TestSmsService_VerifyCode_Mismatch(t *testing.T) {
 	assert.ErrorIs(t, err, errs.ErrCodeMismatch)
 }
 
-func TestSmsService_VerifyCode_Expired(t *testing.T) {
-	svc, mockRepo, _ := setupSmsService(t)
-	ctx := context.Background()
-
-	smsCode := &domain.SmsCode{
-		ID:        "test-id",
-		Phone:     "13800138000",
-		Code:      "123456",
-		Purpose:   domain.SmsPurposeLogin,
-		ExpiresAt: time.Now().Add(-1 * time.Minute),
-		Used:      false,
-	}
-
-	mockRepo.EXPECT().GetCode(go_mock.Any(), "13800138000", domain.SmsPurposeLogin).Return(smsCode, nil)
-
-	err := svc.VerifyCode(ctx, &VerifyCodeRequest{
-		Phone:   "13800138000",
-		Code:    "123456",
-		Purpose: domain.SmsPurposeLogin,
-	})
-	assert.ErrorIs(t, err, errs.ErrCodeExpired)
-}
-
-func TestSmsService_VerifyCode_Used(t *testing.T) {
-	svc, mockRepo, _ := setupSmsService(t)
-	ctx := context.Background()
-
-	smsCode := &domain.SmsCode{
-		ID:        "test-id",
-		Phone:     "13800138000",
-		Code:      "123456",
-		Purpose:   domain.SmsPurposeLogin,
-		ExpiresAt: time.Now().Add(5 * time.Minute),
-		Used:      true,
-	}
-
-	mockRepo.EXPECT().GetCode(go_mock.Any(), "13800138000", domain.SmsPurposeLogin).Return(smsCode, nil)
-
-	err := svc.VerifyCode(ctx, &VerifyCodeRequest{
-		Phone:   "13800138000",
-		Code:    "123456",
-		Purpose: domain.SmsPurposeLogin,
-	})
-	assert.ErrorIs(t, err, errs.ErrCodeUsed)
-}
-
 func TestSmsService_VerifyCode_NotFound(t *testing.T) {
 	svc, mockRepo, _ := setupSmsService(t)
 	ctx := context.Background()
 
-	mockRepo.EXPECT().GetCode(go_mock.Any(), "13800138000", domain.SmsPurposeLogin).Return(nil, errs.ErrCodeNotFound)
+	mockRepo.EXPECT().VerifyAndConsume(go_mock.Any(), "13800138000", domain.SmsPurposeLogin, "123456").Return(errs.ErrCodeNotFound)
 
 	err := svc.VerifyCode(ctx, &VerifyCodeRequest{
 		Phone:   "13800138000",

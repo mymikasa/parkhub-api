@@ -29,7 +29,11 @@ func (c *RedisSmsCache) Store(ctx context.Context, code *domain.SmsCode) error {
 	if ttl <= 0 {
 		ttl = time.Minute
 	}
-	return c.client.Set(ctx, key, data, ttl).Err()
+	pipe := c.client.Pipeline()
+	pipe.Set(ctx, key, data, ttl)
+	pipe.Set(ctx, smsTokenKey(code.Phone, code.Purpose), code.Code, ttl)
+	_, err = pipe.Exec(ctx)
+	return err
 }
 
 func (c *RedisSmsCache) Retrieve(ctx context.Context, phone string, purpose domain.SmsPurpose) (*domain.SmsCode, error) {
@@ -48,13 +52,34 @@ func (c *RedisSmsCache) Retrieve(ctx context.Context, phone string, purpose doma
 	return &code, nil
 }
 
-func (c *RedisSmsCache) MarkUsed(ctx context.Context, phone string, purpose domain.SmsPurpose) error {
-	code, err := c.Retrieve(ctx, phone, purpose)
+const verifyAndConsumeScript = `
+local token = redis.call('GET', KEYS[1])
+if not token then
+    return 'not_found'
+end
+redis.call('DEL', KEYS[1])
+if token ~= ARGV[1] then
+    return 'mismatch'
+end
+return 'ok'
+`
+
+var verifyScript = redis.NewScript(verifyAndConsumeScript)
+
+func (c *RedisSmsCache) VerifyAndConsume(ctx context.Context, phone string, purpose domain.SmsPurpose, input string) error {
+	tokenKey := smsTokenKey(phone, purpose)
+	result, err := verifyScript.Run(ctx, c.client, []string{tokenKey}, input).Text()
 	if err != nil {
 		return err
 	}
-	code.MarkUsed()
-	return c.Store(ctx, code)
+	switch result {
+	case "ok":
+		return nil
+	case "mismatch":
+		return errs.ErrCodeMismatch
+	default:
+		return errs.ErrCodeNotFound
+	}
 }
 
 func (c *RedisSmsCache) SetRateLimit(ctx context.Context, phone string, ttl time.Duration) error {
@@ -73,6 +98,10 @@ func (c *RedisSmsCache) CheckRateLimit(ctx context.Context, phone string) (bool,
 
 func smsKey(phone string, purpose domain.SmsPurpose) string {
 	return fmt.Sprintf("sms:code:%s:%s", purpose, phone)
+}
+
+func smsTokenKey(phone string, purpose domain.SmsPurpose) string {
+	return fmt.Sprintf("sms:code:%s:%s:token", purpose, phone)
 }
 
 func rateLimitKey(phone string) string {

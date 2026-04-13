@@ -76,14 +76,34 @@ func TestSmsRepository_GetCode_NotFound(t *testing.T) {
 	assert.ErrorIs(t, err, errs.ErrCodeNotFound)
 }
 
-func TestSmsRepository_MarkCodeUsed(t *testing.T) {
+func TestSmsRepository_VerifyAndConsume_Success(t *testing.T) {
 	repo, _, mockCache := setupSmsRepo(t)
 	ctx := context.Background()
 
-	mockCache.EXPECT().MarkUsed(go_mock.Any(), "13800138000", domain.SmsPurposeLogin).Return(nil)
+	mockCache.EXPECT().VerifyAndConsume(go_mock.Any(), "13800138000", domain.SmsPurposeLogin, "123456").Return(nil)
 
-	err := repo.MarkCodeUsed(ctx, "13800138000", domain.SmsPurposeLogin)
+	err := repo.VerifyAndConsume(ctx, "13800138000", domain.SmsPurposeLogin, "123456")
 	assert.NoError(t, err)
+}
+
+func TestSmsRepository_VerifyAndConsume_Mismatch(t *testing.T) {
+	repo, _, mockCache := setupSmsRepo(t)
+	ctx := context.Background()
+
+	mockCache.EXPECT().VerifyAndConsume(go_mock.Any(), "13800138000", domain.SmsPurposeLogin, "000000").Return(errs.ErrCodeMismatch)
+
+	err := repo.VerifyAndConsume(ctx, "13800138000", domain.SmsPurposeLogin, "000000")
+	assert.ErrorIs(t, err, errs.ErrCodeMismatch)
+}
+
+func TestSmsRepository_VerifyAndConsume_NotFound(t *testing.T) {
+	repo, _, mockCache := setupSmsRepo(t)
+	ctx := context.Background()
+
+	mockCache.EXPECT().VerifyAndConsume(go_mock.Any(), "13800138000", domain.SmsPurposeLogin, "123456").Return(errs.ErrCodeNotFound)
+
+	err := repo.VerifyAndConsume(ctx, "13800138000", domain.SmsPurposeLogin, "123456")
+	assert.ErrorIs(t, err, errs.ErrCodeNotFound)
 }
 
 func TestSmsRepository_SetRateLimit(t *testing.T) {

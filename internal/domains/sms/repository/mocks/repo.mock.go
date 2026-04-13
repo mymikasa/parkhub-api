@@ -72,20 +72,6 @@ func (mr *MockSmsRepositoryMockRecorder) GetCode(ctx, phone, purpose any) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCode", reflect.TypeOf((*MockSmsRepository)(nil).GetCode), ctx, phone, purpose)
 }
 
-// MarkCodeUsed mocks base method.
-func (m *MockSmsRepository) MarkCodeUsed(ctx context.Context, phone string, purpose domain.SmsPurpose) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "MarkCodeUsed", ctx, phone, purpose)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// MarkCodeUsed indicates an expected call of MarkCodeUsed.
-func (mr *MockSmsRepositoryMockRecorder) MarkCodeUsed(ctx, phone, purpose any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MarkCodeUsed", reflect.TypeOf((*MockSmsRepository)(nil).MarkCodeUsed), ctx, phone, purpose)
-}
-
 // SaveCode mocks base method.
 func (m *MockSmsRepository) SaveCode(ctx context.Context, code *domain.SmsCode) error {
 	m.ctrl.T.Helper()
@@ -126,4 +112,18 @@ func (m *MockSmsRepository) SetRateLimit(ctx context.Context, phone string, ttl 
 func (mr *MockSmsRepositoryMockRecorder) SetRateLimit(ctx, phone, ttl any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetRateLimit", reflect.TypeOf((*MockSmsRepository)(nil).SetRateLimit), ctx, phone, ttl)
+}
+
+// VerifyAndConsume mocks base method.
+func (m *MockSmsRepository) VerifyAndConsume(ctx context.Context, phone string, purpose domain.SmsPurpose, input string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifyAndConsume", ctx, phone, purpose, input)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// VerifyAndConsume indicates an expected call of VerifyAndConsume.
+func (mr *MockSmsRepositoryMockRecorder) VerifyAndConsume(ctx, phone, purpose, input any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyAndConsume", reflect.TypeOf((*MockSmsRepository)(nil).VerifyAndConsume), ctx, phone, purpose, input)
 }
