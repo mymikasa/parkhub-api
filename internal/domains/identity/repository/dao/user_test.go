@@ -27,7 +27,7 @@ func newTestUser(username string, tenantID *string) *User {
 		TenantID:     tenantID,
 		Username:     username,
 		Email:        strPtr(username + "@test.com"),
-		Phone:        strPtr("13800138000"),
+		Phone:        strPtr("13800" + username),
 		PasswordHash: "hashed",
 		RealName:     "Real " + username,
 		Role:         "operator",

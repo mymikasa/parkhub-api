@@ -14,7 +14,7 @@ type User struct {
 	TenantID     *string `gorm:"type:varchar(36);uniqueIndex:idx_tenant_username"`
 	Username     string  `gorm:"type:varchar(100);uniqueIndex:idx_tenant_username"`
 	Email        *string `gorm:"type:varchar(100)"`
-	Phone        *string `gorm:"type:varchar(20)"`
+	Phone        *string `gorm:"type:varchar(20);uniqueIndex:idx_phone"`
 	PasswordHash string  `gorm:"type:varchar(255)"`
 	RealName     string  `gorm:"type:varchar(100)"`
 	Role         string  `gorm:"type:varchar(20)"`

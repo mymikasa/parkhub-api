@@ -11,6 +11,7 @@ import (
 	"github.com/parkhub/api/internal/domains/identity/domain"
 	"github.com/parkhub/api/internal/domains/identity/errs"
 	"github.com/parkhub/api/internal/domains/identity/repository"
+	smserrs "github.com/parkhub/api/internal/domains/sms/errs"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -77,7 +78,10 @@ func (s *authService) Login(ctx context.Context, req *LoginRequest) (*LoginRespo
 
 func (s *authService) SmsLogin(ctx context.Context, req *SmsLoginRequest) (*LoginResponse, error) {
 	if err := s.smsVerifier.VerifyCode(ctx, req.Phone, req.Code); err != nil {
-		return nil, errs.ErrInvalidCredentials
+		if isSmsCredentialError(err) {
+			return nil, errs.ErrInvalidCredentials
+		}
+		return nil, err
 	}
 
 	user, err := s.userRepo.GetByPhone(ctx, req.Phone)
@@ -222,4 +226,11 @@ func stringPtrValue(s *string) string {
 		return ""
 	}
 	return *s
+}
+
+func isSmsCredentialError(err error) bool {
+	return errors.Is(err, smserrs.ErrCodeNotFound) ||
+		errors.Is(err, smserrs.ErrCodeExpired) ||
+		errors.Is(err, smserrs.ErrCodeUsed) ||
+		errors.Is(err, smserrs.ErrCodeMismatch)
 }
