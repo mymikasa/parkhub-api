@@ -56,6 +56,29 @@ func TestUnaryAuthContextInterceptor_WhitelistedMethod(t *testing.T) {
 	assert.Equal(t, "", identityctx.UserID(capturedCtx))
 }
 
+func TestUnaryAuthContextInterceptor_WhitelistedSmsMethods(t *testing.T) {
+	interceptor := UnaryAuthContextInterceptor()
+
+	for _, method := range []string{
+		"/parkhub.sms.v1.SmsService/SendCode",
+		"/parkhub.sms.v1.SmsService/VerifyCode",
+	} {
+		t.Run(method, func(t *testing.T) {
+			invoked := false
+
+			_, err := interceptor(context.Background(), "req", &grpc.UnaryServerInfo{
+				FullMethod: method,
+			}, func(ctx context.Context, req any) (any, error) {
+				invoked = true
+				return "ok", nil
+			})
+
+			assert.NoError(t, err)
+			assert.True(t, invoked)
+		})
+	}
+}
+
 func TestUnaryAuthContextInterceptor_ProtectedWithHeaders(t *testing.T) {
 	var capturedCtx context.Context
 	interceptor := UnaryAuthContextInterceptor()
