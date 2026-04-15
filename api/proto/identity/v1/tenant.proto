@@ -32,6 +32,10 @@ message Tenant {
   PlanType plan_type = 8;
   google.protobuf.Timestamp created_at = 9;
   google.protobuf.Timestamp updated_at = 10;
+  string description = 11;
+  string credit_code = 12;
+  string remark = 13;
+  int32 parking_lot_count = 14;
 }
 
 message CreateTenantRequest {
@@ -41,6 +45,9 @@ message CreateTenantRequest {
   string contact_email = 4;
   string address = 5;
   PlanType plan_type = 6;
+  optional string description = 7;
+  optional string credit_code = 8;
+  optional string remark = 9;
 }
 
 message CreateTenantResponse {
@@ -75,6 +82,9 @@ message UpdateTenantRequest {
   optional string address = 6;
   optional PlanType plan_type = 7;
   optional TenantStatus status = 8 [deprecated = true];
+  optional string description = 9;
+  optional string credit_code = 10;
+  optional string remark = 11;
 }
 
 message FreezeTenantRequest {

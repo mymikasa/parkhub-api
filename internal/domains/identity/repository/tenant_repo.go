@@ -74,6 +74,9 @@ func toDomain(d *dao.Tenant) *domain.Tenant {
 		PlanType:     domain.PlanType(d.PlanType),
 		CreatedAt:    d.CreatedAt,
 		UpdatedAt:    d.UpdatedAt,
+		Description:  d.Description,
+		CreditCode:   d.CreditCode,
+		Remark:       d.Remark,
 	}
 }
 
@@ -92,5 +95,8 @@ func toEntity(t *domain.Tenant) *dao.Tenant {
 		PlanType:     string(t.PlanType),
 		CreatedAt:    t.CreatedAt,
 		UpdatedAt:    t.UpdatedAt,
+		Description:  t.Description,
+		CreditCode:   t.CreditCode,
+		Remark:       t.Remark,
 	}
 }

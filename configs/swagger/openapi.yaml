@@ -115,6 +115,16 @@ components:
           $ref: '#/components/schemas/Timestamp'
         updated_at:
           $ref: '#/components/schemas/Timestamp'
+        description:
+          type: string
+        credit_code:
+          type: string
+        remark:
+          type: string
+        parking_lot_count:
+          type: integer
+          format: int32
+          readOnly: true
 
     CreateTenantRequest:
       type: object
@@ -137,6 +147,12 @@ components:
           type: string
         plan_type:
           $ref: '#/components/schemas/PlanType'
+        description:
+          type: string
+        credit_code:
+          type: string
+        remark:
+          type: string
 
     UpdateTenantRequest:
       type: object
@@ -153,6 +169,12 @@ components:
           type: string
         plan_type:
           $ref: '#/components/schemas/PlanType'
+        description:
+          type: string
+        credit_code:
+          type: string
+        remark:
+          type: string
 
     ErrorResponse:
       type: object

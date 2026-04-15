@@ -33,6 +33,9 @@ func (s *tenantService) CreateTenant(ctx context.Context, req *CreateTenantReque
 		req.PlanType,
 	)
 	tenant.ID = uuid.New().String()
+	tenant.Description = req.Description
+	tenant.CreditCode = req.CreditCode
+	tenant.Remark = req.Remark
 
 	if err := s.tenantRepo.Create(ctx, tenant); err != nil {
 		return nil, err
@@ -102,6 +105,15 @@ func (s *tenantService) UpdateTenant(ctx context.Context, req *UpdateTenantReque
 	}
 	if req.PlanType != nil {
 		tenant.PlanType = *req.PlanType
+	}
+	if req.Description != nil {
+		tenant.Description = *req.Description
+	}
+	if req.CreditCode != nil {
+		tenant.CreditCode = *req.CreditCode
+	}
+	if req.Remark != nil {
+		tenant.Remark = *req.Remark
 	}
 
 	if err := s.tenantRepo.Update(ctx, tenant); err != nil {

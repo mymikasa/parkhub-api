@@ -21,16 +21,20 @@ const (
 )
 
 type Tenant struct {
-	ID           string
-	Name         string
-	ContactName  string
-	ContactPhone string
-	ContactEmail string
-	Status       TenantStatus
-	Address      string
-	PlanType     PlanType
-	CreatedAt    int64
-	UpdatedAt    int64
+	ID              string
+	Name            string
+	ContactName     string
+	ContactPhone    string
+	ContactEmail    string
+	Status          TenantStatus
+	Address         string
+	PlanType        PlanType
+	CreatedAt       int64
+	UpdatedAt       int64
+	Description     string
+	CreditCode      string
+	Remark          string
+	ParkingLotCount int32
 }
 
 func NewTenant(name, contactName, contactPhone, contactEmail, address string, planType PlanType) *Tenant {

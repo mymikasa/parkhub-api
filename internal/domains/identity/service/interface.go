@@ -13,6 +13,9 @@ type CreateTenantRequest struct {
 	ContactEmail string
 	Address      string
 	PlanType     domain.PlanType
+	Description  string
+	CreditCode   string
+	Remark       string
 }
 
 type UpdateTenantRequest struct {
@@ -23,6 +26,9 @@ type UpdateTenantRequest struct {
 	ContactEmail *string
 	Address      *string
 	PlanType     *domain.PlanType
+	Description  *string
+	CreditCode   *string
+	Remark       *string
 }
 
 type ListTenantsRequest struct {
