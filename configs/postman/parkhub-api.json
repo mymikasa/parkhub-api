@@ -5,6 +5,419 @@
 	},
 	"item": [
 		{
+			"name": "AuthService",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const resp = pm.response.json();",
+									"if (resp.access_token) {",
+									"    pm.collectionVariables.set('access_token', resp.access_token);",
+									"}",
+									"if (resp.refresh_token) {",
+									"    pm.collectionVariables.set('refresh_token', resp.refresh_token);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/identity/v1/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["identity", "v1", "auth", "login"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RefreshToken",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/identity/v1/auth/refresh",
+							"host": ["{{base_url}}"],
+							"path": ["identity", "v1", "auth", "refresh"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/identity/v1/auth/logout",
+							"host": ["{{base_url}}"],
+							"path": ["identity", "v1", "auth", "logout"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetJWKS",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/identity/v1/auth/jwks",
+							"host": ["{{base_url}}"],
+							"path": ["identity", "v1", "auth", "jwks"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "UserService",
+			"item": [
+				{
+					"name": "CreateUser",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tenant_id\": \"\",\n  \"username\": \"alice\",\n  \"password\": \"password123\",\n  \"email\": \"alice@test.com\",\n  \"phone\": \"13800138001\",\n  \"real_name\": \"Alice\",\n  \"role\": \"USER_ROLE_OPERATOR\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/identity/v1/users",
+							"host": ["{{base_url}}"],
+							"path": ["identity", "v1", "users"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ListUsers",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/identity/v1/users?tenant_id=&role=&status=&keyword=&page=1&page_size=10",
+							"host": ["{{base_url}}"],
+							"path": ["identity", "v1", "users"],
+							"query": [
+								{
+									"key": "tenant_id",
+									"value": "",
+									"description": "按租户ID过滤"
+								},
+								{
+									"key": "role",
+									"value": "",
+									"description": "USER_ROLE_PLATFORM_ADMIN | USER_ROLE_TENANT_ADMIN | USER_ROLE_OPERATOR"
+								},
+								{
+									"key": "status",
+									"value": "",
+									"description": "USER_STATUS_ACTIVE | USER_STATUS_FROZEN"
+								},
+								{
+									"key": "keyword",
+									"value": "",
+									"description": "搜索关键词"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "page_size",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetUser",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/identity/v1/users/:user_id",
+							"host": ["{{base_url}}"],
+							"path": ["identity", "v1", "users", ":user_id"],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": "",
+									"description": "用户ID"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateUser",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"real_name\": \"Alice Updated\",\n  \"email\": \"alice_new@test.com\",\n  \"role\": \"USER_ROLE_OPERATOR\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/identity/v1/users/:user_id",
+							"host": ["{{base_url}}"],
+							"path": ["identity", "v1", "users", ":user_id"],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": "",
+									"description": "用户ID"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FreezeUser",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/identity/v1/users/:user_id/freeze",
+							"host": ["{{base_url}}"],
+							"path": ["identity", "v1", "users", ":user_id", "freeze"],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": "",
+									"description": "用户ID"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UnfreezeUser",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/identity/v1/users/:user_id/unfreeze",
+							"host": ["{{base_url}}"],
+							"path": ["identity", "v1", "users", ":user_id", "unfreeze"],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": "",
+									"description": "用户ID"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ResetPassword",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"new_password\": \"newpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/identity/v1/users/:user_id/reset-password",
+							"host": ["{{base_url}}"],
+							"path": ["identity", "v1", "users", ":user_id", "reset-password"],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": "",
+									"description": "用户ID"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateProfile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"real_name\": \"Alice Profile\",\n  \"email\": \"alice_profile@test.com\",\n  \"phone\": \"13900139001\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/identity/v1/users/:user_id/profile",
+							"host": ["{{base_url}}"],
+							"path": ["identity", "v1", "users", ":user_id", "profile"],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": "",
+									"description": "用户ID"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ChangePassword",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"old_password\": \"password123\",\n  \"new_password\": \"newpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/identity/v1/users/:user_id/change-password",
+							"host": ["{{base_url}}"],
+							"path": ["identity", "v1", "users", ":user_id", "change-password"],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": "",
+									"description": "用户ID"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ImportUsers",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"users\": [\n    {\n      \"tenant_id\": \"\",\n      \"username\": \"user1\",\n      \"password\": \"password123\",\n      \"real_name\": \"User 1\",\n      \"role\": \"USER_ROLE_OPERATOR\"\n    },\n    {\n      \"tenant_id\": \"\",\n      \"username\": \"user2\",\n      \"password\": \"password123\",\n      \"real_name\": \"User 2\",\n      \"role\": \"USER_ROLE_OPERATOR\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/identity/v1/users/import",
+							"host": ["{{base_url}}"],
+							"path": ["identity", "v1", "users", "import"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "TenantService",
 			"item": [
 				{
@@ -138,6 +551,16 @@
 		{
 			"key": "base_url",
 			"value": "http://localhost:9080"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refresh_token",
+			"value": "",
+			"type": "string"
 		}
 	]
 }

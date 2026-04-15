@@ -10,6 +10,10 @@ servers:
     description: 本地开发环境
 
 tags:
+  - name: Auth
+    description: 认证鉴权
+  - name: User
+    description: 用户管理
   - name: Tenant
     description: 租户管理
 
@@ -22,6 +26,14 @@ components:
       schema:
         type: string
       description: 租户ID
+
+    UserId:
+      name: user_id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: 用户ID
 
   schemas:
     PaginationRequest:
@@ -150,7 +162,589 @@ components:
         message:
           type: string
 
+    UserRole:
+      type: string
+      enum:
+        - USER_ROLE_UNSPECIFIED
+        - USER_ROLE_PLATFORM_ADMIN
+        - USER_ROLE_TENANT_ADMIN
+        - USER_ROLE_OPERATOR
+
+    UserStatus:
+      type: string
+      enum:
+        - USER_STATUS_UNSPECIFIED
+        - USER_STATUS_ACTIVE
+        - USER_STATUS_FROZEN
+
+    User:
+      type: object
+      properties:
+        user_id:
+          type: string
+        tenant_id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        real_name:
+          type: string
+        role:
+          $ref: '#/components/schemas/UserRole'
+        status:
+          $ref: '#/components/schemas/UserStatus'
+        last_login_at:
+          $ref: '#/components/schemas/Timestamp'
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+        updated_at:
+          $ref: '#/components/schemas/Timestamp'
+
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    LoginResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        access_expires_in:
+          type: integer
+          format: int32
+          description: Access Token 有效期（秒）
+        token_type:
+          type: string
+          example: Bearer
+        user:
+          $ref: '#/components/schemas/User'
+
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+
+    RefreshTokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        access_expires_in:
+          type: integer
+          format: int32
+        token_type:
+          type: string
+          example: Bearer
+
+    LogoutRequest:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+
+    CreateUserRequest:
+      type: object
+      required:
+        - username
+        - password
+        - real_name
+        - role
+      properties:
+        tenant_id:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+          minLength: 8
+        email:
+          type: string
+        phone:
+          type: string
+        real_name:
+          type: string
+        role:
+          $ref: '#/components/schemas/UserRole'
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        real_name:
+          type: string
+        role:
+          $ref: '#/components/schemas/UserRole'
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        real_name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+
+    ResetPasswordRequest:
+      type: object
+      required:
+        - new_password
+      properties:
+        new_password:
+          type: string
+          minLength: 8
+
+    ChangePasswordRequest:
+      type: object
+      required:
+        - old_password
+        - new_password
+      properties:
+        old_password:
+          type: string
+        new_password:
+          type: string
+          minLength: 8
+
+    ImportUserItem:
+      type: object
+      required:
+        - username
+        - password
+        - real_name
+        - role
+      properties:
+        tenant_id:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        real_name:
+          type: string
+        role:
+          $ref: '#/components/schemas/UserRole'
+
+    ImportUsersRequest:
+      type: object
+      required:
+        - users
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImportUserItem'
+
+    ImportError:
+      type: object
+      properties:
+        index:
+          type: integer
+          format: int32
+        message:
+          type: string
+
+    ImportUsersResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          format: int32
+        success:
+          type: integer
+          format: int32
+        failed:
+          type: integer
+          format: int32
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImportError'
+
+    securitySchemes:
+      BearerAuth:
+        type: http
+        scheme: bearer
+        bearerFormat: JWT
+
+security: []
+
 paths:
+  /identity/v1/auth/login:
+    post:
+      tags: [Auth]
+      operationId: login
+      summary: 用户登录
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: 用户名或密码错误 / 用户已冻结
+
+  /identity/v1/auth/refresh:
+    post:
+      tags: [Auth]
+      operationId: refreshToken
+      summary: 刷新 Token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: 刷新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshTokenResponse'
+        '401':
+          description: Refresh Token 无效 / 已过期 / 已被吊销
+
+  /identity/v1/auth/logout:
+    post:
+      tags: [Auth]
+      operationId: logout
+      summary: 登出
+      description: 吊销 Refresh Token，重复调用幂等成功
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+      responses:
+        '200':
+          description: 登出成功
+        '401':
+          description: Refresh Token 无效
+
+  /identity/v1/auth/jwks:
+    get:
+      tags: [Auth]
+      operationId: getJWKS
+      summary: 获取 JWKS 公钥
+      description: 导出 RS256 公钥（RFC 7517），用于调试，不作为 APISIX 主配置来源
+      responses:
+        '200':
+          description: JWKS JSON
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jwks_json:
+                    type: string
+                    format: byte
+
+  /identity/v1/users:
+    post:
+      tags: [User]
+      operationId: createUser
+      summary: 创建用户
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: 参数错误
+        '409':
+          description: 用户已存在
+
+    get:
+      tags: [User]
+      operationId: listUsers
+      summary: 获取用户列表
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: tenant_id
+          in: query
+          schema:
+            type: string
+        - name: role
+          in: query
+          schema:
+            $ref: '#/components/schemas/UserRole'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/UserStatus'
+        - name: keyword
+          in: query
+          schema:
+            type: string
+          description: 按用户名/姓名搜索
+        - name: page
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 20
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  pagination:
+                    $ref: '#/components/schemas/PaginationResponse'
+        '401':
+          description: 未认证
+
+  /identity/v1/users/import:
+    post:
+      tags: [User]
+      operationId: importUsers
+      summary: 批量导入用户
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportUsersRequest'
+      responses:
+        '200':
+          description: 导入完成
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportUsersResponse'
+        '401':
+          description: 未认证
+
+  /identity/v1/users/{user_id}:
+    get:
+      tags: [User]
+      operationId: getUser
+      summary: 获取用户详情
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: 未认证
+        '404':
+          description: 用户不存在
+
+    put:
+      tags: [User]
+      operationId: updateUser
+      summary: 更新用户
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: 未认证
+        '404':
+          description: 用户不存在
+
+  /identity/v1/users/{user_id}/freeze:
+    post:
+      tags: [User]
+      operationId: freezeUser
+      summary: 冻结用户
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: 冻结成功
+        '401':
+          description: 未认证
+        '404':
+          description: 用户不存在
+
+  /identity/v1/users/{user_id}/unfreeze:
+    post:
+      tags: [User]
+      operationId: unfreezeUser
+      summary: 解冻用户
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: 解冻成功
+        '401':
+          description: 未认证
+        '404':
+          description: 用户不存在
+
+  /identity/v1/users/{user_id}/reset-password:
+    post:
+      tags: [User]
+      operationId: resetPassword
+      summary: 重置密码（管理员）
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '200':
+          description: 重置成功
+        '401':
+          description: 未认证
+        '404':
+          description: 用户不存在
+
+  /identity/v1/users/{user_id}/profile:
+    put:
+      tags: [User]
+      operationId: updateProfile
+      summary: 更新个人资料
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: 未认证
+        '404':
+          description: 用户不存在
+
+  /identity/v1/users/{user_id}/change-password:
+    post:
+      tags: [User]
+      operationId: changePassword
+      summary: 修改密码
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: 修改成功
+        '400':
+          description: 旧密码错误
+        '401':
+          description: 未认证
+        '404':
+          description: 用户不存在
+
   /api/v1/tenants:
     post:
       tags: [Tenant]

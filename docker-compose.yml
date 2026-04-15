@@ -89,6 +89,7 @@ services:
       DB_USER: parkhub
       DB_PASSWORD: parkhub
       DB_NAME: parkhub_identity
+      REDIS_ADDR: redis:6379
       OTEL_TRACE_ENDPOINT: tempo:4317
       GRPC_PORT: "50051"
       METRICS_PORT: "9090"
@@ -128,6 +129,7 @@ services:
     volumes:
       - ./scripts/init-apisix.sh:/scripts/init-apisix.sh:ro
       - ./configs/apisix/proto-descriptor.pb:/proto/proto-descriptor.pb:ro
+      - ./configs/keys:/keys:ro
 
   swagger-ui:
     image: swaggerapi/swagger-ui:latest

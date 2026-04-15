@@ -1,0 +1,139 @@
+# APISIX Auth Routes for ParkHub
+#
+# Apply with:
+#   curl http://localhost:9180/apisix/admin/routes/1 -H 'X-API-KEY: ...' -X PUT -d @routes.yaml
+#
+# Prerequisites:
+#   - jwt-auth plugin enabled
+#   - grpc-transcode plugin enabled
+#   - Upstream gRPC server at grpc_server:50051
+#
+# Security note:
+#   The gRPC port (50051) must NOT be exposed externally.
+#   Only APISIX should reach the backend directly.
+
+# ──────────────────────────────────────────────
+# JWT Auth Consumer (shared across protected routes)
+# ──────────────────────────────────────────────
+
+# Create consumer with jwt-auth plugin:
+# curl http://localhost:9180/apisix/admin/consumers -H 'X-API-KEY: ...' -X PUT -d '{
+#   "username": "jwt",
+#   "plugins": {
+#     "jwt-auth": {
+#       "public_key": "-----BEGIN PUBLIC KEY-----\nMIIBIj...\n-----END PUBLIC KEY-----",
+#       "algorithm": "RS256",
+#       "key": "parkhub-2026-04"
+#     }
+#   }
+# }'
+
+# ──────────────────────────────────────────────
+# Public routes (no jwt-auth)
+# ──────────────────────────────────────────────
+
+# Login
+# curl http://localhost:9180/apisix/admin/routes/auth-login -H 'X-API-KEY: ...' -X PUT -d '{
+#   "uri": "/identity/v1/auth/login",
+#   "methods": ["POST"],
+#   "upstream": {
+#     "scheme": "grpc",
+#     "type": "roundrobin",
+#     "nodes": { "grpc_server:50051": 1 }
+#   },
+#   "plugins": {
+#     "grpc-transcode": {
+#       "proto_id": "proto-descriptor",
+#       "service": "parkhub.identity.v1.AuthService",
+#       "method": "Login"
+#     }
+#   }
+# }'
+
+# RefreshToken
+# curl http://localhost:9180/apisix/admin/routes/auth-refresh -H 'X-API-KEY: ...' -X PUT -d '{
+#   "uri": "/identity/v1/auth/refresh",
+#   "methods": ["POST"],
+#   "upstream": {
+#     "scheme": "grpc",
+#     "type": "roundrobin",
+#     "nodes": { "grpc_server:50051": 1 }
+#   },
+#   "plugins": {
+#     "grpc-transcode": {
+#       "proto_id": "proto-descriptor",
+#       "service": "parkhub.identity.v1.AuthService",
+#       "method": "RefreshToken"
+#     }
+#   }
+# }'
+
+# Logout
+# curl http://localhost:9180/apisix/admin/routes/auth-logout -H 'X-API-KEY: ...' -X PUT -d '{
+#   "uri": "/identity/v1/auth/logout",
+#   "methods": ["POST"],
+#   "upstream": {
+#     "scheme": "grpc",
+#     "type": "roundrobin",
+#     "nodes": { "grpc_server:50051": 1 }
+#   },
+#   "plugins": {
+#     "grpc-transcode": {
+#       "proto_id": "proto-descriptor",
+#       "service": "parkhub.identity.v1.AuthService",
+#       "method": "Logout"
+#     }
+#   }
+# }'
+
+# GetJWKS (public, for debugging)
+# curl http://localhost:9180/apisix/admin/routes/auth-jwks -H 'X-API-KEY: ...' -X PUT -d '{
+#   "uri": "/identity/v1/auth/jwks",
+#   "methods": ["GET"],
+#   "upstream": {
+#     "scheme": "grpc",
+#     "type": "roundrobin",
+#     "nodes": { "grpc_server:50051": 1 }
+#   },
+#   "plugins": {
+#     "grpc-transcode": {
+#       "proto_id": "proto-descriptor",
+#       "service": "parkhub.identity.v1.AuthService",
+#       "method": "GetJWKS"
+#     }
+#   }
+# }'
+
+# ──────────────────────────────────────────────
+# Protected routes (require jwt-auth)
+# ──────────────────────────────────────────────
+
+# Example: protected identity routes with jwt-auth + identity header injection
+# curl http://localhost:9180/apisix/admin/routes/identity-protected -H 'X-API-KEY: ...' -X PUT -d '{
+#   "uri": "/identity/v1/*",
+#   "methods": ["GET", "POST", "PUT", "PATCH"],
+#   "upstream": {
+#     "scheme": "grpc",
+#     "type": "roundrobin",
+#     "nodes": { "grpc_server:50051": 1 }
+#   },
+#   "plugins": {
+#     "jwt-auth": {
+#       "consumer": "jwt"
+#     },
+#     "proxy-rewrite": {
+#       "headers": {
+#         "set": {
+#           "x-user-id": "$jwt_payload.user_id",
+#           "x-tenant-id": "$jwt_payload.tenant_id",
+#           "x-user-role": "$jwt_payload.role"
+#         }
+#       }
+#     },
+#     "grpc-transcode": {
+#       "proto_id": "proto-descriptor",
+#       "service": "parkhub.identity.v1.UserService",
+#       "method": "GetUser"
+#     }
+#   }
+# }'

@@ -10,7 +10,7 @@ DOCKER_COMPOSE ?= docker compose
 BIN_DIR := bin
 MONOLITH_BIN := $(BIN_DIR)/parkhub
 
-.PHONY: help proto-gen proto-lint proto-breaking proto-descriptor lint lint-tenant test test-integration build-monolith docker-build wire migrate docker-up docker-down docker-ps clean
+.PHONY: help proto-gen proto-lint proto-breaking proto-descriptor lint lint-tenant test test-integration build-monolith docker-build wire migrate generate-keys docker-up docker-down docker-ps clean
 
 help:
 	@echo "Available targets:"
@@ -23,6 +23,7 @@ help:
 	@echo "  test-integration  Run integration tests"
 	@echo "  build-monolith    Build cmd/monolith to bin/parkhub"
 	@echo "  docker-build      Build monolith Docker image"
+	@echo "  generate-keys     Generate RSA key pair for JWT signing"
 	@echo "  wire              Generate Wire DI code if configured"
 	@echo "  migrate           Run goose migrations if configured"
 	@echo "  docker-up         Start docker compose services"
@@ -92,7 +93,18 @@ migrate:
 	fi
 	$(GOOSE) -dir migrations mysql "$$DATABASE_URL" up
 
-docker-up:
+generate-keys:
+	@if [ ! -f configs/keys/jwt_private.pem ]; then \
+		mkdir -p configs/keys && \
+		openssl genpkey -algorithm RSA -out configs/keys/jwt_private.pem -pkeyopt rsa_keygen_bits:2048 && \
+		openssl rsa -in configs/keys/jwt_private.pem -pubout -out configs/keys/jwt_public.pem && \
+		chmod 644 configs/keys/jwt_private.pem configs/keys/jwt_public.pem && \
+		echo "RSA keys generated in configs/keys/"; \
+	else \
+		echo "RSA keys already exist in configs/keys/"; \
+	fi
+
+docker-up: generate-keys
 	$(DOCKER_COMPOSE) up -d
 
 docker-down:

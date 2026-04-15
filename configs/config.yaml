@@ -10,6 +10,14 @@ database:
   password: parkhub
   dbname: parkhub_identity
 
+auth:
+  issuer: parkhub
+  access_ttl: 15m
+  refresh_ttl: 168h
+  private_key_path: configs/keys/jwt_private.pem
+  public_key_path: configs/keys/jwt_public.pem
+  key_id: parkhub-2026-04
+
 telemetry:
   service_name: parkhub-monolith
   environment: development

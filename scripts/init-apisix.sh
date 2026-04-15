@@ -5,6 +5,8 @@ APISIX_ADMIN="http://apisix:9180/apisix/admin"
 API_KEY="FbhKIQyehHlnrBtFLsTBzqIAfechxxoQ"
 DESC_FILE="/proto/proto-descriptor.pb"
 
+JWT_INJECT='return function(conf, ctx) local pl = ctx.jwt_auth_payload; if pl then ngx.req.set_header(\"x-user-id\", pl.user_id or \"\"); ngx.req.set_header(\"x-tenant-id\", pl.tenant_id or \"\"); ngx.req.set_header(\"x-user-role\", pl.role or \"\") end end'
+
 wait_for_apisix() {
   local retries=30
   local interval=2
@@ -59,6 +61,41 @@ curl -sf "${APISIX_ADMIN}/protos/1" \
   -X PUT \
   -d "{\"content\": \"${B64}\"}" && echo ""
 
+# ── Consumer: jwt-auth (RS256) ───────────────────────────────────────
+echo "Creating consumer: jwt-auth"
+PUB_KEY_FILE="/keys/jwt_public.pem"
+if [ -f "$PUB_KEY_FILE" ]; then
+  PUB_KEY=$(awk 'NF {sub(/\r/,""); printf "%s\\n",$0}' "$PUB_KEY_FILE")
+  echo "Creating consumer with public key from $PUB_KEY_FILE"
+  curl -sf "${APISIX_ADMIN}/consumers/jwt" \
+    -H "X-API-KEY: ${API_KEY}" \
+    -X PUT \
+    -d "{
+      \"username\": \"jwt\",
+      \"plugins\": {
+        \"jwt-auth\": {
+          \"algorithm\": \"RS256\",
+          \"key\": \"parkhub-2026-04\",
+          \"public_key\": \"${PUB_KEY}\"
+        }
+      }
+    }" && echo ""
+else
+  echo "WARNING: No public key found at $PUB_KEY_FILE, creating consumer without public key"
+  curl -sf "${APISIX_ADMIN}/consumers/jwt" \
+    -H "X-API-KEY: ${API_KEY}" \
+    -X PUT \
+    -d '{
+      "username": "jwt",
+      "plugins": {
+        "jwt-auth": {
+          "algorithm": "RS256",
+          "key": "parkhub-2026-04"
+        }
+      }
+    }' && echo ""
+fi
+
 # ── Plugin Metadata: opentelemetry ───────────────────────────────────
 echo "Registering opentelemetry plugin metadata"
 curl -sf "${APISIX_ADMIN}/plugin_metadata/opentelemetry" \
@@ -80,7 +117,9 @@ curl -sf "${APISIX_ADMIN}/plugin_metadata/opentelemetry" \
     }
   }' && echo ""
 
-# ── Routes: TenantService ────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════
+# Routes: TenantService (protected with jwt-auth)
+# ══════════════════════════════════════════════════════════════════════
 
 echo "Creating route: CreateTenant (POST /api/v1/tenants)"
 curl -sf "${APISIX_ADMIN}/routes/10" \
@@ -92,17 +131,18 @@ curl -sf "${APISIX_ADMIN}/routes/10" \
     "uri": "/api/v1/tenants",
     "upstream_id": "1",
     "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": ["'"${JWT_INJECT}"'"]
+      },
       "grpc-transcode": {
         "proto_id": "1",
         "service": "parkhub.identity.v1.TenantService",
         "method": "CreateTenant",
         "pb_option": ["enum_as_name", "int64_as_number"]
       },
-      "opentelemetry": {
-        "sampler": {
-          "name": "always_on"
-        }
-      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
       "prometheus": {}
     }
   }' && echo ""
@@ -117,17 +157,18 @@ curl -sf "${APISIX_ADMIN}/routes/11" \
     "uri": "/api/v1/tenants",
     "upstream_id": "1",
     "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": ["'"${JWT_INJECT}"'"]
+      },
       "grpc-transcode": {
         "proto_id": "1",
         "service": "parkhub.identity.v1.TenantService",
         "method": "ListTenants",
         "pb_option": ["enum_as_name", "int64_as_number"]
       },
-      "opentelemetry": {
-        "sampler": {
-          "name": "always_on"
-        }
-      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
       "prometheus": {}
     }
   }' && echo ""
@@ -142,9 +183,13 @@ curl -sf "${APISIX_ADMIN}/routes/12" \
     "uri": "/api/v1/tenants/*",
     "upstream_id": "1",
     "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
-        "phase": "rewrite",
-        "functions": ["return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/tenants/(.+)$\"); if id then ngx.req.set_uri_args({tenant_id = id}) end end"]
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/tenants/(.+)$\"); if id then ngx.req.set_uri_args({tenant_id = id}) end end"
+        ]
       },
       "grpc-transcode": {
         "proto_id": "1",
@@ -152,11 +197,7 @@ curl -sf "${APISIX_ADMIN}/routes/12" \
         "method": "GetTenant",
         "pb_option": ["enum_as_name", "int64_as_number"]
       },
-      "opentelemetry": {
-        "sampler": {
-          "name": "always_on"
-        }
-      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
       "prometheus": {}
     }
   }' && echo ""
@@ -171,9 +212,13 @@ curl -sf "${APISIX_ADMIN}/routes/13" \
     "uri": "/api/v1/tenants/*",
     "upstream_id": "1",
     "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
-        "phase": "rewrite",
-        "functions": ["return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/tenants/(.+)$\"); ngx.req.read_body(); local body = ngx.req.get_body_data(); if body then local cjson = require(\"cjson.safe\"); local t = cjson.decode(body); if t and id then t.tenant_id = id; ngx.req.set_body_data(cjson.encode(t)) end end end"]
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/tenants/(.+)$\"); ngx.req.read_body(); local body = ngx.req.get_body_data(); if body then local cjson = require(\"cjson.safe\"); local t = cjson.decode(body); if t and id then t.tenant_id = id; ngx.req.set_body_data(cjson.encode(t)) end end end"
+        ]
       },
       "grpc-transcode": {
         "proto_id": "1",
@@ -181,11 +226,7 @@ curl -sf "${APISIX_ADMIN}/routes/13" \
         "method": "UpdateTenant",
         "pb_option": ["enum_as_name", "int64_as_number"]
       },
-      "opentelemetry": {
-        "sampler": {
-          "name": "always_on"
-        }
-      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
       "prometheus": {}
     }
   }' && echo ""
@@ -200,9 +241,13 @@ curl -sf "${APISIX_ADMIN}/routes/14" \
     "uri": "/api/v1/tenants/*",
     "upstream_id": "1",
     "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
-        "phase": "rewrite",
-        "functions": ["return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/tenants/(.+)$\"); if id then ngx.req.set_uri_args({tenant_id = id}) end end"]
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/tenants/(.+)$\"); if id then ngx.req.set_uri_args({tenant_id = id}) end end"
+        ]
       },
       "grpc-transcode": {
         "proto_id": "1",
@@ -210,16 +255,14 @@ curl -sf "${APISIX_ADMIN}/routes/14" \
         "method": "DeleteTenant",
         "pb_option": ["enum_as_name", "int64_as_number"]
       },
-      "opentelemetry": {
-        "sampler": {
-          "name": "always_on"
-        }
-      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
       "prometheus": {}
     }
   }' && echo ""
 
-# ── Routes: UserService ──────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════
+# Routes: UserService (protected with jwt-auth)
+# ══════════════════════════════════════════════════════════════════════
 
 echo "Creating route: CreateUser (POST /api/v1/users)"
 curl -sf "${APISIX_ADMIN}/routes/20" \
@@ -231,17 +274,18 @@ curl -sf "${APISIX_ADMIN}/routes/20" \
     "uri": "/api/v1/users",
     "upstream_id": "1",
     "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": ["'"${JWT_INJECT}"'"]
+      },
       "grpc-transcode": {
         "proto_id": "1",
         "service": "parkhub.identity.v1.UserService",
         "method": "CreateUser",
         "pb_option": ["enum_as_name", "int64_as_number"]
       },
-      "opentelemetry": {
-        "sampler": {
-          "name": "always_on"
-        }
-      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
       "prometheus": {}
     }
   }' && echo ""
@@ -256,17 +300,18 @@ curl -sf "${APISIX_ADMIN}/routes/21" \
     "uri": "/api/v1/users",
     "upstream_id": "1",
     "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": ["'"${JWT_INJECT}"'"]
+      },
       "grpc-transcode": {
         "proto_id": "1",
         "service": "parkhub.identity.v1.UserService",
         "method": "ListUsers",
         "pb_option": ["enum_as_name", "int64_as_number"]
       },
-      "opentelemetry": {
-        "sampler": {
-          "name": "always_on"
-        }
-      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
       "prometheus": {}
     }
   }' && echo ""
@@ -281,9 +326,13 @@ curl -sf "${APISIX_ADMIN}/routes/22" \
     "uri": "/api/v1/users/*",
     "upstream_id": "1",
     "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
-        "phase": "rewrite",
-        "functions": ["return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/users/(.+)$\"); if id then ngx.req.set_uri_args({user_id = id}) end end"]
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/users/(.+)$\"); if id then ngx.req.set_uri_args({user_id = id}) end end"
+        ]
       },
       "grpc-transcode": {
         "proto_id": "1",
@@ -291,11 +340,7 @@ curl -sf "${APISIX_ADMIN}/routes/22" \
         "method": "GetUser",
         "pb_option": ["enum_as_name", "int64_as_number"]
       },
-      "opentelemetry": {
-        "sampler": {
-          "name": "always_on"
-        }
-      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
       "prometheus": {}
     }
   }' && echo ""
@@ -310,9 +355,13 @@ curl -sf "${APISIX_ADMIN}/routes/23" \
     "uri": "/api/v1/users/*",
     "upstream_id": "1",
     "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
-        "phase": "rewrite",
-        "functions": ["return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/users/(.+)$\"); ngx.req.read_body(); local body = ngx.req.get_body_data(); if body then local cjson = require(\"cjson.safe\"); local t = cjson.decode(body); if t and id then t.user_id = id; ngx.req.set_body_data(cjson.encode(t)) end end end"]
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/users/(.+)$\"); ngx.req.read_body(); local body = ngx.req.get_body_data(); if body then local cjson = require(\"cjson.safe\"); local t = cjson.decode(body); if t and id then t.user_id = id; ngx.req.set_body_data(cjson.encode(t)) end end end"
+        ]
       },
       "grpc-transcode": {
         "proto_id": "1",
@@ -320,11 +369,7 @@ curl -sf "${APISIX_ADMIN}/routes/23" \
         "method": "UpdateUser",
         "pb_option": ["enum_as_name", "int64_as_number"]
       },
-      "opentelemetry": {
-        "sampler": {
-          "name": "always_on"
-        }
-      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
       "prometheus": {}
     }
   }' && echo ""
@@ -339,9 +384,13 @@ curl -sf "${APISIX_ADMIN}/routes/24" \
     "uri": "/api/v1/users/*/freeze",
     "upstream_id": "1",
     "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
-        "phase": "rewrite",
-        "functions": ["return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/users/(.+)/freeze$\"); if id then ngx.req.read_body(); local cjson = require(\"cjson.safe\"); local body = ngx.req.get_body_data() or \"{}\"; local t = cjson.decode(body) or {}; t.user_id = id; ngx.req.set_body_data(cjson.encode(t)) end end"]
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/users/(.+)/freeze$\"); if id then ngx.req.read_body(); local cjson = require(\"cjson.safe\"); local body = ngx.req.get_body_data() or \"{}\"; local t = cjson.decode(body) or {}; t.user_id = id; ngx.req.set_body_data(cjson.encode(t)) end end"
+        ]
       },
       "grpc-transcode": {
         "proto_id": "1",
@@ -349,11 +398,7 @@ curl -sf "${APISIX_ADMIN}/routes/24" \
         "method": "FreezeUser",
         "pb_option": ["enum_as_name", "int64_as_number"]
       },
-      "opentelemetry": {
-        "sampler": {
-          "name": "always_on"
-        }
-      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
       "prometheus": {}
     }
   }' && echo ""
@@ -368,9 +413,13 @@ curl -sf "${APISIX_ADMIN}/routes/25" \
     "uri": "/api/v1/users/*/unfreeze",
     "upstream_id": "1",
     "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
-        "phase": "rewrite",
-        "functions": ["return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/users/(.+)/unfreeze$\"); if id then ngx.req.read_body(); local cjson = require(\"cjson.safe\"); local body = ngx.req.get_body_data() or \"{}\"; local t = cjson.decode(body) or {}; t.user_id = id; ngx.req.set_body_data(cjson.encode(t)) end end"]
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/users/(.+)/unfreeze$\"); if id then ngx.req.read_body(); local cjson = require(\"cjson.safe\"); local body = ngx.req.get_body_data() or \"{}\"; local t = cjson.decode(body) or {}; t.user_id = id; ngx.req.set_body_data(cjson.encode(t)) end end"
+        ]
       },
       "grpc-transcode": {
         "proto_id": "1",
@@ -378,11 +427,7 @@ curl -sf "${APISIX_ADMIN}/routes/25" \
         "method": "UnfreezeUser",
         "pb_option": ["enum_as_name", "int64_as_number"]
       },
-      "opentelemetry": {
-        "sampler": {
-          "name": "always_on"
-        }
-      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
       "prometheus": {}
     }
   }' && echo ""
@@ -397,9 +442,13 @@ curl -sf "${APISIX_ADMIN}/routes/26" \
     "uri": "/api/v1/users/*/reset-password",
     "upstream_id": "1",
     "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
-        "phase": "rewrite",
-        "functions": ["return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/users/(.+)/reset%-password$\"); ngx.req.read_body(); local body = ngx.req.get_body_data(); if body then local cjson = require(\"cjson.safe\"); local t = cjson.decode(body); if t and id then t.user_id = id; ngx.req.set_body_data(cjson.encode(t)) end end end"]
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/users/(.+)/reset%-password$\"); ngx.req.read_body(); local body = ngx.req.get_body_data(); if body then local cjson = require(\"cjson.safe\"); local t = cjson.decode(body); if t and id then t.user_id = id; ngx.req.set_body_data(cjson.encode(t)) end end end"
+        ]
       },
       "grpc-transcode": {
         "proto_id": "1",
@@ -407,11 +456,7 @@ curl -sf "${APISIX_ADMIN}/routes/26" \
         "method": "ResetPassword",
         "pb_option": ["enum_as_name", "int64_as_number"]
       },
-      "opentelemetry": {
-        "sampler": {
-          "name": "always_on"
-        }
-      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
       "prometheus": {}
     }
   }' && echo ""
@@ -426,9 +471,13 @@ curl -sf "${APISIX_ADMIN}/routes/27" \
     "uri": "/api/v1/users/*/profile",
     "upstream_id": "1",
     "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
-        "phase": "rewrite",
-        "functions": ["return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/users/(.+)/profile$\"); ngx.req.read_body(); local body = ngx.req.get_body_data(); if body then local cjson = require(\"cjson.safe\"); local t = cjson.decode(body); if t and id then t.user_id = id; ngx.req.set_body_data(cjson.encode(t)) end end end"]
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/users/(.+)/profile$\"); ngx.req.read_body(); local body = ngx.req.get_body_data(); if body then local cjson = require(\"cjson.safe\"); local t = cjson.decode(body); if t and id then t.user_id = id; ngx.req.set_body_data(cjson.encode(t)) end end end"
+        ]
       },
       "grpc-transcode": {
         "proto_id": "1",
@@ -436,11 +485,7 @@ curl -sf "${APISIX_ADMIN}/routes/27" \
         "method": "UpdateProfile",
         "pb_option": ["enum_as_name", "int64_as_number"]
       },
-      "opentelemetry": {
-        "sampler": {
-          "name": "always_on"
-        }
-      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
       "prometheus": {}
     }
   }' && echo ""
@@ -455,9 +500,13 @@ curl -sf "${APISIX_ADMIN}/routes/28" \
     "uri": "/api/v1/users/*/change-password",
     "upstream_id": "1",
     "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
-        "phase": "rewrite",
-        "functions": ["return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/users/(.+)/change%-password$\"); ngx.req.read_body(); local body = ngx.req.get_body_data(); if body then local cjson = require(\"cjson.safe\"); local t = cjson.decode(body); if t and id then t.user_id = id; ngx.req.set_body_data(cjson.encode(t)) end end end"]
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/users/(.+)/change%-password$\"); ngx.req.read_body(); local body = ngx.req.get_body_data(); if body then local cjson = require(\"cjson.safe\"); local t = cjson.decode(body); if t and id then t.user_id = id; ngx.req.set_body_data(cjson.encode(t)) end end end"
+        ]
       },
       "grpc-transcode": {
         "proto_id": "1",
@@ -465,11 +514,7 @@ curl -sf "${APISIX_ADMIN}/routes/28" \
         "method": "ChangePassword",
         "pb_option": ["enum_as_name", "int64_as_number"]
       },
-      "opentelemetry": {
-        "sampler": {
-          "name": "always_on"
-        }
-      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
       "prometheus": {}
     }
   }' && echo ""
@@ -484,17 +529,106 @@ curl -sf "${APISIX_ADMIN}/routes/29" \
     "uri": "/api/v1/users/import",
     "upstream_id": "1",
     "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": ["'"${JWT_INJECT}"'"]
+      },
       "grpc-transcode": {
         "proto_id": "1",
         "service": "parkhub.identity.v1.UserService",
         "method": "ImportUsers",
         "pb_option": ["enum_as_name", "int64_as_number"]
       },
-      "opentelemetry": {
-        "sampler": {
-          "name": "always_on"
-        }
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+# ══════════════════════════════════════════════════════════════════════
+# Routes: AuthService (public, no jwt-auth)
+# ══════════════════════════════════════════════════════════════════════
+
+echo "Creating route: Login (POST /identity/v1/auth/login)"
+curl -sf "${APISIX_ADMIN}/routes/30" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "auth-login",
+    "methods": ["POST"],
+    "uri": "/identity/v1/auth/login",
+    "upstream_id": "1",
+    "plugins": {
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.identity.v1.AuthService",
+        "method": "Login",
+        "pb_option": ["enum_as_name", "int64_as_number"]
       },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating route: RefreshToken (POST /identity/v1/auth/refresh)"
+curl -sf "${APISIX_ADMIN}/routes/31" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "auth-refresh",
+    "methods": ["POST"],
+    "uri": "/identity/v1/auth/refresh",
+    "upstream_id": "1",
+    "plugins": {
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.identity.v1.AuthService",
+        "method": "RefreshToken",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating route: Logout (POST /identity/v1/auth/logout)"
+curl -sf "${APISIX_ADMIN}/routes/32" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "auth-logout",
+    "methods": ["POST"],
+    "uri": "/identity/v1/auth/logout",
+    "upstream_id": "1",
+    "plugins": {
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.identity.v1.AuthService",
+        "method": "Logout",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating route: GetJWKS (GET /identity/v1/auth/jwks)"
+curl -sf "${APISIX_ADMIN}/routes/33" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "auth-jwks",
+    "methods": ["GET"],
+    "uri": "/identity/v1/auth/jwks",
+    "upstream_id": "1",
+    "plugins": {
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.identity.v1.AuthService",
+        "method": "GetJWKS",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
       "prometheus": {}
     }
   }' && echo ""

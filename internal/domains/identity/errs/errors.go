@@ -14,4 +14,8 @@ var (
 	ErrPasswordIncorrect = errors.New("incorrect password")
 	ErrPasswordTooShort  = errors.New("password must be at least 8 characters")
 	ErrInvalidRole       = errors.New("invalid user role")
+
+	ErrInvalidCredentials  = errors.New("invalid username or password")
+	ErrRefreshTokenInvalid = errors.New("refresh token invalid or expired")
+	ErrRefreshTokenRevoked = errors.New("refresh token revoked")
 )

@@ -14,7 +14,17 @@ type Config struct {
 	Server    ServerConfig    `yaml:"server"`
 	Database  DatabaseConfig  `yaml:"database"`
 	Redis     RedisConfig     `yaml:"redis"`
+	Auth      AuthConfig      `yaml:"auth"`
 	Telemetry TelemetryConfig `yaml:"telemetry"`
+}
+
+type AuthConfig struct {
+	Issuer         string `yaml:"issuer"`
+	AccessTTL      string `yaml:"access_ttl"`
+	RefreshTTL     string `yaml:"refresh_ttl"`
+	PrivateKeyPath string `yaml:"private_key_path"`
+	PublicKeyPath  string `yaml:"public_key_path"`
+	KeyID          string `yaml:"key_id"`
 }
 
 type ServerConfig struct {
@@ -77,6 +87,14 @@ func Default() Config {
 		},
 		Redis: RedisConfig{
 			Addr: "localhost:6379",
+		},
+		Auth: AuthConfig{
+			Issuer:         "parkhub",
+			AccessTTL:      "15m",
+			RefreshTTL:     "168h",
+			PrivateKeyPath: "configs/keys/jwt_private.pem",
+			PublicKeyPath:  "configs/keys/jwt_public.pem",
+			KeyID:          "parkhub-2026-04",
 		},
 		Telemetry: TelemetryConfig{
 			ServiceName: "parkhub-monolith",
@@ -167,6 +185,24 @@ func applyEnvOverrides(cfg *Config) {
 	}
 	if v := os.Getenv("REDIS_DB"); v != "" {
 		cfg.Redis.DB = mustInt(v, cfg.Redis.DB)
+	}
+	if v := os.Getenv("AUTH_ISSUER"); v != "" {
+		cfg.Auth.Issuer = v
+	}
+	if v := os.Getenv("AUTH_ACCESS_TTL"); v != "" {
+		cfg.Auth.AccessTTL = v
+	}
+	if v := os.Getenv("AUTH_REFRESH_TTL"); v != "" {
+		cfg.Auth.RefreshTTL = v
+	}
+	if v := os.Getenv("AUTH_PRIVATE_KEY_PATH"); v != "" {
+		cfg.Auth.PrivateKeyPath = v
+	}
+	if v := os.Getenv("AUTH_PUBLIC_KEY_PATH"); v != "" {
+		cfg.Auth.PublicKeyPath = v
+	}
+	if v := os.Getenv("AUTH_KEY_ID"); v != "" {
+		cfg.Auth.KeyID = v
 	}
 	if v := os.Getenv("OTEL_SERVICE_NAME"); v != "" {
 		cfg.Telemetry.ServiceName = v
