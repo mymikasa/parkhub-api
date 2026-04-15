@@ -1,6 +1,9 @@
 package gateway
 
-import "context"
+import (
+	"context"
+	"log/slog"
+)
 
 type MockSmsGateway struct {
 	Calls []CallRecord
@@ -17,5 +20,6 @@ func (m *MockSmsGateway) Send(_ context.Context, phone, code string, purpose str
 		Code:    code,
 		Purpose: purpose,
 	})
+	slog.Info("[MockSMS] verification code sent", "phone", phone, "code", code, "purpose", purpose)
 	return m.Err
 }
