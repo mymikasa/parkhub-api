@@ -11,16 +11,20 @@ func toProtoTenant(t *domain.Tenant) *identityv1.Tenant {
 		return nil
 	}
 	return &identityv1.Tenant{
-		TenantId:     t.ID,
-		Name:         t.Name,
-		ContactName:  t.ContactName,
-		ContactPhone: t.ContactPhone,
-		ContactEmail: t.ContactEmail,
-		Status:       domainStatusToProto(t.Status),
-		Address:      t.Address,
-		PlanType:     domainPlanToProto(t.PlanType),
-		CreatedAt:    toTimestamp(t.CreatedAt),
-		UpdatedAt:    toTimestamp(t.UpdatedAt),
+		TenantId:        t.ID,
+		Name:            t.Name,
+		ContactName:     t.ContactName,
+		ContactPhone:    t.ContactPhone,
+		ContactEmail:    t.ContactEmail,
+		Status:          domainStatusToProto(t.Status),
+		Address:         t.Address,
+		PlanType:        domainPlanToProto(t.PlanType),
+		CreatedAt:       toTimestamp(t.CreatedAt),
+		UpdatedAt:       toTimestamp(t.UpdatedAt),
+		Description:     t.Description,
+		CreditCode:      t.CreditCode,
+		Remark:          t.Remark,
+		ParkingLotCount: t.ParkingLotCount,
 	}
 }
 

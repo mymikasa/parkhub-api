@@ -128,19 +128,23 @@ func (PlanType) EnumDescriptor() ([]byte, []int) {
 }
 
 type Tenant struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TenantId      string                 `protobuf:"bytes,1,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	ContactName   string                 `protobuf:"bytes,3,opt,name=contact_name,json=contactName,proto3" json:"contact_name,omitempty"`
-	ContactPhone  string                 `protobuf:"bytes,4,opt,name=contact_phone,json=contactPhone,proto3" json:"contact_phone,omitempty"`
-	ContactEmail  string                 `protobuf:"bytes,5,opt,name=contact_email,json=contactEmail,proto3" json:"contact_email,omitempty"`
-	Status        TenantStatus           `protobuf:"varint,6,opt,name=status,proto3,enum=parkhub.identity.v1.TenantStatus" json:"status,omitempty"`
-	Address       string                 `protobuf:"bytes,7,opt,name=address,proto3" json:"address,omitempty"`
-	PlanType      PlanType               `protobuf:"varint,8,opt,name=plan_type,json=planType,proto3,enum=parkhub.identity.v1.PlanType" json:"plan_type,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	TenantId        string                 `protobuf:"bytes,1,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	Name            string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	ContactName     string                 `protobuf:"bytes,3,opt,name=contact_name,json=contactName,proto3" json:"contact_name,omitempty"`
+	ContactPhone    string                 `protobuf:"bytes,4,opt,name=contact_phone,json=contactPhone,proto3" json:"contact_phone,omitempty"`
+	ContactEmail    string                 `protobuf:"bytes,5,opt,name=contact_email,json=contactEmail,proto3" json:"contact_email,omitempty"`
+	Status          TenantStatus           `protobuf:"varint,6,opt,name=status,proto3,enum=parkhub.identity.v1.TenantStatus" json:"status,omitempty"`
+	Address         string                 `protobuf:"bytes,7,opt,name=address,proto3" json:"address,omitempty"`
+	PlanType        PlanType               `protobuf:"varint,8,opt,name=plan_type,json=planType,proto3,enum=parkhub.identity.v1.PlanType" json:"plan_type,omitempty"`
+	CreatedAt       *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt       *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	Description     string                 `protobuf:"bytes,11,opt,name=description,proto3" json:"description,omitempty"`
+	CreditCode      string                 `protobuf:"bytes,12,opt,name=credit_code,json=creditCode,proto3" json:"credit_code,omitempty"`
+	Remark          string                 `protobuf:"bytes,13,opt,name=remark,proto3" json:"remark,omitempty"`
+	ParkingLotCount int32                  `protobuf:"varint,14,opt,name=parking_lot_count,json=parkingLotCount,proto3" json:"parking_lot_count,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *Tenant) Reset() {
@@ -243,6 +247,34 @@ func (x *Tenant) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Tenant) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *Tenant) GetCreditCode() string {
+	if x != nil {
+		return x.CreditCode
+	}
+	return ""
+}
+
+func (x *Tenant) GetRemark() string {
+	if x != nil {
+		return x.Remark
+	}
+	return ""
+}
+
+func (x *Tenant) GetParkingLotCount() int32 {
+	if x != nil {
+		return x.ParkingLotCount
+	}
+	return 0
+}
+
 type CreateTenantRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -251,6 +283,9 @@ type CreateTenantRequest struct {
 	ContactEmail  string                 `protobuf:"bytes,4,opt,name=contact_email,json=contactEmail,proto3" json:"contact_email,omitempty"`
 	Address       string                 `protobuf:"bytes,5,opt,name=address,proto3" json:"address,omitempty"`
 	PlanType      PlanType               `protobuf:"varint,6,opt,name=plan_type,json=planType,proto3,enum=parkhub.identity.v1.PlanType" json:"plan_type,omitempty"`
+	Description   *string                `protobuf:"bytes,7,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	CreditCode    *string                `protobuf:"bytes,8,opt,name=credit_code,json=creditCode,proto3,oneof" json:"credit_code,omitempty"`
+	Remark        *string                `protobuf:"bytes,9,opt,name=remark,proto3,oneof" json:"remark,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -325,6 +360,27 @@ func (x *CreateTenantRequest) GetPlanType() PlanType {
 		return x.PlanType
 	}
 	return PlanType_PLAN_TYPE_UNSPECIFIED
+}
+
+func (x *CreateTenantRequest) GetDescription() string {
+	if x != nil && x.Description != nil {
+		return *x.Description
+	}
+	return ""
+}
+
+func (x *CreateTenantRequest) GetCreditCode() string {
+	if x != nil && x.CreditCode != nil {
+		return *x.CreditCode
+	}
+	return ""
+}
+
+func (x *CreateTenantRequest) GetRemark() string {
+	if x != nil && x.Remark != nil {
+		return *x.Remark
+	}
+	return ""
 }
 
 type CreateTenantResponse struct {
@@ -582,6 +638,9 @@ type UpdateTenantRequest struct {
 	PlanType     *PlanType              `protobuf:"varint,7,opt,name=plan_type,json=planType,proto3,enum=parkhub.identity.v1.PlanType,oneof" json:"plan_type,omitempty"`
 	// Deprecated: Marked as deprecated in identity/v1/tenant.proto.
 	Status        *TenantStatus `protobuf:"varint,8,opt,name=status,proto3,enum=parkhub.identity.v1.TenantStatus,oneof" json:"status,omitempty"`
+	Description   *string       `protobuf:"bytes,9,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	CreditCode    *string       `protobuf:"bytes,10,opt,name=credit_code,json=creditCode,proto3,oneof" json:"credit_code,omitempty"`
+	Remark        *string       `protobuf:"bytes,11,opt,name=remark,proto3,oneof" json:"remark,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -671,6 +730,27 @@ func (x *UpdateTenantRequest) GetStatus() TenantStatus {
 		return *x.Status
 	}
 	return TenantStatus_TENANT_STATUS_UNSPECIFIED
+}
+
+func (x *UpdateTenantRequest) GetDescription() string {
+	if x != nil && x.Description != nil {
+		return *x.Description
+	}
+	return ""
+}
+
+func (x *UpdateTenantRequest) GetCreditCode() string {
+	if x != nil && x.CreditCode != nil {
+		return *x.CreditCode
+	}
+	return ""
+}
+
+func (x *UpdateTenantRequest) GetRemark() string {
+	if x != nil && x.Remark != nil {
+		return *x.Remark
+	}
+	return ""
 }
 
 type FreezeTenantRequest struct {
@@ -985,7 +1065,7 @@ var File_identity_v1_tenant_proto protoreflect.FileDescriptor
 
 const file_identity_v1_tenant_proto_rawDesc = "" +
 	"\n" +
-	"\x18identity/v1/tenant.proto\x12\x13parkhub.identity.v1\x1a\x1acommon/v1/pagination.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xad\x03\n" +
+	"\x18identity/v1/tenant.proto\x12\x13parkhub.identity.v1\x1a\x1acommon/v1/pagination.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb4\x04\n" +
 	"\x06Tenant\x12\x1b\n" +
 	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12!\n" +
@@ -999,14 +1079,26 @@ const file_identity_v1_tenant_proto_rawDesc = "" +
 	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
 	"updated_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xec\x01\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12 \n" +
+	"\vdescription\x18\v \x01(\tR\vdescription\x12\x1f\n" +
+	"\vcredit_code\x18\f \x01(\tR\n" +
+	"creditCode\x12\x16\n" +
+	"\x06remark\x18\r \x01(\tR\x06remark\x12*\n" +
+	"\x11parking_lot_count\x18\x0e \x01(\x05R\x0fparkingLotCount\"\x81\x03\n" +
 	"\x13CreateTenantRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12!\n" +
 	"\fcontact_name\x18\x02 \x01(\tR\vcontactName\x12#\n" +
 	"\rcontact_phone\x18\x03 \x01(\tR\fcontactPhone\x12#\n" +
 	"\rcontact_email\x18\x04 \x01(\tR\fcontactEmail\x12\x18\n" +
 	"\aaddress\x18\x05 \x01(\tR\aaddress\x12:\n" +
-	"\tplan_type\x18\x06 \x01(\x0e2\x1d.parkhub.identity.v1.PlanTypeR\bplanType\"K\n" +
+	"\tplan_type\x18\x06 \x01(\x0e2\x1d.parkhub.identity.v1.PlanTypeR\bplanType\x12%\n" +
+	"\vdescription\x18\a \x01(\tH\x00R\vdescription\x88\x01\x01\x12$\n" +
+	"\vcredit_code\x18\b \x01(\tH\x01R\n" +
+	"creditCode\x88\x01\x01\x12\x1b\n" +
+	"\x06remark\x18\t \x01(\tH\x02R\x06remark\x88\x01\x01B\x0e\n" +
+	"\f_descriptionB\x0e\n" +
+	"\f_credit_codeB\t\n" +
+	"\a_remark\"K\n" +
 	"\x14CreateTenantResponse\x123\n" +
 	"\x06tenant\x18\x01 \x01(\v2\x1b.parkhub.identity.v1.TenantR\x06tenant\"/\n" +
 	"\x10GetTenantRequest\x12\x1b\n" +
@@ -1023,7 +1115,7 @@ const file_identity_v1_tenant_proto_rawDesc = "" +
 	"\atenants\x18\x01 \x03(\v2\x1b.parkhub.identity.v1.TenantR\atenants\x12E\n" +
 	"\n" +
 	"pagination\x18\x02 \x01(\v2%.parkhub.common.v1.PaginationResponseR\n" +
-	"pagination\"\xce\x03\n" +
+	"pagination\"\xe3\x04\n" +
 	"\x13UpdateTenantRequest\x12\x1b\n" +
 	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x12\x17\n" +
 	"\x04name\x18\x02 \x01(\tH\x00R\x04name\x88\x01\x01\x12&\n" +
@@ -1032,7 +1124,12 @@ const file_identity_v1_tenant_proto_rawDesc = "" +
 	"\rcontact_email\x18\x05 \x01(\tH\x03R\fcontactEmail\x88\x01\x01\x12\x1d\n" +
 	"\aaddress\x18\x06 \x01(\tH\x04R\aaddress\x88\x01\x01\x12?\n" +
 	"\tplan_type\x18\a \x01(\x0e2\x1d.parkhub.identity.v1.PlanTypeH\x05R\bplanType\x88\x01\x01\x12B\n" +
-	"\x06status\x18\b \x01(\x0e2!.parkhub.identity.v1.TenantStatusB\x02\x18\x01H\x06R\x06status\x88\x01\x01B\a\n" +
+	"\x06status\x18\b \x01(\x0e2!.parkhub.identity.v1.TenantStatusB\x02\x18\x01H\x06R\x06status\x88\x01\x01\x12%\n" +
+	"\vdescription\x18\t \x01(\tH\aR\vdescription\x88\x01\x01\x12$\n" +
+	"\vcredit_code\x18\n" +
+	" \x01(\tH\bR\n" +
+	"creditCode\x88\x01\x01\x12\x1b\n" +
+	"\x06remark\x18\v \x01(\tH\tR\x06remark\x88\x01\x01B\a\n" +
 	"\x05_nameB\x0f\n" +
 	"\r_contact_nameB\x10\n" +
 	"\x0e_contact_phoneB\x10\n" +
@@ -1041,7 +1138,10 @@ const file_identity_v1_tenant_proto_rawDesc = "" +
 	"\b_addressB\f\n" +
 	"\n" +
 	"_plan_typeB\t\n" +
-	"\a_status\"Z\n" +
+	"\a_statusB\x0e\n" +
+	"\f_descriptionB\x0e\n" +
+	"\f_credit_codeB\t\n" +
+	"\a_remark\"Z\n" +
 	"\x13FreezeTenantRequest\x12\x1b\n" +
 	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x12\x1b\n" +
 	"\x06reason\x18\x02 \x01(\tH\x00R\x06reason\x88\x01\x01B\t\n" +
@@ -1155,6 +1255,7 @@ func file_identity_v1_tenant_proto_init() {
 	if File_identity_v1_tenant_proto != nil {
 		return
 	}
+	file_identity_v1_tenant_proto_msgTypes[1].OneofWrappers = []any{}
 	file_identity_v1_tenant_proto_msgTypes[7].OneofWrappers = []any{}
 	file_identity_v1_tenant_proto_msgTypes[8].OneofWrappers = []any{}
 	type x struct{}

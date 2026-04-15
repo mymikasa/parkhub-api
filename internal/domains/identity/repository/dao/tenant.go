@@ -18,6 +18,9 @@ type Tenant struct {
 	Status       string `gorm:"type:varchar(20)"`
 	Address      string `gorm:"type:varchar(255)"`
 	PlanType     string `gorm:"type:varchar(20)"`
+	Description  string `gorm:"type:varchar(500)"`
+	CreditCode   string `gorm:"type:varchar(50)"`
+	Remark       string `gorm:"type:varchar(500)"`
 	CreatedAt    int64  `gorm:"autoCreateTime:milli"`
 	UpdatedAt    int64  `gorm:"autoUpdateTime:milli"`
 }

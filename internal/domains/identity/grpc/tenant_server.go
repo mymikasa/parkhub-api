@@ -38,6 +38,9 @@ func (s *TenantGRPCServer) CreateTenant(ctx context.Context, req *identityv1.Cre
 		ContactEmail: req.ContactEmail,
 		Address:      req.Address,
 		PlanType:     domainPlanFromProto(req.PlanType),
+		Description:  req.GetDescription(),
+		CreditCode:   req.GetCreditCode(),
+		Remark:       req.GetRemark(),
 	})
 	if err != nil {
 		return nil, toGRPCError(err)
@@ -113,6 +116,15 @@ func (s *TenantGRPCServer) UpdateTenant(ctx context.Context, req *identityv1.Upd
 	if req.PlanType != nil {
 		pt := domainPlanFromProto(*req.PlanType)
 		svcReq.PlanType = &pt
+	}
+	if req.Description != nil {
+		svcReq.Description = req.Description
+	}
+	if req.CreditCode != nil {
+		svcReq.CreditCode = req.CreditCode
+	}
+	if req.Remark != nil {
+		svcReq.Remark = req.Remark
 	}
 
 	tenant, err := s.tenantSvc.UpdateTenant(ctx, svcReq)
