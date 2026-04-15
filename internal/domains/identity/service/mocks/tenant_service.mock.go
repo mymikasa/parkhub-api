@@ -71,6 +71,21 @@ func (mr *MockTenantServiceMockRecorder) DeleteTenant(ctx, id any) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTenant", reflect.TypeOf((*MockTenantService)(nil).DeleteTenant), ctx, id)
 }
 
+// FreezeTenant mocks base method.
+func (m *MockTenantService) FreezeTenant(ctx context.Context, id string) (*domain.Tenant, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FreezeTenant", ctx, id)
+	ret0, _ := ret[0].(*domain.Tenant)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FreezeTenant indicates an expected call of FreezeTenant.
+func (mr *MockTenantServiceMockRecorder) FreezeTenant(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FreezeTenant", reflect.TypeOf((*MockTenantService)(nil).FreezeTenant), ctx, id)
+}
+
 // GetTenant mocks base method.
 func (m *MockTenantService) GetTenant(ctx context.Context, id string) (*domain.Tenant, error) {
 	m.ctrl.T.Helper()
@@ -99,6 +114,21 @@ func (m *MockTenantService) ListTenants(ctx context.Context, req *service.ListTe
 func (mr *MockTenantServiceMockRecorder) ListTenants(ctx, req any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTenants", reflect.TypeOf((*MockTenantService)(nil).ListTenants), ctx, req)
+}
+
+// UnfreezeTenant mocks base method.
+func (m *MockTenantService) UnfreezeTenant(ctx context.Context, id string) (*domain.Tenant, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UnfreezeTenant", ctx, id)
+	ret0, _ := ret[0].(*domain.Tenant)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UnfreezeTenant indicates an expected call of UnfreezeTenant.
+func (mr *MockTenantServiceMockRecorder) UnfreezeTenant(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnfreezeTenant", reflect.TypeOf((*MockTenantService)(nil).UnfreezeTenant), ctx, id)
 }
 
 // UpdateTenant mocks base method.

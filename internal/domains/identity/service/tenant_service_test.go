@@ -150,44 +150,6 @@ func TestTenantService_UpdateTenant_Success(t *testing.T) {
 	assert.Equal(t, "Updated", tenant.Name)
 }
 
-func TestTenantService_UpdateTenant_StatusTransition(t *testing.T) {
-	ctrl := go_mock.NewController(t)
-	defer ctrl.Finish()
-
-	mockRepo := repomocks.NewMockTenantRepo(ctrl)
-	svc := NewTenantService(mockRepo)
-
-	existing := &domain.Tenant{ID: "test-id", Name: "Acme", Status: domain.TenantStatusActive}
-	mockRepo.EXPECT().GetByID(go_mock.Any(), "test-id").Return(existing, nil)
-	mockRepo.EXPECT().Update(go_mock.Any(), go_mock.Any()).Return(nil)
-
-	frozen := domain.TenantStatusFrozen
-	tenant, err := svc.UpdateTenant(context.Background(), &UpdateTenantRequest{
-		ID:     "test-id",
-		Status: &frozen,
-	})
-	assert.NoError(t, err)
-	assert.Equal(t, domain.TenantStatusFrozen, tenant.Status)
-}
-
-func TestTenantService_UpdateTenant_InvalidStatusTransition(t *testing.T) {
-	ctrl := go_mock.NewController(t)
-	defer ctrl.Finish()
-
-	mockRepo := repomocks.NewMockTenantRepo(ctrl)
-	svc := NewTenantService(mockRepo)
-
-	existing := &domain.Tenant{ID: "test-id", Name: "Acme", Status: domain.TenantStatusFrozen}
-	mockRepo.EXPECT().GetByID(go_mock.Any(), "test-id").Return(existing, nil)
-
-	frozen := domain.TenantStatusFrozen
-	_, err := svc.UpdateTenant(context.Background(), &UpdateTenantRequest{
-		ID:     "test-id",
-		Status: &frozen,
-	})
-	assert.ErrorIs(t, err, errs.ErrTenantInvalidStatus)
-}
-
 func TestTenantService_UpdateTenant_NotFound(t *testing.T) {
 	ctrl := go_mock.NewController(t)
 	defer ctrl.Finish()
@@ -239,4 +201,90 @@ func TestTenantService_ListTenants_TotalPagesCeiling(t *testing.T) {
 	resp, err := svc.ListTenants(context.Background(), &ListTenantsRequest{Page: 1, PageSize: 20})
 	require.NoError(t, err)
 	assert.Equal(t, 2, resp.TotalPages)
+}
+
+func TestTenantService_FreezeTenant_Success(t *testing.T) {
+	ctrl := go_mock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := repomocks.NewMockTenantRepo(ctrl)
+	svc := NewTenantService(mockRepo)
+
+	existing := &domain.Tenant{ID: "test-id", Name: "Acme", Status: domain.TenantStatusActive}
+	mockRepo.EXPECT().GetByID(go_mock.Any(), "test-id").Return(existing, nil)
+	mockRepo.EXPECT().Update(go_mock.Any(), go_mock.Any()).Return(nil)
+
+	tenant, err := svc.FreezeTenant(context.Background(), "test-id")
+	assert.NoError(t, err)
+	assert.Equal(t, domain.TenantStatusFrozen, tenant.Status)
+}
+
+func TestTenantService_FreezeTenant_AlreadyFrozen(t *testing.T) {
+	ctrl := go_mock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := repomocks.NewMockTenantRepo(ctrl)
+	svc := NewTenantService(mockRepo)
+
+	existing := &domain.Tenant{ID: "test-id", Name: "Acme", Status: domain.TenantStatusFrozen}
+	mockRepo.EXPECT().GetByID(go_mock.Any(), "test-id").Return(existing, nil)
+
+	_, err := svc.FreezeTenant(context.Background(), "test-id")
+	assert.ErrorIs(t, err, errs.ErrTenantInvalidStatus)
+}
+
+func TestTenantService_FreezeTenant_NotFound(t *testing.T) {
+	ctrl := go_mock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := repomocks.NewMockTenantRepo(ctrl)
+	svc := NewTenantService(mockRepo)
+
+	mockRepo.EXPECT().GetByID(go_mock.Any(), "bad-id").Return(nil, errs.ErrTenantNotFound)
+
+	_, err := svc.FreezeTenant(context.Background(), "bad-id")
+	assert.ErrorIs(t, err, errs.ErrTenantNotFound)
+}
+
+func TestTenantService_UnfreezeTenant_Success(t *testing.T) {
+	ctrl := go_mock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := repomocks.NewMockTenantRepo(ctrl)
+	svc := NewTenantService(mockRepo)
+
+	existing := &domain.Tenant{ID: "test-id", Name: "Acme", Status: domain.TenantStatusFrozen}
+	mockRepo.EXPECT().GetByID(go_mock.Any(), "test-id").Return(existing, nil)
+	mockRepo.EXPECT().Update(go_mock.Any(), go_mock.Any()).Return(nil)
+
+	tenant, err := svc.UnfreezeTenant(context.Background(), "test-id")
+	assert.NoError(t, err)
+	assert.Equal(t, domain.TenantStatusActive, tenant.Status)
+}
+
+func TestTenantService_UnfreezeTenant_AlreadyActive(t *testing.T) {
+	ctrl := go_mock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := repomocks.NewMockTenantRepo(ctrl)
+	svc := NewTenantService(mockRepo)
+
+	existing := &domain.Tenant{ID: "test-id", Name: "Acme", Status: domain.TenantStatusActive}
+	mockRepo.EXPECT().GetByID(go_mock.Any(), "test-id").Return(existing, nil)
+
+	_, err := svc.UnfreezeTenant(context.Background(), "test-id")
+	assert.ErrorIs(t, err, errs.ErrTenantInvalidStatus)
+}
+
+func TestTenantService_UnfreezeTenant_NotFound(t *testing.T) {
+	ctrl := go_mock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := repomocks.NewMockTenantRepo(ctrl)
+	svc := NewTenantService(mockRepo)
+
+	mockRepo.EXPECT().GetByID(go_mock.Any(), "bad-id").Return(nil, errs.ErrTenantNotFound)
+
+	_, err := svc.UnfreezeTenant(context.Background(), "bad-id")
+	assert.ErrorIs(t, err, errs.ErrTenantNotFound)
 }

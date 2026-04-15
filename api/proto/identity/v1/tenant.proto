@@ -74,7 +74,24 @@ message UpdateTenantRequest {
   optional string contact_email = 5;
   optional string address = 6;
   optional PlanType plan_type = 7;
-  optional TenantStatus status = 8;
+  optional TenantStatus status = 8 [deprecated = true];
+}
+
+message FreezeTenantRequest {
+  string tenant_id = 1;
+  optional string reason = 2;
+}
+
+message FreezeTenantResponse {
+  Tenant tenant = 1;
+}
+
+message UnfreezeTenantRequest {
+  string tenant_id = 1;
+}
+
+message UnfreezeTenantResponse {
+  Tenant tenant = 1;
 }
 
 message UpdateTenantResponse {
@@ -92,5 +109,7 @@ service TenantService {
   rpc GetTenant(GetTenantRequest) returns (GetTenantResponse);
   rpc ListTenants(ListTenantsRequest) returns (ListTenantsResponse);
   rpc UpdateTenant(UpdateTenantRequest) returns (UpdateTenantResponse);
+  rpc FreezeTenant(FreezeTenantRequest) returns (FreezeTenantResponse);
+  rpc UnfreezeTenant(UnfreezeTenantRequest) returns (UnfreezeTenantResponse);
   rpc DeleteTenant(DeleteTenantRequest) returns (DeleteTenantResponse);
 }

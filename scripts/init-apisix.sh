@@ -260,6 +260,64 @@ curl -sf "${APISIX_ADMIN}/routes/14" \
     }
   }' && echo ""
 
+echo "Creating route: FreezeTenant (POST /api/v1/tenants/:id/freeze)"
+curl -sf "${APISIX_ADMIN}/routes/15" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "tenant-freeze",
+    "methods": ["POST"],
+    "uri": "/api/v1/tenants/*/freeze",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/tenants/(.+)/freeze$\"); if id then ngx.req.read_body(); local cjson = require(\"cjson.safe\"); local body = ngx.req.get_body_data() or \"{}\"; local t = cjson.decode(body) or {}; t.tenant_id = id; ngx.req.set_body_data(cjson.encode(t)) end end"
+        ]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.identity.v1.TenantService",
+        "method": "FreezeTenant",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating route: UnfreezeTenant (POST /api/v1/tenants/:id/unfreeze)"
+curl -sf "${APISIX_ADMIN}/routes/16" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "tenant-unfreeze",
+    "methods": ["POST"],
+    "uri": "/api/v1/tenants/*/unfreeze",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/tenants/(.+)/unfreeze$\"); if id then ngx.req.read_body(); local cjson = require(\"cjson.safe\"); local body = ngx.req.get_body_data() or \"{}\"; local t = cjson.decode(body) or {}; t.tenant_id = id; ngx.req.set_body_data(cjson.encode(t)) end end"
+        ]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.identity.v1.TenantService",
+        "method": "UnfreezeTenant",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
 # ══════════════════════════════════════════════════════════════════════
 # Routes: UserService (protected with jwt-auth)
 # ══════════════════════════════════════════════════════════════════════
