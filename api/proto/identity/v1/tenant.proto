@@ -67,9 +67,6 @@ message ListTenantsResponse {
 }
 
 message UpdateTenantRequest {
-  reserved 8;
-  reserved "status";
-
   string tenant_id = 1;
   optional string name = 2;
   optional string contact_name = 3;
@@ -77,6 +74,7 @@ message UpdateTenantRequest {
   optional string contact_email = 5;
   optional string address = 6;
   optional PlanType plan_type = 7;
+  optional TenantStatus status = 8 [deprecated = true];
 }
 
 message FreezeTenantRequest {

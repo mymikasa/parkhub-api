@@ -572,14 +572,16 @@ func (x *ListTenantsResponse) GetPagination() *v1.PaginationResponse {
 }
 
 type UpdateTenantRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TenantId      string                 `protobuf:"bytes,1,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
-	Name          *string                `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
-	ContactName   *string                `protobuf:"bytes,3,opt,name=contact_name,json=contactName,proto3,oneof" json:"contact_name,omitempty"`
-	ContactPhone  *string                `protobuf:"bytes,4,opt,name=contact_phone,json=contactPhone,proto3,oneof" json:"contact_phone,omitempty"`
-	ContactEmail  *string                `protobuf:"bytes,5,opt,name=contact_email,json=contactEmail,proto3,oneof" json:"contact_email,omitempty"`
-	Address       *string                `protobuf:"bytes,6,opt,name=address,proto3,oneof" json:"address,omitempty"`
-	PlanType      *PlanType              `protobuf:"varint,7,opt,name=plan_type,json=planType,proto3,enum=parkhub.identity.v1.PlanType,oneof" json:"plan_type,omitempty"`
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	TenantId     string                 `protobuf:"bytes,1,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	Name         *string                `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	ContactName  *string                `protobuf:"bytes,3,opt,name=contact_name,json=contactName,proto3,oneof" json:"contact_name,omitempty"`
+	ContactPhone *string                `protobuf:"bytes,4,opt,name=contact_phone,json=contactPhone,proto3,oneof" json:"contact_phone,omitempty"`
+	ContactEmail *string                `protobuf:"bytes,5,opt,name=contact_email,json=contactEmail,proto3,oneof" json:"contact_email,omitempty"`
+	Address      *string                `protobuf:"bytes,6,opt,name=address,proto3,oneof" json:"address,omitempty"`
+	PlanType     *PlanType              `protobuf:"varint,7,opt,name=plan_type,json=planType,proto3,enum=parkhub.identity.v1.PlanType,oneof" json:"plan_type,omitempty"`
+	// Deprecated: Marked as deprecated in identity/v1/tenant.proto.
+	Status        *TenantStatus `protobuf:"varint,8,opt,name=status,proto3,enum=parkhub.identity.v1.TenantStatus,oneof" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -661,6 +663,14 @@ func (x *UpdateTenantRequest) GetPlanType() PlanType {
 		return *x.PlanType
 	}
 	return PlanType_PLAN_TYPE_UNSPECIFIED
+}
+
+// Deprecated: Marked as deprecated in identity/v1/tenant.proto.
+func (x *UpdateTenantRequest) GetStatus() TenantStatus {
+	if x != nil && x.Status != nil {
+		return *x.Status
+	}
+	return TenantStatus_TENANT_STATUS_UNSPECIFIED
 }
 
 type FreezeTenantRequest struct {
@@ -1013,7 +1023,7 @@ const file_identity_v1_tenant_proto_rawDesc = "" +
 	"\atenants\x18\x01 \x03(\v2\x1b.parkhub.identity.v1.TenantR\atenants\x12E\n" +
 	"\n" +
 	"pagination\x18\x02 \x01(\v2%.parkhub.common.v1.PaginationResponseR\n" +
-	"pagination\"\x8d\x03\n" +
+	"pagination\"\xce\x03\n" +
 	"\x13UpdateTenantRequest\x12\x1b\n" +
 	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x12\x17\n" +
 	"\x04name\x18\x02 \x01(\tH\x00R\x04name\x88\x01\x01\x12&\n" +
@@ -1021,7 +1031,8 @@ const file_identity_v1_tenant_proto_rawDesc = "" +
 	"\rcontact_phone\x18\x04 \x01(\tH\x02R\fcontactPhone\x88\x01\x01\x12(\n" +
 	"\rcontact_email\x18\x05 \x01(\tH\x03R\fcontactEmail\x88\x01\x01\x12\x1d\n" +
 	"\aaddress\x18\x06 \x01(\tH\x04R\aaddress\x88\x01\x01\x12?\n" +
-	"\tplan_type\x18\a \x01(\x0e2\x1d.parkhub.identity.v1.PlanTypeH\x05R\bplanType\x88\x01\x01B\a\n" +
+	"\tplan_type\x18\a \x01(\x0e2\x1d.parkhub.identity.v1.PlanTypeH\x05R\bplanType\x88\x01\x01\x12B\n" +
+	"\x06status\x18\b \x01(\x0e2!.parkhub.identity.v1.TenantStatusB\x02\x18\x01H\x06R\x06status\x88\x01\x01B\a\n" +
 	"\x05_nameB\x0f\n" +
 	"\r_contact_nameB\x10\n" +
 	"\x0e_contact_phoneB\x10\n" +
@@ -1029,7 +1040,8 @@ const file_identity_v1_tenant_proto_rawDesc = "" +
 	"\n" +
 	"\b_addressB\f\n" +
 	"\n" +
-	"_plan_typeJ\x04\b\b\x10\tR\x06status\"Z\n" +
+	"_plan_typeB\t\n" +
+	"\a_status\"Z\n" +
 	"\x13FreezeTenantRequest\x12\x1b\n" +
 	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x12\x1b\n" +
 	"\x06reason\x18\x02 \x01(\tH\x00R\x06reason\x88\x01\x01B\t\n" +
@@ -1113,28 +1125,29 @@ var file_identity_v1_tenant_proto_depIdxs = []int32{
 	2,  // 9: parkhub.identity.v1.ListTenantsResponse.tenants:type_name -> parkhub.identity.v1.Tenant
 	19, // 10: parkhub.identity.v1.ListTenantsResponse.pagination:type_name -> parkhub.common.v1.PaginationResponse
 	1,  // 11: parkhub.identity.v1.UpdateTenantRequest.plan_type:type_name -> parkhub.identity.v1.PlanType
-	2,  // 12: parkhub.identity.v1.FreezeTenantResponse.tenant:type_name -> parkhub.identity.v1.Tenant
-	2,  // 13: parkhub.identity.v1.UnfreezeTenantResponse.tenant:type_name -> parkhub.identity.v1.Tenant
-	2,  // 14: parkhub.identity.v1.UpdateTenantResponse.tenant:type_name -> parkhub.identity.v1.Tenant
-	3,  // 15: parkhub.identity.v1.TenantService.CreateTenant:input_type -> parkhub.identity.v1.CreateTenantRequest
-	5,  // 16: parkhub.identity.v1.TenantService.GetTenant:input_type -> parkhub.identity.v1.GetTenantRequest
-	7,  // 17: parkhub.identity.v1.TenantService.ListTenants:input_type -> parkhub.identity.v1.ListTenantsRequest
-	9,  // 18: parkhub.identity.v1.TenantService.UpdateTenant:input_type -> parkhub.identity.v1.UpdateTenantRequest
-	10, // 19: parkhub.identity.v1.TenantService.FreezeTenant:input_type -> parkhub.identity.v1.FreezeTenantRequest
-	12, // 20: parkhub.identity.v1.TenantService.UnfreezeTenant:input_type -> parkhub.identity.v1.UnfreezeTenantRequest
-	15, // 21: parkhub.identity.v1.TenantService.DeleteTenant:input_type -> parkhub.identity.v1.DeleteTenantRequest
-	4,  // 22: parkhub.identity.v1.TenantService.CreateTenant:output_type -> parkhub.identity.v1.CreateTenantResponse
-	6,  // 23: parkhub.identity.v1.TenantService.GetTenant:output_type -> parkhub.identity.v1.GetTenantResponse
-	8,  // 24: parkhub.identity.v1.TenantService.ListTenants:output_type -> parkhub.identity.v1.ListTenantsResponse
-	14, // 25: parkhub.identity.v1.TenantService.UpdateTenant:output_type -> parkhub.identity.v1.UpdateTenantResponse
-	11, // 26: parkhub.identity.v1.TenantService.FreezeTenant:output_type -> parkhub.identity.v1.FreezeTenantResponse
-	13, // 27: parkhub.identity.v1.TenantService.UnfreezeTenant:output_type -> parkhub.identity.v1.UnfreezeTenantResponse
-	16, // 28: parkhub.identity.v1.TenantService.DeleteTenant:output_type -> parkhub.identity.v1.DeleteTenantResponse
-	22, // [22:29] is the sub-list for method output_type
-	15, // [15:22] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	0,  // 12: parkhub.identity.v1.UpdateTenantRequest.status:type_name -> parkhub.identity.v1.TenantStatus
+	2,  // 13: parkhub.identity.v1.FreezeTenantResponse.tenant:type_name -> parkhub.identity.v1.Tenant
+	2,  // 14: parkhub.identity.v1.UnfreezeTenantResponse.tenant:type_name -> parkhub.identity.v1.Tenant
+	2,  // 15: parkhub.identity.v1.UpdateTenantResponse.tenant:type_name -> parkhub.identity.v1.Tenant
+	3,  // 16: parkhub.identity.v1.TenantService.CreateTenant:input_type -> parkhub.identity.v1.CreateTenantRequest
+	5,  // 17: parkhub.identity.v1.TenantService.GetTenant:input_type -> parkhub.identity.v1.GetTenantRequest
+	7,  // 18: parkhub.identity.v1.TenantService.ListTenants:input_type -> parkhub.identity.v1.ListTenantsRequest
+	9,  // 19: parkhub.identity.v1.TenantService.UpdateTenant:input_type -> parkhub.identity.v1.UpdateTenantRequest
+	10, // 20: parkhub.identity.v1.TenantService.FreezeTenant:input_type -> parkhub.identity.v1.FreezeTenantRequest
+	12, // 21: parkhub.identity.v1.TenantService.UnfreezeTenant:input_type -> parkhub.identity.v1.UnfreezeTenantRequest
+	15, // 22: parkhub.identity.v1.TenantService.DeleteTenant:input_type -> parkhub.identity.v1.DeleteTenantRequest
+	4,  // 23: parkhub.identity.v1.TenantService.CreateTenant:output_type -> parkhub.identity.v1.CreateTenantResponse
+	6,  // 24: parkhub.identity.v1.TenantService.GetTenant:output_type -> parkhub.identity.v1.GetTenantResponse
+	8,  // 25: parkhub.identity.v1.TenantService.ListTenants:output_type -> parkhub.identity.v1.ListTenantsResponse
+	14, // 26: parkhub.identity.v1.TenantService.UpdateTenant:output_type -> parkhub.identity.v1.UpdateTenantResponse
+	11, // 27: parkhub.identity.v1.TenantService.FreezeTenant:output_type -> parkhub.identity.v1.FreezeTenantResponse
+	13, // 28: parkhub.identity.v1.TenantService.UnfreezeTenant:output_type -> parkhub.identity.v1.UnfreezeTenantResponse
+	16, // 29: parkhub.identity.v1.TenantService.DeleteTenant:output_type -> parkhub.identity.v1.DeleteTenantResponse
+	23, // [23:30] is the sub-list for method output_type
+	16, // [16:23] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_identity_v1_tenant_proto_init() }
