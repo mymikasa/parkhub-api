@@ -961,6 +961,18 @@ paths:
         '404':
           description: 租户不存在
 
+    delete:
+      tags: [Tenant]
+      operationId: deleteTenant
+      summary: 删除租户
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: 删除成功
+        '404':
+          description: 租户不存在
+
   /api/v1/tenants/{tenant_id}/freeze:
     post:
       tags: [Tenant]
@@ -1012,16 +1024,4 @@ paths:
         '400':
           description: 租户已是正常状态
         '404':
-          description: 租户不存在
-
-    delete:
-      tags: [Tenant]
-      operationId: deleteTenant
-      summary: 删除租户
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
-      responses:
-        '200':
-          description: 删除成功
-        '404':
-          description: 租户不存在
+          description: 租户已是正常状态
