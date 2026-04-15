@@ -12,6 +12,8 @@ servers:
 tags:
   - name: Auth
     description: 认证鉴权
+  - name: SMS
+    description: 短信验证码
   - name: User
     description: 用户管理
   - name: Tenant
@@ -330,6 +332,43 @@ components:
           type: string
           minLength: 8
 
+    SmsPurpose:
+      type: string
+      enum:
+        - SMS_PURPOSE_UNSPECIFIED
+        - SMS_PURPOSE_LOGIN
+        - SMS_PURPOSE_REGISTER
+        - SMS_PURPOSE_RESET_PASSWORD
+
+    SendSmsCodeRequest:
+      type: object
+      required:
+        - phone
+        - purpose
+      properties:
+        phone:
+          type: string
+          description: 手机号
+        purpose:
+          $ref: '#/components/schemas/SmsPurpose'
+
+    SendSmsCodeResponse:
+      type: object
+      description: 发送成功返回空对象
+
+    SmsLoginRequest:
+      type: object
+      required:
+        - phone
+        - code
+      properties:
+        phone:
+          type: string
+          description: 手机号
+        code:
+          type: string
+          description: 短信验证码
+
     ImportUserItem:
       type: object
       required:
@@ -475,6 +514,52 @@ paths:
                   jwks_json:
                     type: string
                     format: byte
+
+  /identity/v1/auth/sms/send:
+    post:
+      tags: [SMS]
+      operationId: sendSmsCode
+      summary: 发送短信验证码
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendSmsCodeRequest'
+      responses:
+        '200':
+          description: 发送成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendSmsCodeResponse'
+        '400':
+          description: 手机号格式错误
+        '429':
+          description: 发送频率限制
+
+  /identity/v1/auth/sms/login:
+    post:
+      tags: [SMS]
+      operationId: smsLogin
+      summary: 短信验证码登录
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SmsLoginRequest'
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: 验证码错误或已过期
+        '401':
+          description: 用户不存在或已冻结
 
   /identity/v1/users:
     post:
