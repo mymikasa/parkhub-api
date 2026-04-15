@@ -8,6 +8,7 @@ import (
 	commonv1 "github.com/parkhub/api/internal/gen/api/proto/common/v1"
 	identityv1 "github.com/parkhub/api/internal/gen/api/proto/identity/v1"
 	"github.com/parkhub/api/pkg/grpcutil"
+	"github.com/parkhub/api/pkg/identityctx"
 	"google.golang.org/grpc/codes"
 )
 
@@ -61,6 +62,18 @@ func (s *UserGRPCServer) GetUser(ctx context.Context, req *identityv1.GetUserReq
 		return nil, toUserGRPCError(err)
 	}
 	return &identityv1.GetUserResponse{User: toProtoUser(user)}, nil
+}
+
+func (s *UserGRPCServer) GetCurrentUser(ctx context.Context, _ *identityv1.GetCurrentUserRequest) (*identityv1.GetCurrentUserResponse, error) {
+	userID := identityctx.UserID(ctx)
+	if userID == "" {
+		return nil, grpcutil.ToGRPCError(errs.ErrUserNotFound, userErrorMappings)
+	}
+	user, err := s.userSvc.GetByID(ctx, &service.GetUserRequest{UserID: userID})
+	if err != nil {
+		return nil, toUserGRPCError(err)
+	}
+	return &identityv1.GetCurrentUserResponse{User: toProtoUser(user)}, nil
 }
 
 func (s *UserGRPCServer) ListUsers(ctx context.Context, req *identityv1.ListUsersRequest) (*identityv1.ListUsersResponse, error) {

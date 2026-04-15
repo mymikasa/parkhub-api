@@ -472,6 +472,86 @@ func (x *GetUserResponse) GetUser() *User {
 	return nil
 }
 
+type GetCurrentUserRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetCurrentUserRequest) Reset() {
+	*x = GetCurrentUserRequest{}
+	mi := &file_identity_v1_user_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCurrentUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCurrentUserRequest) ProtoMessage() {}
+
+func (x *GetCurrentUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_identity_v1_user_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCurrentUserRequest.ProtoReflect.Descriptor instead.
+func (*GetCurrentUserRequest) Descriptor() ([]byte, []int) {
+	return file_identity_v1_user_proto_rawDescGZIP(), []int{5}
+}
+
+type GetCurrentUserResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	User          *User                  `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetCurrentUserResponse) Reset() {
+	*x = GetCurrentUserResponse{}
+	mi := &file_identity_v1_user_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCurrentUserResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCurrentUserResponse) ProtoMessage() {}
+
+func (x *GetCurrentUserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_identity_v1_user_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCurrentUserResponse.ProtoReflect.Descriptor instead.
+func (*GetCurrentUserResponse) Descriptor() ([]byte, []int) {
+	return file_identity_v1_user_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetCurrentUserResponse) GetUser() *User {
+	if x != nil {
+		return x.User
+	}
+	return nil
+}
+
 type ListUsersRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TenantId      string                 `protobuf:"bytes,1,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
@@ -485,7 +565,7 @@ type ListUsersRequest struct {
 
 func (x *ListUsersRequest) Reset() {
 	*x = ListUsersRequest{}
-	mi := &file_identity_v1_user_proto_msgTypes[5]
+	mi := &file_identity_v1_user_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -497,7 +577,7 @@ func (x *ListUsersRequest) String() string {
 func (*ListUsersRequest) ProtoMessage() {}
 
 func (x *ListUsersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_v1_user_proto_msgTypes[5]
+	mi := &file_identity_v1_user_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -510,7 +590,7 @@ func (x *ListUsersRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUsersRequest.ProtoReflect.Descriptor instead.
 func (*ListUsersRequest) Descriptor() ([]byte, []int) {
-	return file_identity_v1_user_proto_rawDescGZIP(), []int{5}
+	return file_identity_v1_user_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListUsersRequest) GetTenantId() string {
@@ -558,7 +638,7 @@ type ListUsersResponse struct {
 
 func (x *ListUsersResponse) Reset() {
 	*x = ListUsersResponse{}
-	mi := &file_identity_v1_user_proto_msgTypes[6]
+	mi := &file_identity_v1_user_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -570,7 +650,7 @@ func (x *ListUsersResponse) String() string {
 func (*ListUsersResponse) ProtoMessage() {}
 
 func (x *ListUsersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_v1_user_proto_msgTypes[6]
+	mi := &file_identity_v1_user_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -583,7 +663,7 @@ func (x *ListUsersResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUsersResponse.ProtoReflect.Descriptor instead.
 func (*ListUsersResponse) Descriptor() ([]byte, []int) {
-	return file_identity_v1_user_proto_rawDescGZIP(), []int{6}
+	return file_identity_v1_user_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListUsersResponse) GetUsers() []*User {
@@ -614,7 +694,7 @@ type UpdateUserRequest struct {
 
 func (x *UpdateUserRequest) Reset() {
 	*x = UpdateUserRequest{}
-	mi := &file_identity_v1_user_proto_msgTypes[7]
+	mi := &file_identity_v1_user_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -626,7 +706,7 @@ func (x *UpdateUserRequest) String() string {
 func (*UpdateUserRequest) ProtoMessage() {}
 
 func (x *UpdateUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_v1_user_proto_msgTypes[7]
+	mi := &file_identity_v1_user_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -639,7 +719,7 @@ func (x *UpdateUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateUserRequest.ProtoReflect.Descriptor instead.
 func (*UpdateUserRequest) Descriptor() ([]byte, []int) {
-	return file_identity_v1_user_proto_rawDescGZIP(), []int{7}
+	return file_identity_v1_user_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *UpdateUserRequest) GetUserId() string {
@@ -693,7 +773,7 @@ type UpdateUserResponse struct {
 
 func (x *UpdateUserResponse) Reset() {
 	*x = UpdateUserResponse{}
-	mi := &file_identity_v1_user_proto_msgTypes[8]
+	mi := &file_identity_v1_user_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -705,7 +785,7 @@ func (x *UpdateUserResponse) String() string {
 func (*UpdateUserResponse) ProtoMessage() {}
 
 func (x *UpdateUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_v1_user_proto_msgTypes[8]
+	mi := &file_identity_v1_user_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -718,7 +798,7 @@ func (x *UpdateUserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateUserResponse.ProtoReflect.Descriptor instead.
 func (*UpdateUserResponse) Descriptor() ([]byte, []int) {
-	return file_identity_v1_user_proto_rawDescGZIP(), []int{8}
+	return file_identity_v1_user_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *UpdateUserResponse) GetUser() *User {
@@ -737,7 +817,7 @@ type FreezeUserRequest struct {
 
 func (x *FreezeUserRequest) Reset() {
 	*x = FreezeUserRequest{}
-	mi := &file_identity_v1_user_proto_msgTypes[9]
+	mi := &file_identity_v1_user_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -749,7 +829,7 @@ func (x *FreezeUserRequest) String() string {
 func (*FreezeUserRequest) ProtoMessage() {}
 
 func (x *FreezeUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_v1_user_proto_msgTypes[9]
+	mi := &file_identity_v1_user_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -762,7 +842,7 @@ func (x *FreezeUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FreezeUserRequest.ProtoReflect.Descriptor instead.
 func (*FreezeUserRequest) Descriptor() ([]byte, []int) {
-	return file_identity_v1_user_proto_rawDescGZIP(), []int{9}
+	return file_identity_v1_user_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *FreezeUserRequest) GetUserId() string {
@@ -780,7 +860,7 @@ type FreezeUserResponse struct {
 
 func (x *FreezeUserResponse) Reset() {
 	*x = FreezeUserResponse{}
-	mi := &file_identity_v1_user_proto_msgTypes[10]
+	mi := &file_identity_v1_user_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -792,7 +872,7 @@ func (x *FreezeUserResponse) String() string {
 func (*FreezeUserResponse) ProtoMessage() {}
 
 func (x *FreezeUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_v1_user_proto_msgTypes[10]
+	mi := &file_identity_v1_user_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -805,7 +885,7 @@ func (x *FreezeUserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FreezeUserResponse.ProtoReflect.Descriptor instead.
 func (*FreezeUserResponse) Descriptor() ([]byte, []int) {
-	return file_identity_v1_user_proto_rawDescGZIP(), []int{10}
+	return file_identity_v1_user_proto_rawDescGZIP(), []int{12}
 }
 
 type UnfreezeUserRequest struct {
@@ -817,7 +897,7 @@ type UnfreezeUserRequest struct {
 
 func (x *UnfreezeUserRequest) Reset() {
 	*x = UnfreezeUserRequest{}
-	mi := &file_identity_v1_user_proto_msgTypes[11]
+	mi := &file_identity_v1_user_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -829,7 +909,7 @@ func (x *UnfreezeUserRequest) String() string {
 func (*UnfreezeUserRequest) ProtoMessage() {}
 
 func (x *UnfreezeUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_v1_user_proto_msgTypes[11]
+	mi := &file_identity_v1_user_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -842,7 +922,7 @@ func (x *UnfreezeUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnfreezeUserRequest.ProtoReflect.Descriptor instead.
 func (*UnfreezeUserRequest) Descriptor() ([]byte, []int) {
-	return file_identity_v1_user_proto_rawDescGZIP(), []int{11}
+	return file_identity_v1_user_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *UnfreezeUserRequest) GetUserId() string {
@@ -860,7 +940,7 @@ type UnfreezeUserResponse struct {
 
 func (x *UnfreezeUserResponse) Reset() {
 	*x = UnfreezeUserResponse{}
-	mi := &file_identity_v1_user_proto_msgTypes[12]
+	mi := &file_identity_v1_user_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -872,7 +952,7 @@ func (x *UnfreezeUserResponse) String() string {
 func (*UnfreezeUserResponse) ProtoMessage() {}
 
 func (x *UnfreezeUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_v1_user_proto_msgTypes[12]
+	mi := &file_identity_v1_user_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -885,7 +965,7 @@ func (x *UnfreezeUserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnfreezeUserResponse.ProtoReflect.Descriptor instead.
 func (*UnfreezeUserResponse) Descriptor() ([]byte, []int) {
-	return file_identity_v1_user_proto_rawDescGZIP(), []int{12}
+	return file_identity_v1_user_proto_rawDescGZIP(), []int{14}
 }
 
 type ResetPasswordRequest struct {
@@ -898,7 +978,7 @@ type ResetPasswordRequest struct {
 
 func (x *ResetPasswordRequest) Reset() {
 	*x = ResetPasswordRequest{}
-	mi := &file_identity_v1_user_proto_msgTypes[13]
+	mi := &file_identity_v1_user_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -910,7 +990,7 @@ func (x *ResetPasswordRequest) String() string {
 func (*ResetPasswordRequest) ProtoMessage() {}
 
 func (x *ResetPasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_v1_user_proto_msgTypes[13]
+	mi := &file_identity_v1_user_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -923,7 +1003,7 @@ func (x *ResetPasswordRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResetPasswordRequest.ProtoReflect.Descriptor instead.
 func (*ResetPasswordRequest) Descriptor() ([]byte, []int) {
-	return file_identity_v1_user_proto_rawDescGZIP(), []int{13}
+	return file_identity_v1_user_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ResetPasswordRequest) GetUserId() string {
@@ -948,7 +1028,7 @@ type ResetPasswordResponse struct {
 
 func (x *ResetPasswordResponse) Reset() {
 	*x = ResetPasswordResponse{}
-	mi := &file_identity_v1_user_proto_msgTypes[14]
+	mi := &file_identity_v1_user_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -960,7 +1040,7 @@ func (x *ResetPasswordResponse) String() string {
 func (*ResetPasswordResponse) ProtoMessage() {}
 
 func (x *ResetPasswordResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_v1_user_proto_msgTypes[14]
+	mi := &file_identity_v1_user_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -973,7 +1053,7 @@ func (x *ResetPasswordResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResetPasswordResponse.ProtoReflect.Descriptor instead.
 func (*ResetPasswordResponse) Descriptor() ([]byte, []int) {
-	return file_identity_v1_user_proto_rawDescGZIP(), []int{14}
+	return file_identity_v1_user_proto_rawDescGZIP(), []int{16}
 }
 
 type UpdateProfileRequest struct {
@@ -988,7 +1068,7 @@ type UpdateProfileRequest struct {
 
 func (x *UpdateProfileRequest) Reset() {
 	*x = UpdateProfileRequest{}
-	mi := &file_identity_v1_user_proto_msgTypes[15]
+	mi := &file_identity_v1_user_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1000,7 +1080,7 @@ func (x *UpdateProfileRequest) String() string {
 func (*UpdateProfileRequest) ProtoMessage() {}
 
 func (x *UpdateProfileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_v1_user_proto_msgTypes[15]
+	mi := &file_identity_v1_user_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1013,7 +1093,7 @@ func (x *UpdateProfileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateProfileRequest.ProtoReflect.Descriptor instead.
 func (*UpdateProfileRequest) Descriptor() ([]byte, []int) {
-	return file_identity_v1_user_proto_rawDescGZIP(), []int{15}
+	return file_identity_v1_user_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *UpdateProfileRequest) GetUserId() string {
@@ -1053,7 +1133,7 @@ type UpdateProfileResponse struct {
 
 func (x *UpdateProfileResponse) Reset() {
 	*x = UpdateProfileResponse{}
-	mi := &file_identity_v1_user_proto_msgTypes[16]
+	mi := &file_identity_v1_user_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1065,7 +1145,7 @@ func (x *UpdateProfileResponse) String() string {
 func (*UpdateProfileResponse) ProtoMessage() {}
 
 func (x *UpdateProfileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_v1_user_proto_msgTypes[16]
+	mi := &file_identity_v1_user_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1078,7 +1158,7 @@ func (x *UpdateProfileResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateProfileResponse.ProtoReflect.Descriptor instead.
 func (*UpdateProfileResponse) Descriptor() ([]byte, []int) {
-	return file_identity_v1_user_proto_rawDescGZIP(), []int{16}
+	return file_identity_v1_user_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *UpdateProfileResponse) GetUser() *User {
@@ -1099,7 +1179,7 @@ type ChangePasswordRequest struct {
 
 func (x *ChangePasswordRequest) Reset() {
 	*x = ChangePasswordRequest{}
-	mi := &file_identity_v1_user_proto_msgTypes[17]
+	mi := &file_identity_v1_user_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1111,7 +1191,7 @@ func (x *ChangePasswordRequest) String() string {
 func (*ChangePasswordRequest) ProtoMessage() {}
 
 func (x *ChangePasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_v1_user_proto_msgTypes[17]
+	mi := &file_identity_v1_user_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1124,7 +1204,7 @@ func (x *ChangePasswordRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangePasswordRequest.ProtoReflect.Descriptor instead.
 func (*ChangePasswordRequest) Descriptor() ([]byte, []int) {
-	return file_identity_v1_user_proto_rawDescGZIP(), []int{17}
+	return file_identity_v1_user_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ChangePasswordRequest) GetUserId() string {
@@ -1156,7 +1236,7 @@ type ChangePasswordResponse struct {
 
 func (x *ChangePasswordResponse) Reset() {
 	*x = ChangePasswordResponse{}
-	mi := &file_identity_v1_user_proto_msgTypes[18]
+	mi := &file_identity_v1_user_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1168,7 +1248,7 @@ func (x *ChangePasswordResponse) String() string {
 func (*ChangePasswordResponse) ProtoMessage() {}
 
 func (x *ChangePasswordResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_v1_user_proto_msgTypes[18]
+	mi := &file_identity_v1_user_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1181,7 +1261,7 @@ func (x *ChangePasswordResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangePasswordResponse.ProtoReflect.Descriptor instead.
 func (*ChangePasswordResponse) Descriptor() ([]byte, []int) {
-	return file_identity_v1_user_proto_rawDescGZIP(), []int{18}
+	return file_identity_v1_user_proto_rawDescGZIP(), []int{20}
 }
 
 type ImportUserItem struct {
@@ -1199,7 +1279,7 @@ type ImportUserItem struct {
 
 func (x *ImportUserItem) Reset() {
 	*x = ImportUserItem{}
-	mi := &file_identity_v1_user_proto_msgTypes[19]
+	mi := &file_identity_v1_user_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1211,7 +1291,7 @@ func (x *ImportUserItem) String() string {
 func (*ImportUserItem) ProtoMessage() {}
 
 func (x *ImportUserItem) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_v1_user_proto_msgTypes[19]
+	mi := &file_identity_v1_user_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1224,7 +1304,7 @@ func (x *ImportUserItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ImportUserItem.ProtoReflect.Descriptor instead.
 func (*ImportUserItem) Descriptor() ([]byte, []int) {
-	return file_identity_v1_user_proto_rawDescGZIP(), []int{19}
+	return file_identity_v1_user_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ImportUserItem) GetTenantId() string {
@@ -1285,7 +1365,7 @@ type ImportUsersRequest struct {
 
 func (x *ImportUsersRequest) Reset() {
 	*x = ImportUsersRequest{}
-	mi := &file_identity_v1_user_proto_msgTypes[20]
+	mi := &file_identity_v1_user_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1297,7 +1377,7 @@ func (x *ImportUsersRequest) String() string {
 func (*ImportUsersRequest) ProtoMessage() {}
 
 func (x *ImportUsersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_v1_user_proto_msgTypes[20]
+	mi := &file_identity_v1_user_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1310,7 +1390,7 @@ func (x *ImportUsersRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ImportUsersRequest.ProtoReflect.Descriptor instead.
 func (*ImportUsersRequest) Descriptor() ([]byte, []int) {
-	return file_identity_v1_user_proto_rawDescGZIP(), []int{20}
+	return file_identity_v1_user_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ImportUsersRequest) GetUsers() []*ImportUserItem {
@@ -1330,7 +1410,7 @@ type ImportError struct {
 
 func (x *ImportError) Reset() {
 	*x = ImportError{}
-	mi := &file_identity_v1_user_proto_msgTypes[21]
+	mi := &file_identity_v1_user_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1342,7 +1422,7 @@ func (x *ImportError) String() string {
 func (*ImportError) ProtoMessage() {}
 
 func (x *ImportError) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_v1_user_proto_msgTypes[21]
+	mi := &file_identity_v1_user_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1355,7 +1435,7 @@ func (x *ImportError) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ImportError.ProtoReflect.Descriptor instead.
 func (*ImportError) Descriptor() ([]byte, []int) {
-	return file_identity_v1_user_proto_rawDescGZIP(), []int{21}
+	return file_identity_v1_user_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *ImportError) GetIndex() int32 {
@@ -1384,7 +1464,7 @@ type ImportUsersResponse struct {
 
 func (x *ImportUsersResponse) Reset() {
 	*x = ImportUsersResponse{}
-	mi := &file_identity_v1_user_proto_msgTypes[22]
+	mi := &file_identity_v1_user_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1396,7 +1476,7 @@ func (x *ImportUsersResponse) String() string {
 func (*ImportUsersResponse) ProtoMessage() {}
 
 func (x *ImportUsersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_v1_user_proto_msgTypes[22]
+	mi := &file_identity_v1_user_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1409,7 +1489,7 @@ func (x *ImportUsersResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ImportUsersResponse.ProtoReflect.Descriptor instead.
 func (*ImportUsersResponse) Descriptor() ([]byte, []int) {
-	return file_identity_v1_user_proto_rawDescGZIP(), []int{22}
+	return file_identity_v1_user_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ImportUsersResponse) GetTotal() int32 {
@@ -1482,6 +1562,9 @@ const file_identity_v1_user_proto_rawDesc = "" +
 	"\x0eGetUserRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\"@\n" +
 	"\x0fGetUserResponse\x12-\n" +
+	"\x04user\x18\x01 \x01(\v2\x19.parkhub.identity.v1.UserR\x04user\"\x17\n" +
+	"\x15GetCurrentUserRequest\"G\n" +
+	"\x16GetCurrentUserResponse\x12-\n" +
 	"\x04user\x18\x01 \x01(\v2\x19.parkhub.identity.v1.UserR\x04user\"\xfb\x01\n" +
 	"\x10ListUsersRequest\x12\x1b\n" +
 	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x121\n" +
@@ -1568,11 +1651,12 @@ const file_identity_v1_user_proto_rawDesc = "" +
 	"UserStatus\x12\x1b\n" +
 	"\x17USER_STATUS_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12USER_STATUS_ACTIVE\x10\x01\x12\x16\n" +
-	"\x12USER_STATUS_FROZEN\x10\x022\xde\a\n" +
+	"\x12USER_STATUS_FROZEN\x10\x022\xc9\b\n" +
 	"\vUserService\x12]\n" +
 	"\n" +
 	"CreateUser\x12&.parkhub.identity.v1.CreateUserRequest\x1a'.parkhub.identity.v1.CreateUserResponse\x12T\n" +
-	"\aGetUser\x12#.parkhub.identity.v1.GetUserRequest\x1a$.parkhub.identity.v1.GetUserResponse\x12Z\n" +
+	"\aGetUser\x12#.parkhub.identity.v1.GetUserRequest\x1a$.parkhub.identity.v1.GetUserResponse\x12i\n" +
+	"\x0eGetCurrentUser\x12*.parkhub.identity.v1.GetCurrentUserRequest\x1a+.parkhub.identity.v1.GetCurrentUserResponse\x12Z\n" +
 	"\tListUsers\x12%.parkhub.identity.v1.ListUsersRequest\x1a&.parkhub.identity.v1.ListUsersResponse\x12]\n" +
 	"\n" +
 	"UpdateUser\x12&.parkhub.identity.v1.UpdateUserRequest\x1a'.parkhub.identity.v1.UpdateUserResponse\x12]\n" +
@@ -1597,7 +1681,7 @@ func file_identity_v1_user_proto_rawDescGZIP() []byte {
 }
 
 var file_identity_v1_user_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_identity_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
+var file_identity_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
 var file_identity_v1_user_proto_goTypes = []any{
 	(UserRole)(0),                  // 0: parkhub.identity.v1.UserRole
 	(UserStatus)(0),                // 1: parkhub.identity.v1.UserStatus
@@ -1606,73 +1690,78 @@ var file_identity_v1_user_proto_goTypes = []any{
 	(*CreateUserResponse)(nil),     // 4: parkhub.identity.v1.CreateUserResponse
 	(*GetUserRequest)(nil),         // 5: parkhub.identity.v1.GetUserRequest
 	(*GetUserResponse)(nil),        // 6: parkhub.identity.v1.GetUserResponse
-	(*ListUsersRequest)(nil),       // 7: parkhub.identity.v1.ListUsersRequest
-	(*ListUsersResponse)(nil),      // 8: parkhub.identity.v1.ListUsersResponse
-	(*UpdateUserRequest)(nil),      // 9: parkhub.identity.v1.UpdateUserRequest
-	(*UpdateUserResponse)(nil),     // 10: parkhub.identity.v1.UpdateUserResponse
-	(*FreezeUserRequest)(nil),      // 11: parkhub.identity.v1.FreezeUserRequest
-	(*FreezeUserResponse)(nil),     // 12: parkhub.identity.v1.FreezeUserResponse
-	(*UnfreezeUserRequest)(nil),    // 13: parkhub.identity.v1.UnfreezeUserRequest
-	(*UnfreezeUserResponse)(nil),   // 14: parkhub.identity.v1.UnfreezeUserResponse
-	(*ResetPasswordRequest)(nil),   // 15: parkhub.identity.v1.ResetPasswordRequest
-	(*ResetPasswordResponse)(nil),  // 16: parkhub.identity.v1.ResetPasswordResponse
-	(*UpdateProfileRequest)(nil),   // 17: parkhub.identity.v1.UpdateProfileRequest
-	(*UpdateProfileResponse)(nil),  // 18: parkhub.identity.v1.UpdateProfileResponse
-	(*ChangePasswordRequest)(nil),  // 19: parkhub.identity.v1.ChangePasswordRequest
-	(*ChangePasswordResponse)(nil), // 20: parkhub.identity.v1.ChangePasswordResponse
-	(*ImportUserItem)(nil),         // 21: parkhub.identity.v1.ImportUserItem
-	(*ImportUsersRequest)(nil),     // 22: parkhub.identity.v1.ImportUsersRequest
-	(*ImportError)(nil),            // 23: parkhub.identity.v1.ImportError
-	(*ImportUsersResponse)(nil),    // 24: parkhub.identity.v1.ImportUsersResponse
-	(*timestamppb.Timestamp)(nil),  // 25: google.protobuf.Timestamp
-	(*v1.PaginationRequest)(nil),   // 26: parkhub.common.v1.PaginationRequest
-	(*v1.PaginationResponse)(nil),  // 27: parkhub.common.v1.PaginationResponse
+	(*GetCurrentUserRequest)(nil),  // 7: parkhub.identity.v1.GetCurrentUserRequest
+	(*GetCurrentUserResponse)(nil), // 8: parkhub.identity.v1.GetCurrentUserResponse
+	(*ListUsersRequest)(nil),       // 9: parkhub.identity.v1.ListUsersRequest
+	(*ListUsersResponse)(nil),      // 10: parkhub.identity.v1.ListUsersResponse
+	(*UpdateUserRequest)(nil),      // 11: parkhub.identity.v1.UpdateUserRequest
+	(*UpdateUserResponse)(nil),     // 12: parkhub.identity.v1.UpdateUserResponse
+	(*FreezeUserRequest)(nil),      // 13: parkhub.identity.v1.FreezeUserRequest
+	(*FreezeUserResponse)(nil),     // 14: parkhub.identity.v1.FreezeUserResponse
+	(*UnfreezeUserRequest)(nil),    // 15: parkhub.identity.v1.UnfreezeUserRequest
+	(*UnfreezeUserResponse)(nil),   // 16: parkhub.identity.v1.UnfreezeUserResponse
+	(*ResetPasswordRequest)(nil),   // 17: parkhub.identity.v1.ResetPasswordRequest
+	(*ResetPasswordResponse)(nil),  // 18: parkhub.identity.v1.ResetPasswordResponse
+	(*UpdateProfileRequest)(nil),   // 19: parkhub.identity.v1.UpdateProfileRequest
+	(*UpdateProfileResponse)(nil),  // 20: parkhub.identity.v1.UpdateProfileResponse
+	(*ChangePasswordRequest)(nil),  // 21: parkhub.identity.v1.ChangePasswordRequest
+	(*ChangePasswordResponse)(nil), // 22: parkhub.identity.v1.ChangePasswordResponse
+	(*ImportUserItem)(nil),         // 23: parkhub.identity.v1.ImportUserItem
+	(*ImportUsersRequest)(nil),     // 24: parkhub.identity.v1.ImportUsersRequest
+	(*ImportError)(nil),            // 25: parkhub.identity.v1.ImportError
+	(*ImportUsersResponse)(nil),    // 26: parkhub.identity.v1.ImportUsersResponse
+	(*timestamppb.Timestamp)(nil),  // 27: google.protobuf.Timestamp
+	(*v1.PaginationRequest)(nil),   // 28: parkhub.common.v1.PaginationRequest
+	(*v1.PaginationResponse)(nil),  // 29: parkhub.common.v1.PaginationResponse
 }
 var file_identity_v1_user_proto_depIdxs = []int32{
 	0,  // 0: parkhub.identity.v1.User.role:type_name -> parkhub.identity.v1.UserRole
 	1,  // 1: parkhub.identity.v1.User.status:type_name -> parkhub.identity.v1.UserStatus
-	25, // 2: parkhub.identity.v1.User.last_login_at:type_name -> google.protobuf.Timestamp
-	25, // 3: parkhub.identity.v1.User.created_at:type_name -> google.protobuf.Timestamp
-	25, // 4: parkhub.identity.v1.User.updated_at:type_name -> google.protobuf.Timestamp
+	27, // 2: parkhub.identity.v1.User.last_login_at:type_name -> google.protobuf.Timestamp
+	27, // 3: parkhub.identity.v1.User.created_at:type_name -> google.protobuf.Timestamp
+	27, // 4: parkhub.identity.v1.User.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 5: parkhub.identity.v1.CreateUserRequest.role:type_name -> parkhub.identity.v1.UserRole
 	2,  // 6: parkhub.identity.v1.CreateUserResponse.user:type_name -> parkhub.identity.v1.User
 	2,  // 7: parkhub.identity.v1.GetUserResponse.user:type_name -> parkhub.identity.v1.User
-	0,  // 8: parkhub.identity.v1.ListUsersRequest.role:type_name -> parkhub.identity.v1.UserRole
-	1,  // 9: parkhub.identity.v1.ListUsersRequest.status:type_name -> parkhub.identity.v1.UserStatus
-	26, // 10: parkhub.identity.v1.ListUsersRequest.pagination:type_name -> parkhub.common.v1.PaginationRequest
-	2,  // 11: parkhub.identity.v1.ListUsersResponse.users:type_name -> parkhub.identity.v1.User
-	27, // 12: parkhub.identity.v1.ListUsersResponse.pagination:type_name -> parkhub.common.v1.PaginationResponse
-	0,  // 13: parkhub.identity.v1.UpdateUserRequest.role:type_name -> parkhub.identity.v1.UserRole
-	2,  // 14: parkhub.identity.v1.UpdateUserResponse.user:type_name -> parkhub.identity.v1.User
-	2,  // 15: parkhub.identity.v1.UpdateProfileResponse.user:type_name -> parkhub.identity.v1.User
-	0,  // 16: parkhub.identity.v1.ImportUserItem.role:type_name -> parkhub.identity.v1.UserRole
-	21, // 17: parkhub.identity.v1.ImportUsersRequest.users:type_name -> parkhub.identity.v1.ImportUserItem
-	23, // 18: parkhub.identity.v1.ImportUsersResponse.errors:type_name -> parkhub.identity.v1.ImportError
-	3,  // 19: parkhub.identity.v1.UserService.CreateUser:input_type -> parkhub.identity.v1.CreateUserRequest
-	5,  // 20: parkhub.identity.v1.UserService.GetUser:input_type -> parkhub.identity.v1.GetUserRequest
-	7,  // 21: parkhub.identity.v1.UserService.ListUsers:input_type -> parkhub.identity.v1.ListUsersRequest
-	9,  // 22: parkhub.identity.v1.UserService.UpdateUser:input_type -> parkhub.identity.v1.UpdateUserRequest
-	11, // 23: parkhub.identity.v1.UserService.FreezeUser:input_type -> parkhub.identity.v1.FreezeUserRequest
-	13, // 24: parkhub.identity.v1.UserService.UnfreezeUser:input_type -> parkhub.identity.v1.UnfreezeUserRequest
-	15, // 25: parkhub.identity.v1.UserService.ResetPassword:input_type -> parkhub.identity.v1.ResetPasswordRequest
-	17, // 26: parkhub.identity.v1.UserService.UpdateProfile:input_type -> parkhub.identity.v1.UpdateProfileRequest
-	19, // 27: parkhub.identity.v1.UserService.ChangePassword:input_type -> parkhub.identity.v1.ChangePasswordRequest
-	22, // 28: parkhub.identity.v1.UserService.ImportUsers:input_type -> parkhub.identity.v1.ImportUsersRequest
-	4,  // 29: parkhub.identity.v1.UserService.CreateUser:output_type -> parkhub.identity.v1.CreateUserResponse
-	6,  // 30: parkhub.identity.v1.UserService.GetUser:output_type -> parkhub.identity.v1.GetUserResponse
-	8,  // 31: parkhub.identity.v1.UserService.ListUsers:output_type -> parkhub.identity.v1.ListUsersResponse
-	10, // 32: parkhub.identity.v1.UserService.UpdateUser:output_type -> parkhub.identity.v1.UpdateUserResponse
-	12, // 33: parkhub.identity.v1.UserService.FreezeUser:output_type -> parkhub.identity.v1.FreezeUserResponse
-	14, // 34: parkhub.identity.v1.UserService.UnfreezeUser:output_type -> parkhub.identity.v1.UnfreezeUserResponse
-	16, // 35: parkhub.identity.v1.UserService.ResetPassword:output_type -> parkhub.identity.v1.ResetPasswordResponse
-	18, // 36: parkhub.identity.v1.UserService.UpdateProfile:output_type -> parkhub.identity.v1.UpdateProfileResponse
-	20, // 37: parkhub.identity.v1.UserService.ChangePassword:output_type -> parkhub.identity.v1.ChangePasswordResponse
-	24, // 38: parkhub.identity.v1.UserService.ImportUsers:output_type -> parkhub.identity.v1.ImportUsersResponse
-	29, // [29:39] is the sub-list for method output_type
-	19, // [19:29] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	2,  // 8: parkhub.identity.v1.GetCurrentUserResponse.user:type_name -> parkhub.identity.v1.User
+	0,  // 9: parkhub.identity.v1.ListUsersRequest.role:type_name -> parkhub.identity.v1.UserRole
+	1,  // 10: parkhub.identity.v1.ListUsersRequest.status:type_name -> parkhub.identity.v1.UserStatus
+	28, // 11: parkhub.identity.v1.ListUsersRequest.pagination:type_name -> parkhub.common.v1.PaginationRequest
+	2,  // 12: parkhub.identity.v1.ListUsersResponse.users:type_name -> parkhub.identity.v1.User
+	29, // 13: parkhub.identity.v1.ListUsersResponse.pagination:type_name -> parkhub.common.v1.PaginationResponse
+	0,  // 14: parkhub.identity.v1.UpdateUserRequest.role:type_name -> parkhub.identity.v1.UserRole
+	2,  // 15: parkhub.identity.v1.UpdateUserResponse.user:type_name -> parkhub.identity.v1.User
+	2,  // 16: parkhub.identity.v1.UpdateProfileResponse.user:type_name -> parkhub.identity.v1.User
+	0,  // 17: parkhub.identity.v1.ImportUserItem.role:type_name -> parkhub.identity.v1.UserRole
+	23, // 18: parkhub.identity.v1.ImportUsersRequest.users:type_name -> parkhub.identity.v1.ImportUserItem
+	25, // 19: parkhub.identity.v1.ImportUsersResponse.errors:type_name -> parkhub.identity.v1.ImportError
+	3,  // 20: parkhub.identity.v1.UserService.CreateUser:input_type -> parkhub.identity.v1.CreateUserRequest
+	5,  // 21: parkhub.identity.v1.UserService.GetUser:input_type -> parkhub.identity.v1.GetUserRequest
+	7,  // 22: parkhub.identity.v1.UserService.GetCurrentUser:input_type -> parkhub.identity.v1.GetCurrentUserRequest
+	9,  // 23: parkhub.identity.v1.UserService.ListUsers:input_type -> parkhub.identity.v1.ListUsersRequest
+	11, // 24: parkhub.identity.v1.UserService.UpdateUser:input_type -> parkhub.identity.v1.UpdateUserRequest
+	13, // 25: parkhub.identity.v1.UserService.FreezeUser:input_type -> parkhub.identity.v1.FreezeUserRequest
+	15, // 26: parkhub.identity.v1.UserService.UnfreezeUser:input_type -> parkhub.identity.v1.UnfreezeUserRequest
+	17, // 27: parkhub.identity.v1.UserService.ResetPassword:input_type -> parkhub.identity.v1.ResetPasswordRequest
+	19, // 28: parkhub.identity.v1.UserService.UpdateProfile:input_type -> parkhub.identity.v1.UpdateProfileRequest
+	21, // 29: parkhub.identity.v1.UserService.ChangePassword:input_type -> parkhub.identity.v1.ChangePasswordRequest
+	24, // 30: parkhub.identity.v1.UserService.ImportUsers:input_type -> parkhub.identity.v1.ImportUsersRequest
+	4,  // 31: parkhub.identity.v1.UserService.CreateUser:output_type -> parkhub.identity.v1.CreateUserResponse
+	6,  // 32: parkhub.identity.v1.UserService.GetUser:output_type -> parkhub.identity.v1.GetUserResponse
+	8,  // 33: parkhub.identity.v1.UserService.GetCurrentUser:output_type -> parkhub.identity.v1.GetCurrentUserResponse
+	10, // 34: parkhub.identity.v1.UserService.ListUsers:output_type -> parkhub.identity.v1.ListUsersResponse
+	12, // 35: parkhub.identity.v1.UserService.UpdateUser:output_type -> parkhub.identity.v1.UpdateUserResponse
+	14, // 36: parkhub.identity.v1.UserService.FreezeUser:output_type -> parkhub.identity.v1.FreezeUserResponse
+	16, // 37: parkhub.identity.v1.UserService.UnfreezeUser:output_type -> parkhub.identity.v1.UnfreezeUserResponse
+	18, // 38: parkhub.identity.v1.UserService.ResetPassword:output_type -> parkhub.identity.v1.ResetPasswordResponse
+	20, // 39: parkhub.identity.v1.UserService.UpdateProfile:output_type -> parkhub.identity.v1.UpdateProfileResponse
+	22, // 40: parkhub.identity.v1.UserService.ChangePassword:output_type -> parkhub.identity.v1.ChangePasswordResponse
+	26, // 41: parkhub.identity.v1.UserService.ImportUsers:output_type -> parkhub.identity.v1.ImportUsersResponse
+	31, // [31:42] is the sub-list for method output_type
+	20, // [20:31] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_identity_v1_user_proto_init() }
@@ -1682,16 +1771,16 @@ func file_identity_v1_user_proto_init() {
 	}
 	file_identity_v1_user_proto_msgTypes[0].OneofWrappers = []any{}
 	file_identity_v1_user_proto_msgTypes[1].OneofWrappers = []any{}
-	file_identity_v1_user_proto_msgTypes[7].OneofWrappers = []any{}
-	file_identity_v1_user_proto_msgTypes[15].OneofWrappers = []any{}
-	file_identity_v1_user_proto_msgTypes[19].OneofWrappers = []any{}
+	file_identity_v1_user_proto_msgTypes[9].OneofWrappers = []any{}
+	file_identity_v1_user_proto_msgTypes[17].OneofWrappers = []any{}
+	file_identity_v1_user_proto_msgTypes[21].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_identity_v1_user_proto_rawDesc), len(file_identity_v1_user_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   23,
+			NumMessages:   25,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

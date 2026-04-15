@@ -12,12 +12,14 @@ import (
 	servicemocks "github.com/parkhub/api/internal/domains/identity/service/mocks"
 	commonv1 "github.com/parkhub/api/internal/gen/api/proto/common/v1"
 	identityv1 "github.com/parkhub/api/internal/gen/api/proto/identity/v1"
+	"github.com/parkhub/api/pkg/identityctx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	go_mock "go.uber.org/mock/gomock"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/test/bufconn"
 )
@@ -27,9 +29,19 @@ func setupUserTestServer(t *testing.T) (identityv1.UserServiceClient, *servicemo
 	ctrl := go_mock.NewController(t)
 	mockSvc := servicemocks.NewMockUserService(ctrl)
 
+	injectIdentity := func(ctx context.Context, req any, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
+		md, ok := metadata.FromIncomingContext(ctx)
+		if ok {
+			if ids := md.Get("x-user-id"); len(ids) > 0 {
+				ctx = identityctx.WithUserID(ctx, ids[0])
+			}
+		}
+		return handler(ctx, req)
+	}
+
 	srv := NewUserGRPCServer(mockSvc)
 	lis := bufconn.Listen(bufSize)
-	s := grpc.NewServer()
+	s := grpc.NewServer(grpc.UnaryInterceptor(injectIdentity))
 	identityv1.RegisterUserServiceServer(s, srv)
 	go s.Serve(lis)
 	t.Cleanup(s.GracefulStop)
@@ -285,6 +297,31 @@ func TestGRPC_ImportUsers_Success(t *testing.T) {
 	assert.Equal(t, int32(1), resp.Success)
 	assert.Equal(t, int32(1), resp.Failed)
 	assert.Len(t, resp.Errors, 1)
+}
+
+func TestGRPC_GetCurrentUser_Success(t *testing.T) {
+	client, mockSvc, ctrl := setupUserTestServer(t)
+	defer ctrl.Finish()
+
+	expected := newDomainUser()
+	mockSvc.EXPECT().GetByID(go_mock.Any(), &service.GetUserRequest{UserID: "user-1"}).Return(expected, nil)
+
+	ctx := metadata.AppendToOutgoingContext(context.Background(), "x-user-id", "user-1")
+	resp, err := client.GetCurrentUser(ctx, &identityv1.GetCurrentUserRequest{})
+	assert.NoError(t, err)
+	assert.Equal(t, "user-1", resp.User.UserId)
+	assert.Equal(t, "alice", resp.User.Username)
+}
+
+func TestGRPC_GetCurrentUser_NotFound(t *testing.T) {
+	client, mockSvc, ctrl := setupUserTestServer(t)
+	defer ctrl.Finish()
+
+	mockSvc.EXPECT().GetByID(go_mock.Any(), &service.GetUserRequest{UserID: "user-1"}).Return(nil, errs.ErrUserNotFound)
+
+	ctx := metadata.AppendToOutgoingContext(context.Background(), "x-user-id", "user-1")
+	_, err := client.GetCurrentUser(ctx, &identityv1.GetCurrentUserRequest{})
+	assert.Equal(t, codes.NotFound, status.Code(err))
 }
 
 func TestToProtoUser_Nil(t *testing.T) {

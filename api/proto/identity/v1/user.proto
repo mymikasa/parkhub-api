@@ -56,6 +56,12 @@ message GetUserResponse {
   User user = 1;
 }
 
+message GetCurrentUserRequest {}
+
+message GetCurrentUserResponse {
+  User user = 1;
+}
+
 message ListUsersRequest {
   string tenant_id = 1;
   UserRole role = 2;
@@ -149,6 +155,7 @@ message ImportUsersResponse {
 service UserService {
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
   rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  rpc GetCurrentUser(GetCurrentUserRequest) returns (GetCurrentUserResponse);
   rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
   rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
   rpc FreezeUser(FreezeUserRequest) returns (FreezeUserResponse);

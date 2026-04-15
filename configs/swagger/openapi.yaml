@@ -561,6 +561,27 @@ paths:
         '401':
           description: 用户不存在或已冻结
 
+  /identity/v1/users/me:
+    get:
+      tags: [User]
+      operationId: getCurrentUser
+      summary: 获取当前登录用户信息
+      description: 从 JWT 中提取用户ID，返回当前用户详情。用于路由守卫 / token 续签场景。
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: 未认证 / Token 无效
+
   /identity/v1/users:
     post:
       tags: [User]
