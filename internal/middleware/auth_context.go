@@ -15,6 +15,8 @@ var authWhitelist = map[string]struct{}{
 	"/parkhub.identity.v1.AuthService/RefreshToken": {},
 	"/parkhub.identity.v1.AuthService/Logout":       {},
 	"/parkhub.identity.v1.AuthService/GetJWKS":      {},
+	"/parkhub.sms.v1.SmsService/SendCode":           {},
+	"/parkhub.sms.v1.SmsService/VerifyCode":         {},
 	"/grpc.health.v1.Health/Check":                  {},
 	"/grpc.health.v1.Health/Watch":                  {},
 }
