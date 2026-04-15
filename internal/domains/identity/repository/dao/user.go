@@ -41,6 +41,7 @@ type UserDAO interface {
 	Insert(ctx context.Context, user *User) error
 	FindByID(ctx context.Context, id string) (*User, error)
 	FindByUsername(ctx context.Context, username string) (*User, error)
+	FindByPhone(ctx context.Context, phone string) (*User, error)
 	FindAll(ctx context.Context, filter UserFilter, page, pageSize int) ([]*User, int64, error)
 	Update(ctx context.Context, user *User) error
 	BatchInsert(ctx context.Context, users []*User) error
@@ -80,6 +81,18 @@ func (d *GORMUserDAO) FindByID(ctx context.Context, id string) (*User, error) {
 func (d *GORMUserDAO) FindByUsername(ctx context.Context, username string) (*User, error) {
 	var user User
 	err := d.db.WithContext(ctx).Where("username = ?", username).First(&user).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errs.ErrUserNotFound
+		}
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (d *GORMUserDAO) FindByPhone(ctx context.Context, phone string) (*User, error) {
+	var user User
+	err := d.db.WithContext(ctx).Where("phone = ?", phone).First(&user).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errs.ErrUserNotFound

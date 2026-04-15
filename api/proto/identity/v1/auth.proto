@@ -42,8 +42,14 @@ message GetJWKSResponse {
   bytes jwks_json = 1;
 }
 
+message SmsLoginRequest {
+  string phone = 1;
+  string code = 2;
+}
+
 service AuthService {
   rpc Login(LoginRequest) returns (LoginResponse);
+  rpc SmsLogin(SmsLoginRequest) returns (LoginResponse);
   rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
   rpc Logout(LogoutRequest) returns (LogoutResponse);
   rpc GetJWKS(GetJWKSRequest) returns (GetJWKSResponse);

@@ -36,6 +36,14 @@ func (r *userRepo) GetByUsername(ctx context.Context, username string) (*domain.
 	return toDomainUser(d), nil
 }
 
+func (r *userRepo) GetByPhone(ctx context.Context, phone string) (*domain.User, error) {
+	d, err := r.dao.FindByPhone(ctx, phone)
+	if err != nil {
+		return nil, err
+	}
+	return toDomainUser(d), nil
+}
+
 func (r *userRepo) List(ctx context.Context, filter UserFilter, page, pageSize int) ([]*domain.User, int64, error) {
 	daoFilter := dao.UserFilter{
 		TenantID: filter.TenantID,

@@ -656,20 +656,20 @@ curl -sf "${APISIX_ADMIN}/routes/40" \
     }
   }' && echo ""
 
-echo "Creating route: VerifyCode (POST /identity/v1/auth/sms/login)"
+echo "Creating route: SmsLogin (POST /identity/v1/auth/sms/login)"
 curl -sf "${APISIX_ADMIN}/routes/41" \
   -H "X-API-KEY: ${API_KEY}" \
   -X PUT \
   -d '{
-    "name": "sms-verify-code",
+    "name": "auth-sms-login",
     "methods": ["POST"],
     "uri": "/identity/v1/auth/sms/login",
     "upstream_id": "1",
     "plugins": {
       "grpc-transcode": {
         "proto_id": "1",
-        "service": "parkhub.sms.v1.SmsService",
-        "method": "VerifyCode",
+        "service": "parkhub.identity.v1.AuthService",
+        "method": "SmsLogin",
         "pb_option": ["enum_as_name", "int64_as_number"]
       },
       "opentelemetry": { "sampler": { "name": "always_on" } },

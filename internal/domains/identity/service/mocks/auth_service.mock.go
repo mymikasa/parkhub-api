@@ -17,6 +17,44 @@ import (
 	gomock "go.uber.org/mock/gomock"
 )
 
+// MockSmsCodeVerifier is a mock of SmsCodeVerifier interface.
+type MockSmsCodeVerifier struct {
+	ctrl     *gomock.Controller
+	recorder *MockSmsCodeVerifierMockRecorder
+	isgomock struct{}
+}
+
+// MockSmsCodeVerifierMockRecorder is the mock recorder for MockSmsCodeVerifier.
+type MockSmsCodeVerifierMockRecorder struct {
+	mock *MockSmsCodeVerifier
+}
+
+// NewMockSmsCodeVerifier creates a new mock instance.
+func NewMockSmsCodeVerifier(ctrl *gomock.Controller) *MockSmsCodeVerifier {
+	mock := &MockSmsCodeVerifier{ctrl: ctrl}
+	mock.recorder = &MockSmsCodeVerifierMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockSmsCodeVerifier) EXPECT() *MockSmsCodeVerifierMockRecorder {
+	return m.recorder
+}
+
+// VerifyCode mocks base method.
+func (m *MockSmsCodeVerifier) VerifyCode(ctx context.Context, phone, code string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifyCode", ctx, phone, code)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// VerifyCode indicates an expected call of VerifyCode.
+func (mr *MockSmsCodeVerifierMockRecorder) VerifyCode(ctx, phone, code any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyCode", reflect.TypeOf((*MockSmsCodeVerifier)(nil).VerifyCode), ctx, phone, code)
+}
+
 // MockAuthService is a mock of AuthService interface.
 type MockAuthService struct {
 	ctrl     *gomock.Controller
@@ -83,4 +121,19 @@ func (m *MockAuthService) RefreshToken(ctx context.Context, req *service.Refresh
 func (mr *MockAuthServiceMockRecorder) RefreshToken(ctx, req any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RefreshToken", reflect.TypeOf((*MockAuthService)(nil).RefreshToken), ctx, req)
+}
+
+// SmsLogin mocks base method.
+func (m *MockAuthService) SmsLogin(ctx context.Context, req *service.SmsLoginRequest) (*service.LoginResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SmsLogin", ctx, req)
+	ret0, _ := ret[0].(*service.LoginResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SmsLogin indicates an expected call of SmsLogin.
+func (mr *MockAuthServiceMockRecorder) SmsLogin(ctx, req any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SmsLogin", reflect.TypeOf((*MockAuthService)(nil).SmsLogin), ctx, req)
 }

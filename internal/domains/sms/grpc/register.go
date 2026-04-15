@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func RegisterServices(reg *registry.Registry, coreDB *gorm.DB, rdb *redis.Client) {
+func RegisterServices(reg *registry.Registry, coreDB *gorm.DB, rdb *redis.Client) service.SmsService {
 	smsDAO := dao.NewSmsRecordDAO(coreDB)
 	smsCache := cache.NewRedisSmsCache(rdb)
 	smsRepo := repository.NewSmsRepository(smsDAO, smsCache)
@@ -23,4 +23,6 @@ func RegisterServices(reg *registry.Registry, coreDB *gorm.DB, rdb *redis.Client
 	reg.MustRegister("sms.v1.SmsService", func(s *grpc.Server) {
 		smsv1.RegisterSmsServiceServer(s, NewSmsGRPCServer(smsSvc))
 	})
+
+	return smsSvc
 }

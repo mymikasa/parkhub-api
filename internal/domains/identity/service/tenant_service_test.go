@@ -4,12 +4,12 @@ import (
 	"context"
 	"testing"
 
-	go_mock "github.com/golang/mock/gomock"
 	"github.com/parkhub/api/internal/domains/identity/domain"
 	"github.com/parkhub/api/internal/domains/identity/errs"
 	repomocks "github.com/parkhub/api/internal/domains/identity/repository/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	go_mock "go.uber.org/mock/gomock"
 )
 
 func TestTenantService_CreateTenant_Success(t *testing.T) {
