@@ -49,7 +49,7 @@ func (s *AuthGRPCServer) Login(ctx context.Context, req *identityv1.LoginRequest
 	}, nil
 }
 
-func (s *AuthGRPCServer) SmsLogin(ctx context.Context, req *identityv1.SmsLoginRequest) (*identityv1.LoginResponse, error) {
+func (s *AuthGRPCServer) SmsLogin(ctx context.Context, req *identityv1.SmsLoginRequest) (*identityv1.SmsLoginResponse, error) {
 	resp, err := s.authSvc.SmsLogin(ctx, &service.SmsLoginRequest{
 		Phone: req.Phone,
 		Code:  req.Code,
@@ -57,7 +57,7 @@ func (s *AuthGRPCServer) SmsLogin(ctx context.Context, req *identityv1.SmsLoginR
 	if err != nil {
 		return nil, toAuthGRPCError(err)
 	}
-	return &identityv1.LoginResponse{
+	return &identityv1.SmsLoginResponse{
 		AccessToken:     resp.TokenPair.AccessToken,
 		RefreshToken:    resp.TokenPair.RefreshToken,
 		AccessExpiresIn: resp.AccessExpiresIn,

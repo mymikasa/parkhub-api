@@ -31,7 +31,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthServiceClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
-	SmsLogin(ctx context.Context, in *SmsLoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	SmsLogin(ctx context.Context, in *SmsLoginRequest, opts ...grpc.CallOption) (*SmsLoginResponse, error)
 	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error)
 	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*LogoutResponse, error)
 	GetJWKS(ctx context.Context, in *GetJWKSRequest, opts ...grpc.CallOption) (*GetJWKSResponse, error)
@@ -55,9 +55,9 @@ func (c *authServiceClient) Login(ctx context.Context, in *LoginRequest, opts ..
 	return out, nil
 }
 
-func (c *authServiceClient) SmsLogin(ctx context.Context, in *SmsLoginRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
+func (c *authServiceClient) SmsLogin(ctx context.Context, in *SmsLoginRequest, opts ...grpc.CallOption) (*SmsLoginResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(LoginResponse)
+	out := new(SmsLoginResponse)
 	err := c.cc.Invoke(ctx, AuthService_SmsLogin_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -100,7 +100,7 @@ func (c *authServiceClient) GetJWKS(ctx context.Context, in *GetJWKSRequest, opt
 // for forward compatibility.
 type AuthServiceServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
-	SmsLogin(context.Context, *SmsLoginRequest) (*LoginResponse, error)
+	SmsLogin(context.Context, *SmsLoginRequest) (*SmsLoginResponse, error)
 	RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error)
 	Logout(context.Context, *LogoutRequest) (*LogoutResponse, error)
 	GetJWKS(context.Context, *GetJWKSRequest) (*GetJWKSResponse, error)
@@ -117,7 +117,7 @@ type UnimplementedAuthServiceServer struct{}
 func (UnimplementedAuthServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedAuthServiceServer) SmsLogin(context.Context, *SmsLoginRequest) (*LoginResponse, error) {
+func (UnimplementedAuthServiceServer) SmsLogin(context.Context, *SmsLoginRequest) (*SmsLoginResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SmsLogin not implemented")
 }
 func (UnimplementedAuthServiceServer) RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error) {

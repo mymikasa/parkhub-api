@@ -47,9 +47,17 @@ message SmsLoginRequest {
   string code = 2;
 }
 
+message SmsLoginResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  int32 access_expires_in = 3;
+  string token_type = 4;
+  User user = 5;
+}
+
 service AuthService {
   rpc Login(LoginRequest) returns (LoginResponse);
-  rpc SmsLogin(SmsLoginRequest) returns (LoginResponse);
+  rpc SmsLogin(SmsLoginRequest) returns (SmsLoginResponse);
   rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
   rpc Logout(LogoutRequest) returns (LogoutResponse);
   rpc GetJWKS(GetJWKSRequest) returns (GetJWKSResponse);
