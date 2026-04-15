@@ -190,3 +190,44 @@ func TestGRPCAuth_GetJWKS_Success(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 }
+
+func TestGRPCAuth_SmsLogin_Success(t *testing.T) {
+	client, mockSvc, ctrl := setupAuthTestServer(t)
+	defer ctrl.Finish()
+
+	user := newAuthDomainUser()
+	phone := "13800138000"
+	user.Phone = &phone
+
+	mockSvc.EXPECT().SmsLogin(go_mock.Any(), go_mock.Any()).Return(&service.LoginResponse{
+		TokenPair: domain.TokenPair{
+			AccessToken:  "access-token",
+			RefreshToken: "refresh-token",
+		},
+		User:            user,
+		AccessExpiresIn: 900,
+	}, nil)
+
+	resp, err := client.SmsLogin(context.Background(), &identityv1.SmsLoginRequest{
+		Phone: "13800138000",
+		Code:  "123456",
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, "access-token", resp.AccessToken)
+	assert.Equal(t, "refresh-token", resp.RefreshToken)
+	assert.Equal(t, "Bearer", resp.TokenType)
+	assert.Equal(t, "user-1", resp.User.UserId)
+}
+
+func TestGRPCAuth_SmsLogin_InvalidCode(t *testing.T) {
+	client, mockSvc, ctrl := setupAuthTestServer(t)
+	defer ctrl.Finish()
+
+	mockSvc.EXPECT().SmsLogin(go_mock.Any(), go_mock.Any()).Return(nil, errs.ErrInvalidCredentials)
+
+	_, err := client.SmsLogin(context.Background(), &identityv1.SmsLoginRequest{
+		Phone: "13800138000",
+		Code:  "wrong",
+	})
+	assert.Equal(t, codes.Unauthenticated, status.Code(err))
+}

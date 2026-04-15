@@ -12,6 +12,7 @@ import (
 
 var authWhitelist = map[string]struct{}{
 	"/parkhub.identity.v1.AuthService/Login":        {},
+	"/parkhub.identity.v1.AuthService/SmsLogin":     {},
 	"/parkhub.identity.v1.AuthService/RefreshToken": {},
 	"/parkhub.identity.v1.AuthService/Logout":       {},
 	"/parkhub.identity.v1.AuthService/GetJWKS":      {},

@@ -4,13 +4,13 @@ import (
 	"context"
 	"testing"
 
-	go_mock "github.com/golang/mock/gomock"
 	"github.com/parkhub/api/internal/domains/identity/domain"
 	"github.com/parkhub/api/internal/domains/identity/errs"
 	"github.com/parkhub/api/internal/domains/identity/repository/dao"
 	daomocks "github.com/parkhub/api/internal/domains/identity/repository/dao/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	go_mock "go.uber.org/mock/gomock"
 )
 
 func newDAOTenant() *dao.Tenant {

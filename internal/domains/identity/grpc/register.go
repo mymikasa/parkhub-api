@@ -1,6 +1,8 @@
 package grpc
 
 import (
+	"context"
+
 	"github.com/parkhub/api/internal/config"
 	"github.com/parkhub/api/internal/domains/identity/domain"
 	"github.com/parkhub/api/internal/domains/identity/repository"
@@ -14,7 +16,15 @@ import (
 	"gorm.io/gorm"
 )
 
-func RegisterServices(reg *registry.Registry, coreDB *gorm.DB, rdb *redis.Client, authCfg config.AuthConfig) {
+type smsCodeVerifierAdapter struct {
+	verifyFn func(ctx context.Context, phone, code string) error
+}
+
+func (a *smsCodeVerifierAdapter) VerifyCode(ctx context.Context, phone, code string) error {
+	return a.verifyFn(ctx, phone, code)
+}
+
+func RegisterServices(reg *registry.Registry, coreDB *gorm.DB, rdb *redis.Client, authCfg config.AuthConfig, smsVerifyFn func(ctx context.Context, phone, code string) error) {
 	// ── Tenant Service ──
 	tenantDAO := dao.NewTenantDAO(coreDB)
 	tenantRepo := repository.NewTenantRepo(tenantDAO)
@@ -39,7 +49,8 @@ func RegisterServices(reg *registry.Registry, coreDB *gorm.DB, rdb *redis.Client
 		panic("failed to load RSA signer: " + err.Error())
 	}
 	refreshTokenRepo := cache.NewRedisRefreshTokenRepo(rdb)
-	authSvc := service.NewAuthService(userRepo, refreshTokenRepo, signer, authCfg)
+	smsVerifier := &smsCodeVerifierAdapter{verifyFn: smsVerifyFn}
+	authSvc := service.NewAuthService(userRepo, refreshTokenRepo, signer, authCfg, smsVerifier)
 
 	reg.MustRegister("identity.v1.AuthService", func(s *grpc.Server) {
 		identityv1.RegisterAuthServiceServer(s, NewAuthGRPCServer(authSvc, signer))

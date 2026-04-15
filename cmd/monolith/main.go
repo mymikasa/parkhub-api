@@ -15,8 +15,10 @@ import (
 	"github.com/parkhub/api/internal/config"
 	identitygrpc "github.com/parkhub/api/internal/domains/identity/grpc"
 	"github.com/parkhub/api/internal/domains/identity/repository/dao"
+	smsdomain "github.com/parkhub/api/internal/domains/sms/domain"
 	smsgrpc "github.com/parkhub/api/internal/domains/sms/grpc"
 	smsdao "github.com/parkhub/api/internal/domains/sms/repository/dao"
+	smsservice "github.com/parkhub/api/internal/domains/sms/service"
 	"github.com/parkhub/api/internal/health"
 	"github.com/parkhub/api/internal/middleware"
 	"github.com/parkhub/api/internal/registry"
@@ -96,8 +98,15 @@ func run() error {
 	})
 
 	reg := registry.New()
-	identitygrpc.RegisterServices(reg, db, rdb, cfg.Auth)
-	smsgrpc.RegisterServices(reg, db, rdb)
+	smsSvc := smsgrpc.RegisterServices(reg, db, rdb)
+	smsVerifyFn := func(ctx context.Context, phone, code string) error {
+		return smsSvc.VerifyCode(ctx, &smsservice.VerifyCodeRequest{
+			Phone:   phone,
+			Code:    code,
+			Purpose: smsdomain.SmsPurposeLogin,
+		})
+	}
+	identitygrpc.RegisterServices(reg, db, rdb, cfg.Auth, smsVerifyFn)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Server.GRPCPort))
 	if err != nil {

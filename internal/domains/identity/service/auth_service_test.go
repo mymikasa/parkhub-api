@@ -41,6 +41,14 @@ func testAuthCfg() config.AuthConfig {
 	}
 }
 
+type mockSmsVerifier struct {
+	err error
+}
+
+func (m *mockSmsVerifier) VerifyCode(_ context.Context, _, _ string) error {
+	return m.err
+}
+
 func setupAuthService(t *testing.T) (AuthService, *repomocks.MockUserRepo, *repomocks.MockRefreshTokenRepo, *domain.RS256Signer) {
 	t.Helper()
 	ctrl := gomock.NewController(t)
@@ -49,7 +57,7 @@ func setupAuthService(t *testing.T) (AuthService, *repomocks.MockUserRepo, *repo
 	mockRefreshRepo := repomocks.NewMockRefreshTokenRepo(ctrl)
 	signer := loadTestSigner(t)
 	cfg := testAuthCfg()
-	svc := NewAuthService(mockUserRepo, mockRefreshRepo, signer, cfg)
+	svc := NewAuthService(mockUserRepo, mockRefreshRepo, signer, cfg, &mockSmsVerifier{})
 	return svc, mockUserRepo, mockRefreshRepo, signer
 }
 
@@ -385,6 +393,71 @@ func TestAuthService_Logout_AccessTokenMisused(t *testing.T) {
 
 	err = svc.Logout(ctx, &LogoutRequest{RefreshToken: accessToken})
 	assert.ErrorIs(t, err, errs.ErrRefreshTokenInvalid)
+}
+
+func TestAuthService_SmsLogin_Success(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	t.Cleanup(ctrl.Finish)
+	mockUserRepo := repomocks.NewMockUserRepo(ctrl)
+	mockRefreshRepo := repomocks.NewMockRefreshTokenRepo(ctrl)
+	signer := loadTestSigner(t)
+	svc := NewAuthService(mockUserRepo, mockRefreshRepo, signer, testAuthCfg(), &mockSmsVerifier{})
+
+	ctx := context.Background()
+	user := newTestUser()
+	phone := "13800138000"
+	user.Phone = &phone
+
+	mockRefreshRepo.EXPECT().Save(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+	mockUserRepo.EXPECT().GetByPhone(gomock.Any(), "13800138000").Return(user, nil)
+	mockUserRepo.EXPECT().Update(gomock.Any(), gomock.Any()).Return(nil)
+
+	resp, err := svc.SmsLogin(ctx, &SmsLoginRequest{Phone: "13800138000", Code: "123456"})
+	require.NoError(t, err)
+	assert.NotEmpty(t, resp.TokenPair.AccessToken)
+	assert.NotEmpty(t, resp.TokenPair.RefreshToken)
+	assert.Equal(t, "user-1", resp.User.ID)
+}
+
+func TestAuthService_SmsLogin_InvalidCode(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	t.Cleanup(ctrl.Finish)
+	svc := NewAuthService(nil, nil, nil, testAuthCfg(), &mockSmsVerifier{err: errs.ErrInvalidCredentials})
+
+	ctx := context.Background()
+	_, err := svc.SmsLogin(ctx, &SmsLoginRequest{Phone: "13800138000", Code: "wrong"})
+	assert.ErrorIs(t, err, errs.ErrInvalidCredentials)
+}
+
+func TestAuthService_SmsLogin_UserNotFound(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	t.Cleanup(ctrl.Finish)
+	mockUserRepo := repomocks.NewMockUserRepo(ctrl)
+	svc := NewAuthService(mockUserRepo, nil, nil, testAuthCfg(), &mockSmsVerifier{})
+
+	ctx := context.Background()
+	mockUserRepo.EXPECT().GetByPhone(gomock.Any(), "13800138000").Return(nil, errs.ErrUserNotFound)
+
+	_, err := svc.SmsLogin(ctx, &SmsLoginRequest{Phone: "13800138000", Code: "123456"})
+	assert.ErrorIs(t, err, errs.ErrInvalidCredentials)
+}
+
+func TestAuthService_SmsLogin_FrozenUser(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	t.Cleanup(ctrl.Finish)
+	mockUserRepo := repomocks.NewMockUserRepo(ctrl)
+	svc := NewAuthService(mockUserRepo, nil, nil, testAuthCfg(), &mockSmsVerifier{})
+
+	ctx := context.Background()
+	user := newTestUser()
+	user.Status = domain.UserStatusFrozen
+	phone := "13800138000"
+	user.Phone = &phone
+
+	mockUserRepo.EXPECT().GetByPhone(gomock.Any(), "13800138000").Return(user, nil)
+
+	_, err := svc.SmsLogin(ctx, &SmsLoginRequest{Phone: "13800138000", Code: "123456"})
+	assert.ErrorIs(t, err, errs.ErrUserFrozen)
 }
 
 func TestParseTTL(t *testing.T) {

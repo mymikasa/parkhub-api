@@ -86,6 +86,21 @@ func (mr *MockUserDAOMockRecorder) FindByID(ctx, id any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockUserDAO)(nil).FindByID), ctx, id)
 }
 
+// FindByPhone mocks base method.
+func (m *MockUserDAO) FindByPhone(ctx context.Context, phone string) (*dao.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByPhone", ctx, phone)
+	ret0, _ := ret[0].(*dao.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByPhone indicates an expected call of FindByPhone.
+func (mr *MockUserDAOMockRecorder) FindByPhone(ctx, phone any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByPhone", reflect.TypeOf((*MockUserDAO)(nil).FindByPhone), ctx, phone)
+}
+
 // FindByUsername mocks base method.
 func (m *MockUserDAO) FindByUsername(ctx context.Context, username string) (*dao.User, error) {
 	m.ctrl.T.Helper()

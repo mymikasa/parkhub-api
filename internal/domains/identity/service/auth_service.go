@@ -11,6 +11,7 @@ import (
 	"github.com/parkhub/api/internal/domains/identity/domain"
 	"github.com/parkhub/api/internal/domains/identity/errs"
 	"github.com/parkhub/api/internal/domains/identity/repository"
+	smserrs "github.com/parkhub/api/internal/domains/sms/errs"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -18,6 +19,7 @@ type authService struct {
 	userRepo    repository.UserRepo
 	refreshRepo repository.RefreshTokenRepo
 	signer      domain.TokenSigner
+	smsVerifier SmsCodeVerifier
 	cfg         config.AuthConfig
 	accessTTL   time.Duration
 	refreshTTL  time.Duration
@@ -28,11 +30,13 @@ func NewAuthService(
 	refreshRepo repository.RefreshTokenRepo,
 	signer domain.TokenSigner,
 	cfg config.AuthConfig,
+	smsVerifier SmsCodeVerifier,
 ) AuthService {
 	return &authService{
 		userRepo:    userRepo,
 		refreshRepo: refreshRepo,
 		signer:      signer,
+		smsVerifier: smsVerifier,
 		cfg:         cfg,
 		accessTTL:   ParseTTL(cfg.AccessTTL),
 		refreshTTL:  ParseTTL(cfg.RefreshTTL),
@@ -50,6 +54,42 @@ func (s *authService) Login(ctx context.Context, req *LoginRequest) (*LoginRespo
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
 		return nil, errs.ErrInvalidCredentials
+	}
+
+	if !user.IsActive() {
+		return nil, errs.ErrUserFrozen
+	}
+
+	pair, err := s.generateTokenPair(user)
+	if err != nil {
+		return nil, err
+	}
+
+	now := time.Now()
+	user.LastLoginAt = &now
+	_ = s.userRepo.Update(ctx, user)
+
+	return &LoginResponse{
+		TokenPair:       *pair,
+		User:            user,
+		AccessExpiresIn: int32(s.accessTTL.Seconds()),
+	}, nil
+}
+
+func (s *authService) SmsLogin(ctx context.Context, req *SmsLoginRequest) (*LoginResponse, error) {
+	if err := s.smsVerifier.VerifyCode(ctx, req.Phone, req.Code); err != nil {
+		if isSmsCredentialError(err) {
+			return nil, errs.ErrInvalidCredentials
+		}
+		return nil, err
+	}
+
+	user, err := s.userRepo.GetByPhone(ctx, req.Phone)
+	if err != nil {
+		if errors.Is(err, errs.ErrUserNotFound) {
+			return nil, errs.ErrInvalidCredentials
+		}
+		return nil, err
 	}
 
 	if !user.IsActive() {
@@ -186,4 +226,11 @@ func stringPtrValue(s *string) string {
 		return ""
 	}
 	return *s
+}
+
+func isSmsCredentialError(err error) bool {
+	return errors.Is(err, smserrs.ErrCodeNotFound) ||
+		errors.Is(err, smserrs.ErrCodeExpired) ||
+		errors.Is(err, smserrs.ErrCodeUsed) ||
+		errors.Is(err, smserrs.ErrCodeMismatch)
 }

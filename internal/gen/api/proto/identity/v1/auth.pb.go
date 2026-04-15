@@ -421,6 +421,134 @@ func (x *GetJWKSResponse) GetJwksJson() []byte {
 	return nil
 }
 
+type SmsLoginRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Phone         string                 `protobuf:"bytes,1,opt,name=phone,proto3" json:"phone,omitempty"`
+	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SmsLoginRequest) Reset() {
+	*x = SmsLoginRequest{}
+	mi := &file_identity_v1_auth_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SmsLoginRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SmsLoginRequest) ProtoMessage() {}
+
+func (x *SmsLoginRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_identity_v1_auth_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SmsLoginRequest.ProtoReflect.Descriptor instead.
+func (*SmsLoginRequest) Descriptor() ([]byte, []int) {
+	return file_identity_v1_auth_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *SmsLoginRequest) GetPhone() string {
+	if x != nil {
+		return x.Phone
+	}
+	return ""
+}
+
+func (x *SmsLoginRequest) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+type SmsLoginResponse struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	AccessToken     string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
+	RefreshToken    string                 `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
+	AccessExpiresIn int32                  `protobuf:"varint,3,opt,name=access_expires_in,json=accessExpiresIn,proto3" json:"access_expires_in,omitempty"`
+	TokenType       string                 `protobuf:"bytes,4,opt,name=token_type,json=tokenType,proto3" json:"token_type,omitempty"`
+	User            *User                  `protobuf:"bytes,5,opt,name=user,proto3" json:"user,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *SmsLoginResponse) Reset() {
+	*x = SmsLoginResponse{}
+	mi := &file_identity_v1_auth_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SmsLoginResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SmsLoginResponse) ProtoMessage() {}
+
+func (x *SmsLoginResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_identity_v1_auth_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SmsLoginResponse.ProtoReflect.Descriptor instead.
+func (*SmsLoginResponse) Descriptor() ([]byte, []int) {
+	return file_identity_v1_auth_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *SmsLoginResponse) GetAccessToken() string {
+	if x != nil {
+		return x.AccessToken
+	}
+	return ""
+}
+
+func (x *SmsLoginResponse) GetRefreshToken() string {
+	if x != nil {
+		return x.RefreshToken
+	}
+	return ""
+}
+
+func (x *SmsLoginResponse) GetAccessExpiresIn() int32 {
+	if x != nil {
+		return x.AccessExpiresIn
+	}
+	return 0
+}
+
+func (x *SmsLoginResponse) GetTokenType() string {
+	if x != nil {
+		return x.TokenType
+	}
+	return ""
+}
+
+func (x *SmsLoginResponse) GetUser() *User {
+	if x != nil {
+		return x.User
+	}
+	return nil
+}
+
 var File_identity_v1_auth_proto protoreflect.FileDescriptor
 
 const file_identity_v1_auth_proto_rawDesc = "" +
@@ -449,9 +577,20 @@ const file_identity_v1_auth_proto_rawDesc = "" +
 	"\x0eLogoutResponse\"\x10\n" +
 	"\x0eGetJWKSRequest\".\n" +
 	"\x0fGetJWKSResponse\x12\x1b\n" +
-	"\tjwks_json\x18\x01 \x01(\fR\bjwksJson2\xeb\x02\n" +
+	"\tjwks_json\x18\x01 \x01(\fR\bjwksJson\";\n" +
+	"\x0fSmsLoginRequest\x12\x14\n" +
+	"\x05phone\x18\x01 \x01(\tR\x05phone\x12\x12\n" +
+	"\x04code\x18\x02 \x01(\tR\x04code\"\xd4\x01\n" +
+	"\x10SmsLoginResponse\x12!\n" +
+	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12#\n" +
+	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\x12*\n" +
+	"\x11access_expires_in\x18\x03 \x01(\x05R\x0faccessExpiresIn\x12\x1d\n" +
+	"\n" +
+	"token_type\x18\x04 \x01(\tR\ttokenType\x12-\n" +
+	"\x04user\x18\x05 \x01(\v2\x19.parkhub.identity.v1.UserR\x04user2\xc4\x03\n" +
 	"\vAuthService\x12N\n" +
-	"\x05Login\x12!.parkhub.identity.v1.LoginRequest\x1a\".parkhub.identity.v1.LoginResponse\x12c\n" +
+	"\x05Login\x12!.parkhub.identity.v1.LoginRequest\x1a\".parkhub.identity.v1.LoginResponse\x12W\n" +
+	"\bSmsLogin\x12$.parkhub.identity.v1.SmsLoginRequest\x1a%.parkhub.identity.v1.SmsLoginResponse\x12c\n" +
 	"\fRefreshToken\x12(.parkhub.identity.v1.RefreshTokenRequest\x1a).parkhub.identity.v1.RefreshTokenResponse\x12Q\n" +
 	"\x06Logout\x12\".parkhub.identity.v1.LogoutRequest\x1a#.parkhub.identity.v1.LogoutResponse\x12T\n" +
 	"\aGetJWKS\x12#.parkhub.identity.v1.GetJWKSRequest\x1a$.parkhub.identity.v1.GetJWKSResponseBFZDgithub.com/parkhub/api/internal/gen/api/proto/identity/v1;identityv1b\x06proto3"
@@ -468,7 +607,7 @@ func file_identity_v1_auth_proto_rawDescGZIP() []byte {
 	return file_identity_v1_auth_proto_rawDescData
 }
 
-var file_identity_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_identity_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_identity_v1_auth_proto_goTypes = []any{
 	(*LoginRequest)(nil),         // 0: parkhub.identity.v1.LoginRequest
 	(*LoginResponse)(nil),        // 1: parkhub.identity.v1.LoginResponse
@@ -478,23 +617,28 @@ var file_identity_v1_auth_proto_goTypes = []any{
 	(*LogoutResponse)(nil),       // 5: parkhub.identity.v1.LogoutResponse
 	(*GetJWKSRequest)(nil),       // 6: parkhub.identity.v1.GetJWKSRequest
 	(*GetJWKSResponse)(nil),      // 7: parkhub.identity.v1.GetJWKSResponse
-	(*User)(nil),                 // 8: parkhub.identity.v1.User
+	(*SmsLoginRequest)(nil),      // 8: parkhub.identity.v1.SmsLoginRequest
+	(*SmsLoginResponse)(nil),     // 9: parkhub.identity.v1.SmsLoginResponse
+	(*User)(nil),                 // 10: parkhub.identity.v1.User
 }
 var file_identity_v1_auth_proto_depIdxs = []int32{
-	8, // 0: parkhub.identity.v1.LoginResponse.user:type_name -> parkhub.identity.v1.User
-	0, // 1: parkhub.identity.v1.AuthService.Login:input_type -> parkhub.identity.v1.LoginRequest
-	2, // 2: parkhub.identity.v1.AuthService.RefreshToken:input_type -> parkhub.identity.v1.RefreshTokenRequest
-	4, // 3: parkhub.identity.v1.AuthService.Logout:input_type -> parkhub.identity.v1.LogoutRequest
-	6, // 4: parkhub.identity.v1.AuthService.GetJWKS:input_type -> parkhub.identity.v1.GetJWKSRequest
-	1, // 5: parkhub.identity.v1.AuthService.Login:output_type -> parkhub.identity.v1.LoginResponse
-	3, // 6: parkhub.identity.v1.AuthService.RefreshToken:output_type -> parkhub.identity.v1.RefreshTokenResponse
-	5, // 7: parkhub.identity.v1.AuthService.Logout:output_type -> parkhub.identity.v1.LogoutResponse
-	7, // 8: parkhub.identity.v1.AuthService.GetJWKS:output_type -> parkhub.identity.v1.GetJWKSResponse
-	5, // [5:9] is the sub-list for method output_type
-	1, // [1:5] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	10, // 0: parkhub.identity.v1.LoginResponse.user:type_name -> parkhub.identity.v1.User
+	10, // 1: parkhub.identity.v1.SmsLoginResponse.user:type_name -> parkhub.identity.v1.User
+	0,  // 2: parkhub.identity.v1.AuthService.Login:input_type -> parkhub.identity.v1.LoginRequest
+	8,  // 3: parkhub.identity.v1.AuthService.SmsLogin:input_type -> parkhub.identity.v1.SmsLoginRequest
+	2,  // 4: parkhub.identity.v1.AuthService.RefreshToken:input_type -> parkhub.identity.v1.RefreshTokenRequest
+	4,  // 5: parkhub.identity.v1.AuthService.Logout:input_type -> parkhub.identity.v1.LogoutRequest
+	6,  // 6: parkhub.identity.v1.AuthService.GetJWKS:input_type -> parkhub.identity.v1.GetJWKSRequest
+	1,  // 7: parkhub.identity.v1.AuthService.Login:output_type -> parkhub.identity.v1.LoginResponse
+	9,  // 8: parkhub.identity.v1.AuthService.SmsLogin:output_type -> parkhub.identity.v1.SmsLoginResponse
+	3,  // 9: parkhub.identity.v1.AuthService.RefreshToken:output_type -> parkhub.identity.v1.RefreshTokenResponse
+	5,  // 10: parkhub.identity.v1.AuthService.Logout:output_type -> parkhub.identity.v1.LogoutResponse
+	7,  // 11: parkhub.identity.v1.AuthService.GetJWKS:output_type -> parkhub.identity.v1.GetJWKSResponse
+	7,  // [7:12] is the sub-list for method output_type
+	2,  // [2:7] is the sub-list for method input_type
+	2,  // [2:2] is the sub-list for extension type_name
+	2,  // [2:2] is the sub-list for extension extendee
+	0,  // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_identity_v1_auth_proto_init() }
@@ -509,7 +653,7 @@ func file_identity_v1_auth_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_identity_v1_auth_proto_rawDesc), len(file_identity_v1_auth_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
