@@ -54,8 +54,7 @@ func (r *RedisRefreshTokenRepo) Consume(ctx context.Context, jti string) (string
 
 func (r *RedisRefreshTokenRepo) Revoke(ctx context.Context, jti string) error {
 	key := refreshKey(jti)
-	r.client.Del(ctx, key)
-	return nil
+	return r.client.Del(ctx, key).Err()
 }
 
 func refreshKey(jti string) string {
