@@ -23,7 +23,6 @@ type UpdateTenantRequest struct {
 	ContactEmail *string
 	Address      *string
 	PlanType     *domain.PlanType
-	Status       *domain.TenantStatus
 }
 
 type ListTenantsRequest struct {
@@ -48,5 +47,7 @@ type TenantService interface {
 	GetTenant(ctx context.Context, id string) (*domain.Tenant, error)
 	ListTenants(ctx context.Context, req *ListTenantsRequest) (*TenantListResponse, error)
 	UpdateTenant(ctx context.Context, req *UpdateTenantRequest) (*domain.Tenant, error)
+	FreezeTenant(ctx context.Context, id string) (*domain.Tenant, error)
+	UnfreezeTenant(ctx context.Context, id string) (*domain.Tenant, error)
 	DeleteTenant(ctx context.Context, id string) error
 }

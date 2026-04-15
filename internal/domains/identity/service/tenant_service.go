@@ -103,23 +103,39 @@ func (s *tenantService) UpdateTenant(ctx context.Context, req *UpdateTenantReque
 	if req.PlanType != nil {
 		tenant.PlanType = *req.PlanType
 	}
-	if req.Status != nil {
-		switch *req.Status {
-		case domain.TenantStatusActive:
-			if err := tenant.Unfreeze(); err != nil {
-				return nil, err
-			}
-		case domain.TenantStatusFrozen:
-			if err := tenant.Freeze(); err != nil {
-				return nil, err
-			}
-		}
-	}
 
 	if err := s.tenantRepo.Update(ctx, tenant); err != nil {
 		return nil, err
 	}
 
+	return tenant, nil
+}
+
+func (s *tenantService) FreezeTenant(ctx context.Context, id string) (*domain.Tenant, error) {
+	tenant, err := s.tenantRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if err := tenant.Freeze(); err != nil {
+		return nil, err
+	}
+	if err := s.tenantRepo.Update(ctx, tenant); err != nil {
+		return nil, err
+	}
+	return tenant, nil
+}
+
+func (s *tenantService) UnfreezeTenant(ctx context.Context, id string) (*domain.Tenant, error) {
+	tenant, err := s.tenantRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if err := tenant.Unfreeze(); err != nil {
+		return nil, err
+	}
+	if err := s.tenantRepo.Update(ctx, tenant); err != nil {
+		return nil, err
+	}
 	return tenant, nil
 }
 

@@ -114,16 +114,28 @@ func (s *TenantGRPCServer) UpdateTenant(ctx context.Context, req *identityv1.Upd
 		pt := domainPlanFromProto(*req.PlanType)
 		svcReq.PlanType = &pt
 	}
-	if req.Status != nil {
-		st := domainStatusFromProto(*req.Status)
-		svcReq.Status = &st
-	}
 
 	tenant, err := s.tenantSvc.UpdateTenant(ctx, svcReq)
 	if err != nil {
 		return nil, toGRPCError(err)
 	}
 	return &identityv1.UpdateTenantResponse{Tenant: toProtoTenant(tenant)}, nil
+}
+
+func (s *TenantGRPCServer) FreezeTenant(ctx context.Context, req *identityv1.FreezeTenantRequest) (*identityv1.FreezeTenantResponse, error) {
+	tenant, err := s.tenantSvc.FreezeTenant(ctx, req.TenantId)
+	if err != nil {
+		return nil, toGRPCError(err)
+	}
+	return &identityv1.FreezeTenantResponse{Tenant: toProtoTenant(tenant)}, nil
+}
+
+func (s *TenantGRPCServer) UnfreezeTenant(ctx context.Context, req *identityv1.UnfreezeTenantRequest) (*identityv1.UnfreezeTenantResponse, error) {
+	tenant, err := s.tenantSvc.UnfreezeTenant(ctx, req.TenantId)
+	if err != nil {
+		return nil, toGRPCError(err)
+	}
+	return &identityv1.UnfreezeTenantResponse{Tenant: toProtoTenant(tenant)}, nil
 }
 
 func (s *TenantGRPCServer) DeleteTenant(ctx context.Context, req *identityv1.DeleteTenantRequest) (*identityv1.DeleteTenantResponse, error) {

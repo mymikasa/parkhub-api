@@ -175,19 +175,82 @@ func TestGRPC_UpdateTenant_Success(t *testing.T) {
 	assert.Equal(t, "Updated", resp.Tenant.Name)
 }
 
-func TestGRPC_UpdateTenant_InvalidStatus(t *testing.T) {
+func TestGRPC_UpdateTenant_NotFound(t *testing.T) {
 	client, mockSvc, ctrl := setupTestServer(t)
 	defer ctrl.Finish()
 
 	mockSvc.EXPECT().
 		UpdateTenant(go_mock.Any(), go_mock.Any()).
+		Return(nil, errs.ErrTenantNotFound)
+
+	_, err := client.UpdateTenant(context.Background(), &identityv1.UpdateTenantRequest{
+		TenantId: "bad-id",
+	})
+	assert.Equal(t, codes.NotFound, status.Code(err))
+}
+
+func TestGRPC_FreezeTenant_Success(t *testing.T) {
+	client, mockSvc, ctrl := setupTestServer(t)
+	defer ctrl.Finish()
+
+	frozen := newDomainTenant()
+	frozen.Status = domain.TenantStatusFrozen
+	mockSvc.EXPECT().
+		FreezeTenant(go_mock.Any(), "test-id").
+		Return(frozen, nil)
+
+	resp, err := client.FreezeTenant(context.Background(), &identityv1.FreezeTenantRequest{TenantId: "test-id"})
+	assert.NoError(t, err)
+	assert.Equal(t, identityv1.TenantStatus_TENANT_STATUS_FROZEN, resp.Tenant.Status)
+}
+
+func TestGRPC_FreezeTenant_AlreadyFrozen(t *testing.T) {
+	client, mockSvc, ctrl := setupTestServer(t)
+	defer ctrl.Finish()
+
+	mockSvc.EXPECT().
+		FreezeTenant(go_mock.Any(), "test-id").
 		Return(nil, errs.ErrTenantInvalidStatus)
 
-	frozen := identityv1.TenantStatus_TENANT_STATUS_FROZEN
-	_, err := client.UpdateTenant(context.Background(), &identityv1.UpdateTenantRequest{
-		TenantId: "test-id",
-		Status:   &frozen,
-	})
+	_, err := client.FreezeTenant(context.Background(), &identityv1.FreezeTenantRequest{TenantId: "test-id"})
+	assert.Equal(t, codes.InvalidArgument, status.Code(err))
+}
+
+func TestGRPC_FreezeTenant_NotFound(t *testing.T) {
+	client, mockSvc, ctrl := setupTestServer(t)
+	defer ctrl.Finish()
+
+	mockSvc.EXPECT().
+		FreezeTenant(go_mock.Any(), "bad-id").
+		Return(nil, errs.ErrTenantNotFound)
+
+	_, err := client.FreezeTenant(context.Background(), &identityv1.FreezeTenantRequest{TenantId: "bad-id"})
+	assert.Equal(t, codes.NotFound, status.Code(err))
+}
+
+func TestGRPC_UnfreezeTenant_Success(t *testing.T) {
+	client, mockSvc, ctrl := setupTestServer(t)
+	defer ctrl.Finish()
+
+	active := newDomainTenant()
+	mockSvc.EXPECT().
+		UnfreezeTenant(go_mock.Any(), "test-id").
+		Return(active, nil)
+
+	resp, err := client.UnfreezeTenant(context.Background(), &identityv1.UnfreezeTenantRequest{TenantId: "test-id"})
+	assert.NoError(t, err)
+	assert.Equal(t, identityv1.TenantStatus_TENANT_STATUS_ACTIVE, resp.Tenant.Status)
+}
+
+func TestGRPC_UnfreezeTenant_AlreadyActive(t *testing.T) {
+	client, mockSvc, ctrl := setupTestServer(t)
+	defer ctrl.Finish()
+
+	mockSvc.EXPECT().
+		UnfreezeTenant(go_mock.Any(), "test-id").
+		Return(nil, errs.ErrTenantInvalidStatus)
+
+	_, err := client.UnfreezeTenant(context.Background(), &identityv1.UnfreezeTenantRequest{TenantId: "test-id"})
 	assert.Equal(t, codes.InvalidArgument, status.Code(err))
 }
 

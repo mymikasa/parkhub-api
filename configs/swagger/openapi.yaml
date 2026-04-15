@@ -153,8 +153,6 @@ components:
           type: string
         plan_type:
           $ref: '#/components/schemas/PlanType'
-        status:
-          $ref: '#/components/schemas/TenantStatus'
 
     ErrorResponse:
       type: object
@@ -960,6 +958,59 @@ paths:
                 properties:
                   tenant:
                     $ref: '#/components/schemas/Tenant'
+        '404':
+          description: 租户不存在
+
+  /api/v1/tenants/{tenant_id}/freeze:
+    post:
+      tags: [Tenant]
+      operationId: freezeTenant
+      summary: 冻结租户
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  description: 冻结原因（可选）
+      responses:
+        '200':
+          description: 冻结成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tenant:
+                    $ref: '#/components/schemas/Tenant'
+        '400':
+          description: 租户已是冻结状态
+        '404':
+          description: 租户不存在
+
+  /api/v1/tenants/{tenant_id}/unfreeze:
+    post:
+      tags: [Tenant]
+      operationId: unfreezeTenant
+      summary: 解冻租户
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: 解冻成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tenant:
+                    $ref: '#/components/schemas/Tenant'
+        '400':
+          description: 租户已是正常状态
         '404':
           description: 租户不存在
 
