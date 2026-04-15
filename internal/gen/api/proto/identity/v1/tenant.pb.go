@@ -1013,7 +1013,7 @@ const file_identity_v1_tenant_proto_rawDesc = "" +
 	"\atenants\x18\x01 \x03(\v2\x1b.parkhub.identity.v1.TenantR\atenants\x12E\n" +
 	"\n" +
 	"pagination\x18\x02 \x01(\v2%.parkhub.common.v1.PaginationResponseR\n" +
-	"pagination\"\xff\x02\n" +
+	"pagination\"\x8d\x03\n" +
 	"\x13UpdateTenantRequest\x12\x1b\n" +
 	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x12\x17\n" +
 	"\x04name\x18\x02 \x01(\tH\x00R\x04name\x88\x01\x01\x12&\n" +
@@ -1029,7 +1029,7 @@ const file_identity_v1_tenant_proto_rawDesc = "" +
 	"\n" +
 	"\b_addressB\f\n" +
 	"\n" +
-	"_plan_type\"Z\n" +
+	"_plan_typeJ\x04\b\b\x10\tR\x06status\"Z\n" +
 	"\x13FreezeTenantRequest\x12\x1b\n" +
 	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x12\x1b\n" +
 	"\x06reason\x18\x02 \x01(\tH\x00R\x06reason\x88\x01\x01B\t\n" +
