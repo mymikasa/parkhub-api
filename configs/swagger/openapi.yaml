@@ -18,6 +18,8 @@ tags:
     description: 用户管理
   - name: Tenant
     description: 租户管理
+  - name: ParkingLot
+    description: 停车场管理
 
 components:
   parameters:
@@ -66,6 +68,24 @@ components:
           type: integer
           format: int32
 
+    Timestamp:
+      type: object
+      properties:
+        seconds:
+          type: integer
+          format: int64
+        nanos:
+          type: integer
+          format: int32
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
     TenantStatus:
       type: string
       enum:
@@ -81,16 +101,6 @@ components:
         - PLAN_TYPE_BASIC
         - PLAN_TYPE_PRO
         - PLAN_TYPE_ENTERPRISE
-
-    Timestamp:
-      type: object
-      properties:
-        seconds:
-          type: integer
-          format: int64
-        nanos:
-          type: integer
-          format: int32
 
     Tenant:
       type: object
@@ -174,14 +184,6 @@ components:
         credit_code:
           type: string
         remark:
-          type: string
-
-    ErrorResponse:
-      type: object
-      properties:
-        error:
-          type: string
-        message:
           type: string
 
     UserRole:
@@ -283,6 +285,43 @@ components:
         refresh_token:
           type: string
 
+    SmsPurpose:
+      type: string
+      enum:
+        - SMS_PURPOSE_UNSPECIFIED
+        - SMS_PURPOSE_LOGIN
+        - SMS_PURPOSE_REGISTER
+        - SMS_PURPOSE_RESET_PASSWORD
+
+    SendSmsCodeRequest:
+      type: object
+      required:
+        - phone
+        - purpose
+      properties:
+        phone:
+          type: string
+          description: 手机号
+        purpose:
+          $ref: '#/components/schemas/SmsPurpose'
+
+    SendSmsCodeResponse:
+      type: object
+      description: 发送成功返回空对象
+
+    SmsLoginRequest:
+      type: object
+      required:
+        - phone
+        - code
+      properties:
+        phone:
+          type: string
+          description: 手机号
+        code:
+          type: string
+          description: 短信验证码
+
     CreateUserRequest:
       type: object
       required:
@@ -352,43 +391,6 @@ components:
           type: string
           minLength: 8
 
-    SmsPurpose:
-      type: string
-      enum:
-        - SMS_PURPOSE_UNSPECIFIED
-        - SMS_PURPOSE_LOGIN
-        - SMS_PURPOSE_REGISTER
-        - SMS_PURPOSE_RESET_PASSWORD
-
-    SendSmsCodeRequest:
-      type: object
-      required:
-        - phone
-        - purpose
-      properties:
-        phone:
-          type: string
-          description: 手机号
-        purpose:
-          $ref: '#/components/schemas/SmsPurpose'
-
-    SendSmsCodeResponse:
-      type: object
-      description: 发送成功返回空对象
-
-    SmsLoginRequest:
-      type: object
-      required:
-        - phone
-        - code
-      properties:
-        phone:
-          type: string
-          description: 手机号
-        code:
-          type: string
-          description: 短信验证码
-
     ImportUserItem:
       type: object
       required:
@@ -447,6 +449,101 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ImportError'
+
+    LotType:
+      type: string
+      enum:
+        - LOT_TYPE_UNSPECIFIED
+        - LOT_TYPE_UNDERGROUND
+        - LOT_TYPE_GROUND
+        - LOT_TYPE_STEREO
+
+    ParkingLotStatus:
+      type: string
+      enum:
+        - PARKING_LOT_STATUS_UNSPECIFIED
+        - PARKING_LOT_STATUS_ACTIVE
+        - PARKING_LOT_STATUS_INACTIVE
+
+    ParkingLot:
+      type: object
+      properties:
+        id:
+          type: string
+        tenant_id:
+          type: string
+        name:
+          type: string
+        address:
+          type: string
+        total_spaces:
+          type: integer
+          format: int32
+        available_spaces:
+          type: integer
+          format: int32
+        lot_type:
+          $ref: '#/components/schemas/LotType'
+        status:
+          $ref: '#/components/schemas/ParkingLotStatus'
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+        updated_at:
+          $ref: '#/components/schemas/Timestamp'
+
+    CreateParkingLotRequest:
+      type: object
+      required:
+        - name
+        - address
+        - total_spaces
+        - lot_type
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        address:
+          type: string
+          minLength: 1
+          maxLength: 255
+        total_spaces:
+          type: integer
+          format: int32
+          minimum: 1
+        lot_type:
+          $ref: '#/components/schemas/LotType'
+
+    UpdateParkingLotRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          type: string
+        total_spaces:
+          type: integer
+          format: int32
+        lot_type:
+          $ref: '#/components/schemas/LotType'
+        status:
+          $ref: '#/components/schemas/ParkingLotStatus'
+
+    ParkingLotStatsResponse:
+      type: object
+      properties:
+        total_spaces:
+          type: integer
+          format: int64
+        available_spaces:
+          type: integer
+          format: int64
+        occupied_vehicles:
+          type: integer
+          format: int64
+        total_gates:
+          type: integer
+          format: int64
 
     securitySchemes:
       BearerAuth:
@@ -1046,4 +1143,183 @@ paths:
         '400':
           description: 租户已是正常状态
         '404':
-          description: 租户已是正常状态
+          description: 租户不存在
+
+  /parking/v1/lots/stats:
+    get:
+      tags: [ParkingLot]
+      operationId: getParkingLotStats
+      summary: 获取停车场统计
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingLotStatsResponse'
+        '401':
+          description: 未认证
+
+  /parking/v1/lots:
+    post:
+      tags: [ParkingLot]
+      operationId: createParkingLot
+      summary: 创建停车场
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateParkingLotRequest'
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  parking_lot:
+                    $ref: '#/components/schemas/ParkingLot'
+        '400':
+          description: 参数错误
+        '401':
+          description: 未认证
+        '409':
+          description: 同租户下停车场名重复
+
+    get:
+      tags: [ParkingLot]
+      operationId: listParkingLots
+      summary: 获取停车场列表
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ParkingLotStatus'
+        - name: lot_type
+          in: query
+          schema:
+            $ref: '#/components/schemas/LotType'
+        - name: keyword
+          in: query
+          schema:
+            type: string
+          description: 按名称/地址搜索
+        - name: page
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 20
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  parking_lots:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ParkingLot'
+                  pagination:
+                    $ref: '#/components/schemas/PaginationResponse'
+        '401':
+          description: 未认证
+
+  /parking/v1/lots/{id}:
+    get:
+      tags: [ParkingLot]
+      operationId: getParkingLot
+      summary: 获取停车场详情
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  parking_lot:
+                    $ref: '#/components/schemas/ParkingLot'
+        '401':
+          description: 未认证
+        '404':
+          description: 停车场不存在
+
+    patch:
+      tags: [ParkingLot]
+      operationId: updateParkingLot
+      summary: 更新停车场
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateParkingLotRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  parking_lot:
+                    $ref: '#/components/schemas/ParkingLot'
+        '400':
+          description: 参数错误 / 状态转换非法
+        '401':
+          description: 未认证
+        '404':
+          description: 停车场不存在
+
+    delete:
+      tags: [ParkingLot]
+      operationId: deleteParkingLot
+      summary: 删除停车场
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 删除成功
+        '401':
+          description: 未认证
+        '404':
+          description: 停车场不存在

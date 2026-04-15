@@ -89,6 +89,11 @@ services:
       DB_USER: parkhub
       DB_PASSWORD: parkhub
       DB_NAME: parkhub_identity
+      PARKING_DB_HOST: mysql
+      PARKING_DB_PORT: "3306"
+      PARKING_DB_USER: parkhub
+      PARKING_DB_PASSWORD: parkhub
+      PARKING_DB_NAME: parkhub_parking
       REDIS_ADDR: redis:6379
       OTEL_TRACE_ENDPOINT: tempo:4317
       GRPC_PORT: "50051"

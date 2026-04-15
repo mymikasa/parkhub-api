@@ -11,11 +11,12 @@ import (
 const DefaultPath = "configs/config.yaml"
 
 type Config struct {
-	Server    ServerConfig    `yaml:"server"`
-	Database  DatabaseConfig  `yaml:"database"`
-	Redis     RedisConfig     `yaml:"redis"`
-	Auth      AuthConfig      `yaml:"auth"`
-	Telemetry TelemetryConfig `yaml:"telemetry"`
+	Server          ServerConfig    `yaml:"server"`
+	Database        DatabaseConfig  `yaml:"database"`
+	ParkingDatabase DatabaseConfig  `yaml:"parking_database"`
+	Redis           RedisConfig     `yaml:"redis"`
+	Auth            AuthConfig      `yaml:"auth"`
+	Telemetry       TelemetryConfig `yaml:"telemetry"`
 }
 
 type AuthConfig struct {
@@ -84,6 +85,13 @@ func Default() Config {
 			User:     "parkhub",
 			Password: "parkhub",
 			DBName:   "parkhub_identity",
+		},
+		ParkingDatabase: DatabaseConfig{
+			Host:     "localhost",
+			Port:     3306,
+			User:     "parkhub",
+			Password: "parkhub",
+			DBName:   "parkhub_parking",
 		},
 		Redis: RedisConfig{
 			Addr: "localhost:6379",
@@ -176,6 +184,24 @@ func applyEnvOverrides(cfg *Config) {
 	}
 	if v := os.Getenv("DB_NAME"); v != "" {
 		cfg.Database.DBName = v
+	}
+	if v := os.Getenv("PARKING_DATABASE_URL"); v != "" {
+		cfg.ParkingDatabase.URL = v
+	}
+	if v := os.Getenv("PARKING_DB_HOST"); v != "" {
+		cfg.ParkingDatabase.Host = v
+	}
+	if v := os.Getenv("PARKING_DB_PORT"); v != "" {
+		cfg.ParkingDatabase.Port = mustInt(v, cfg.ParkingDatabase.Port)
+	}
+	if v := os.Getenv("PARKING_DB_USER"); v != "" {
+		cfg.ParkingDatabase.User = v
+	}
+	if v := os.Getenv("PARKING_DB_PASSWORD"); v != "" {
+		cfg.ParkingDatabase.Password = v
+	}
+	if v := os.Getenv("PARKING_DB_NAME"); v != "" {
+		cfg.ParkingDatabase.DBName = v
 	}
 	if v := os.Getenv("REDIS_ADDR"); v != "" {
 		cfg.Redis.Addr = v

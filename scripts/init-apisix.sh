@@ -762,3 +762,174 @@ curl -sf "${APISIX_ADMIN}/routes/41" \
   }' && echo ""
 
 echo "APISIX SMS routes configuration complete"
+
+# ══════════════════════════════════════════════════════════════════════
+# Routes: ParkingLotService (protected with jwt-auth)
+# ══════════════════════════════════════════════════════════════════════
+
+echo "Creating route: CreateParkingLot (POST /parking/v1/lots)"
+curl -sf "${APISIX_ADMIN}/routes/50" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "parking-lot-create",
+    "methods": ["POST"],
+    "uri": "/parking/v1/lots",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": ["'"${JWT_INJECT}"'"]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.parking.v1.ParkingLotService",
+        "method": "CreateParkingLot",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating route: ListParkingLots (GET /parking/v1/lots)"
+curl -sf "${APISIX_ADMIN}/routes/51" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "parking-lot-list",
+    "methods": ["GET"],
+    "uri": "/parking/v1/lots",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": ["'"${JWT_INJECT}"'"]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.parking.v1.ParkingLotService",
+        "method": "ListParkingLots",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating route: GetParkingLotStats (GET /parking/v1/lots/stats)"
+curl -sf "${APISIX_ADMIN}/routes/52" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "parking-lot-stats",
+    "methods": ["GET"],
+    "uri": "/parking/v1/lots/stats",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": ["'"${JWT_INJECT}"'"]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.parking.v1.ParkingLotService",
+        "method": "GetParkingLotStats",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating route: GetParkingLot (GET /parking/v1/lots/:id)"
+curl -sf "${APISIX_ADMIN}/routes/53" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "parking-lot-get",
+    "methods": ["GET"],
+    "uri": "/parking/v1/lots/*",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/parking/v1/lots/(.+)$\"); if id then ngx.req.set_uri_args({id = id}) end end"
+        ]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.parking.v1.ParkingLotService",
+        "method": "GetParkingLot",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating route: UpdateParkingLot (PATCH /parking/v1/lots/:id)"
+curl -sf "${APISIX_ADMIN}/routes/54" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "parking-lot-update",
+    "methods": ["PATCH"],
+    "uri": "/parking/v1/lots/*",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/parking/v1/lots/(.+)$\"); ngx.req.read_body(); local body = ngx.req.get_body_data(); if body then local cjson = require(\"cjson.safe\"); local t = cjson.decode(body); if t and id then t.id = id; ngx.req.set_body_data(cjson.encode(t)) end end end"
+        ]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.parking.v1.ParkingLotService",
+        "method": "UpdateParkingLot",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating route: DeleteParkingLot (DELETE /parking/v1/lots/:id)"
+curl -sf "${APISIX_ADMIN}/routes/55" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "parking-lot-delete",
+    "methods": ["DELETE"],
+    "uri": "/parking/v1/lots/*",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/parking/v1/lots/(.+)$\"); if id then ngx.req.set_uri_args({id = id}) end end"
+        ]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.parking.v1.ParkingLotService",
+        "method": "DeleteParkingLot",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "APISIX ParkingLot routes configuration complete"
