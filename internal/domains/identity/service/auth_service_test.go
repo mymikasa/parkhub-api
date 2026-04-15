@@ -2,10 +2,10 @@ package service
 
 import (
 	"context"
+	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"os"
 	"testing"
 	"time"
 
@@ -23,10 +23,10 @@ import (
 
 func loadTestSigner(t *testing.T) *domain.RS256Signer {
 	t.Helper()
-	privPEM, err := os.ReadFile("../../../../configs/keys/jwt_private.pem")
+	key, err := rsa.GenerateKey(rand.Reader, 2048)
 	require.NoError(t, err)
-	pubPEM, err := os.ReadFile("../../../../configs/keys/jwt_public.pem")
-	require.NoError(t, err)
+	privPEM := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(key)})
+	pubPEM := pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: x509.MarshalPKCS1PublicKey(&key.PublicKey)})
 	signer, err := domain.NewRS256Signer(privPEM, pubPEM, "test-key", "parkhub")
 	require.NoError(t, err)
 	return signer
@@ -41,7 +41,7 @@ func testAuthCfg() config.AuthConfig {
 	}
 }
 
-func setupAuthService(t *testing.T) (AuthService, *repomocks.MockUserRepo, *repomocks.MockRefreshTokenRepo) {
+func setupAuthService(t *testing.T) (AuthService, *repomocks.MockUserRepo, *repomocks.MockRefreshTokenRepo, *domain.RS256Signer) {
 	t.Helper()
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
@@ -50,7 +50,7 @@ func setupAuthService(t *testing.T) (AuthService, *repomocks.MockUserRepo, *repo
 	signer := loadTestSigner(t)
 	cfg := testAuthCfg()
 	svc := NewAuthService(mockUserRepo, mockRefreshRepo, signer, cfg)
-	return svc, mockUserRepo, mockRefreshRepo
+	return svc, mockUserRepo, mockRefreshRepo, signer
 }
 
 func hashedPassword(t *testing.T, password string) string {
@@ -76,7 +76,7 @@ func newTestUser() *domain.User {
 }
 
 func TestAuthService_Login_Success(t *testing.T) {
-	svc, mockUserRepo, mockRefreshRepo := setupAuthService(t)
+	svc, mockUserRepo, mockRefreshRepo, _ := setupAuthService(t)
 	ctx := context.Background()
 
 	user := newTestUser()
@@ -95,7 +95,7 @@ func TestAuthService_Login_Success(t *testing.T) {
 }
 
 func TestAuthService_Login_WrongPassword(t *testing.T) {
-	svc, mockUserRepo, _ := setupAuthService(t)
+	svc, mockUserRepo, _, _ := setupAuthService(t)
 	ctx := context.Background()
 
 	user := newTestUser()
@@ -108,7 +108,7 @@ func TestAuthService_Login_WrongPassword(t *testing.T) {
 }
 
 func TestAuthService_Login_UserNotFound(t *testing.T) {
-	svc, mockUserRepo, _ := setupAuthService(t)
+	svc, mockUserRepo, _, _ := setupAuthService(t)
 	ctx := context.Background()
 
 	mockUserRepo.EXPECT().GetByUsername(gomock.Any(), "admin").Return(nil, errs.ErrUserNotFound)
@@ -118,7 +118,7 @@ func TestAuthService_Login_UserNotFound(t *testing.T) {
 }
 
 func TestAuthService_Login_FrozenUser(t *testing.T) {
-	svc, mockUserRepo, _ := setupAuthService(t)
+	svc, mockUserRepo, _, _ := setupAuthService(t)
 	ctx := context.Background()
 
 	user := newTestUser()
@@ -132,9 +132,8 @@ func TestAuthService_Login_FrozenUser(t *testing.T) {
 }
 
 func TestAuthService_Login_AccessTokenContainsClaims(t *testing.T) {
-	svc, mockUserRepo, mockRefreshRepo := setupAuthService(t)
+	svc, mockUserRepo, mockRefreshRepo, signer := setupAuthService(t)
 	ctx := context.Background()
-	signer := loadTestSigner(t)
 
 	user := newTestUser()
 	user.PasswordHash = hashedPassword(t, "password123")
@@ -155,9 +154,8 @@ func TestAuthService_Login_AccessTokenContainsClaims(t *testing.T) {
 }
 
 func TestAuthService_Login_RefreshTokenHasMinimalClaims(t *testing.T) {
-	svc, mockUserRepo, mockRefreshRepo := setupAuthService(t)
+	svc, mockUserRepo, mockRefreshRepo, signer := setupAuthService(t)
 	ctx := context.Background()
-	signer := loadTestSigner(t)
 
 	user := newTestUser()
 	user.PasswordHash = hashedPassword(t, "password123")
@@ -176,9 +174,8 @@ func TestAuthService_Login_RefreshTokenHasMinimalClaims(t *testing.T) {
 }
 
 func TestAuthService_RefreshToken_Success(t *testing.T) {
-	svc, mockUserRepo, mockRefreshRepo := setupAuthService(t)
+	svc, mockUserRepo, mockRefreshRepo, signer := setupAuthService(t)
 	ctx := context.Background()
-	signer := loadTestSigner(t)
 
 	jti := uuid.New().String()
 	refreshClaims := domain.Claims{
@@ -205,9 +202,8 @@ func TestAuthService_RefreshToken_Success(t *testing.T) {
 }
 
 func TestAuthService_RefreshToken_ExpiredToken(t *testing.T) {
-	svc, _, _ := setupAuthService(t)
+	svc, _, _, signer := setupAuthService(t)
 	ctx := context.Background()
-	signer := loadTestSigner(t)
 
 	jti := uuid.New().String()
 	refreshClaims := domain.Claims{
@@ -227,9 +223,8 @@ func TestAuthService_RefreshToken_ExpiredToken(t *testing.T) {
 }
 
 func TestAuthService_RefreshToken_RevokedToken(t *testing.T) {
-	svc, _, mockRefreshRepo := setupAuthService(t)
+	svc, _, mockRefreshRepo, signer := setupAuthService(t)
 	ctx := context.Background()
-	signer := loadTestSigner(t)
 
 	jti := uuid.New().String()
 	refreshClaims := domain.Claims{
@@ -251,9 +246,8 @@ func TestAuthService_RefreshToken_RevokedToken(t *testing.T) {
 }
 
 func TestAuthService_RefreshToken_Replay(t *testing.T) {
-	svc, _, mockRefreshRepo := setupAuthService(t)
+	svc, _, mockRefreshRepo, signer := setupAuthService(t)
 	ctx := context.Background()
-	signer := loadTestSigner(t)
 
 	jti := uuid.New().String()
 	refreshClaims := domain.Claims{
@@ -275,9 +269,8 @@ func TestAuthService_RefreshToken_Replay(t *testing.T) {
 }
 
 func TestAuthService_RefreshToken_AccessTokenMisused(t *testing.T) {
-	svc, _, _ := setupAuthService(t)
+	svc, _, _, signer := setupAuthService(t)
 	ctx := context.Background()
-	signer := loadTestSigner(t)
 
 	accessClaims := domain.Claims{
 		TokenUse: domain.TokenUseAccess,
@@ -296,9 +289,8 @@ func TestAuthService_RefreshToken_AccessTokenMisused(t *testing.T) {
 }
 
 func TestAuthService_RefreshToken_FrozenUser(t *testing.T) {
-	svc, mockUserRepo, mockRefreshRepo := setupAuthService(t)
+	svc, mockUserRepo, mockRefreshRepo, signer := setupAuthService(t)
 	ctx := context.Background()
-	signer := loadTestSigner(t)
 
 	jti := uuid.New().String()
 	refreshClaims := domain.Claims{
@@ -324,9 +316,8 @@ func TestAuthService_RefreshToken_FrozenUser(t *testing.T) {
 }
 
 func TestAuthService_Logout_Success(t *testing.T) {
-	svc, _, mockRefreshRepo := setupAuthService(t)
+	svc, _, mockRefreshRepo, signer := setupAuthService(t)
 	ctx := context.Background()
-	signer := loadTestSigner(t)
 
 	jti := uuid.New().String()
 	refreshClaims := domain.Claims{
@@ -347,9 +338,8 @@ func TestAuthService_Logout_Success(t *testing.T) {
 }
 
 func TestAuthService_Logout_Idempotent(t *testing.T) {
-	svc, _, mockRefreshRepo := setupAuthService(t)
+	svc, _, mockRefreshRepo, signer := setupAuthService(t)
 	ctx := context.Background()
-	signer := loadTestSigner(t)
 
 	jti := uuid.New().String()
 	refreshClaims := domain.Claims{
@@ -370,7 +360,7 @@ func TestAuthService_Logout_Idempotent(t *testing.T) {
 }
 
 func TestAuthService_Logout_InvalidToken(t *testing.T) {
-	svc, _, _ := setupAuthService(t)
+	svc, _, _, _ := setupAuthService(t)
 	ctx := context.Background()
 
 	err := svc.Logout(ctx, &LogoutRequest{RefreshToken: "invalid-token"})
@@ -378,9 +368,8 @@ func TestAuthService_Logout_InvalidToken(t *testing.T) {
 }
 
 func TestAuthService_Logout_AccessTokenMisused(t *testing.T) {
-	svc, _, _ := setupAuthService(t)
+	svc, _, _, signer := setupAuthService(t)
 	ctx := context.Background()
-	signer := loadTestSigner(t)
 
 	accessClaims := domain.Claims{
 		TokenUse: domain.TokenUseAccess,
@@ -417,11 +406,7 @@ func TestRS256Signer_JWKS(t *testing.T) {
 func TestRS256Signer_Verify_InvalidSignature(t *testing.T) {
 	signer := loadTestSigner(t)
 
-	privPEM, _ := os.ReadFile("../../../../configs/keys/jwt_private.pem")
-	block, _ := pem.Decode(privPEM)
-	privKey, _ := x509.ParsePKCS8PrivateKey(block.Bytes)
-	rsaKey := privKey.(*rsa.PrivateKey)
-
+	key, _ := rsa.GenerateKey(rand.Reader, 2048)
 	claims := domain.Claims{
 		TokenUse: domain.TokenUseAccess,
 		UserID:   "user-1",
@@ -433,7 +418,7 @@ func TestRS256Signer_Verify_InvalidSignature(t *testing.T) {
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 	token.Header["kid"] = "test-key"
-	signed, _ := token.SignedString(rsaKey)
+	signed, _ := token.SignedString(key)
 
 	_, err := signer.Verify(signed + "tampered")
 	assert.Error(t, err)
