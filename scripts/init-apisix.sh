@@ -549,6 +549,32 @@ curl -sf "${APISIX_ADMIN}/routes/29" \
 # Routes: AuthService (public, no jwt-auth)
 # ══════════════════════════════════════════════════════════════════════
 
+echo "Creating route: GetCurrentUser (GET /identity/v1/users/me)"
+curl -sf "${APISIX_ADMIN}/routes/34" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "user-me",
+    "methods": ["GET"],
+    "uri": "/identity/v1/users/me",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": ["'"${JWT_INJECT}"'"]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.identity.v1.UserService",
+        "method": "GetCurrentUser",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
 echo "Creating route: Login (POST /identity/v1/auth/login)"
 curl -sf "${APISIX_ADMIN}/routes/30" \
   -H "X-API-KEY: ${API_KEY}" \
