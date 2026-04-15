@@ -140,7 +140,6 @@ services:
       - ./configs/swagger/openapi.yaml:/usr/share/nginx/html/openapi.yaml:ro
     environment:
       SWAGGER_JSON_URL: openapi.yaml
-      API_URL: ""
 
   victoriametrics:
     image: victoriametrics/victoria-metrics:latest
