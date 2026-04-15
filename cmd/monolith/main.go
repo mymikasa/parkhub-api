@@ -96,7 +96,7 @@ func run() error {
 	})
 
 	reg := registry.New()
-	identitygrpc.RegisterServices(reg, db)
+	identitygrpc.RegisterServices(reg, db, rdb, cfg.Auth)
 	smsgrpc.RegisterServices(reg, db, rdb)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Server.GRPCPort))
@@ -111,6 +111,7 @@ func run() error {
 		)),
 		grpc.ChainUnaryInterceptor(
 			middleware.UnaryLoggingInterceptor(logger),
+			middleware.UnaryAuthContextInterceptor(),
 			middleware.UnaryRecoveryInterceptor(logger),
 		),
 	)
