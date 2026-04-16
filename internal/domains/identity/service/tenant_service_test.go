@@ -347,6 +347,20 @@ func TestTenantService_GetTenantSummary_RepoError(t *testing.T) {
 	assert.ErrorIs(t, err, assert.AnError)
 }
 
+func TestTenantService_GetTenantSummary_CounterError(t *testing.T) {
+	ctrl := go_mock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := repomocks.NewMockTenantRepo(ctrl)
+	counter := &errorCounter{}
+	svc := NewTenantService(mockRepo, counter).(*tenantService)
+
+	mockRepo.EXPECT().CountByStatus(go_mock.Any()).Return(int64(5), int64(1), nil)
+
+	_, err := svc.GetTenantSummary(context.Background())
+	assert.ErrorIs(t, err, assert.AnError)
+}
+
 type trackingCounter struct {
 	called   bool
 	returned int64
@@ -356,4 +370,10 @@ func (c *trackingCounter) CountParkingLots(_ context.Context) (int64, error) {
 	c.called = true
 	c.returned = 25
 	return c.returned, nil
+}
+
+type errorCounter struct{}
+
+func (errorCounter) CountParkingLots(_ context.Context) (int64, error) {
+	return 0, assert.AnError
 }

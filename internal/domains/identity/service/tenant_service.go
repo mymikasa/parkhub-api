@@ -166,7 +166,10 @@ func (s *tenantService) GetTenantSummary(ctx context.Context) (*TenantSummaryRes
 
 	var totalParkingLots int64
 	if s.parkingCounter != nil {
-		totalParkingLots, _ = s.parkingCounter.CountParkingLots(ctx)
+		totalParkingLots, err = s.parkingCounter.CountParkingLots(ctx)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	var avg float64

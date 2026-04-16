@@ -243,6 +243,5 @@ func newParkingLotCounter(db *gorm.DB) identityservice.ParkingLotCounter {
 }
 
 func (a *parkingLotCounterAdapter) CountParkingLots(ctx context.Context) (int64, error) {
-	total, _, err := a.dao.SumStats(ctx, "")
-	return total, err
+	return a.dao.Count(ctx)
 }

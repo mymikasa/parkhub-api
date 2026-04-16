@@ -42,6 +42,7 @@ type ParkingLotDAO interface {
 	Update(ctx context.Context, lot *ParkingLot) error
 	Delete(ctx context.Context, tenantID, id string) error
 	SumStats(ctx context.Context, tenantID string) (totalSpaces, availableSpaces int64, err error)
+	Count(ctx context.Context) (int64, error)
 }
 
 type GORMParkingLotDAO struct {
@@ -143,4 +144,12 @@ func (d *GORMParkingLotDAO) SumStats(ctx context.Context, tenantID string) (int6
 		return 0, 0, err
 	}
 	return result.TotalSpaces, result.AvailableSpaces, nil
+}
+
+func (d *GORMParkingLotDAO) Count(ctx context.Context) (int64, error) {
+	var count int64
+	if err := d.db.WithContext(ctx).Model(&ParkingLot{}).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
 }

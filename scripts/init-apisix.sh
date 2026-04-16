@@ -979,7 +979,7 @@ curl -sf "${APISIX_ADMIN}/routes/56" \
         "phase": "access",
         "functions": [
           "'"${JWT_INJECT}"'",
-          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/tenants/(.+)/parking-lots$\"); if id then ngx.req.set_uri_args({tenant_id = id}) end end"
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/tenants/(.+)/parking-lots$\"); if id then ngx.req.set_header(\"x-tenant-id\", id) end end"
         ]
       },
       "grpc-transcode": {

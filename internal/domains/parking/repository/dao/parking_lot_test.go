@@ -340,3 +340,27 @@ func TestParkingLotDAO_SumStats_Empty(t *testing.T) {
 	assert.Equal(t, int64(0), totalSpaces)
 	assert.Equal(t, int64(0), availableSpaces)
 }
+
+func TestParkingLotDAO_Count(t *testing.T) {
+	db := setupParkingTestDB(t)
+	dao := NewParkingLotDAO(db)
+	ctx := context.Background()
+
+	require.NoError(t, dao.Insert(ctx, newTestLot("tenant-1", "Lot1")))
+	require.NoError(t, dao.Insert(ctx, newTestLot("tenant-1", "Lot2")))
+	require.NoError(t, dao.Insert(ctx, newTestLot("tenant-2", "Other")))
+
+	count, err := dao.Count(ctx)
+	assert.NoError(t, err)
+	assert.Equal(t, int64(3), count)
+}
+
+func TestParkingLotDAO_Count_Empty(t *testing.T) {
+	db := setupParkingTestDB(t)
+	dao := NewParkingLotDAO(db)
+	ctx := context.Background()
+
+	count, err := dao.Count(ctx)
+	assert.NoError(t, err)
+	assert.Equal(t, int64(0), count)
+}
