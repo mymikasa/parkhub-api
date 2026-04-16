@@ -20,4 +20,5 @@ type TenantRepo interface {
 	List(ctx context.Context, filter TenantFilter, page, pageSize int) ([]*domain.Tenant, int64, error)
 	Update(ctx context.Context, tenant *domain.Tenant) error
 	Delete(ctx context.Context, id string) error
+	CountByStatus(ctx context.Context) (active, frozen int64, err error)
 }

@@ -278,6 +278,41 @@ func TestGRPC_DeleteTenant_NotFound(t *testing.T) {
 	assert.Equal(t, codes.NotFound, status.Code(err))
 }
 
+func TestGRPC_GetTenantSummary_Success(t *testing.T) {
+	client, mockSvc, ctrl := setupTestServer(t)
+	defer ctrl.Finish()
+
+	mockSvc.EXPECT().
+		GetTenantSummary(go_mock.Any()).
+		Return(&service.TenantSummaryResponse{
+			Total:                   10,
+			Active:                  8,
+			Frozen:                  2,
+			TotalParkingLots:        25,
+			AvgParkingLotsPerTenant: 2.5,
+		}, nil)
+
+	resp, err := client.GetTenantSummary(context.Background(), &identityv1.GetTenantSummaryRequest{})
+	assert.NoError(t, err)
+	assert.Equal(t, int64(10), resp.Total)
+	assert.Equal(t, int64(8), resp.Active)
+	assert.Equal(t, int64(2), resp.Frozen)
+	assert.Equal(t, int64(25), resp.TotalParkingLots)
+	assert.InDelta(t, 2.5, resp.AvgParkingLotsPerTenant, 0.01)
+}
+
+func TestGRPC_GetTenantSummary_Error(t *testing.T) {
+	client, mockSvc, ctrl := setupTestServer(t)
+	defer ctrl.Finish()
+
+	mockSvc.EXPECT().
+		GetTenantSummary(go_mock.Any()).
+		Return(nil, assert.AnError)
+
+	_, err := client.GetTenantSummary(context.Background(), &identityv1.GetTenantSummaryRequest{})
+	assert.Error(t, err)
+}
+
 func TestToProtoTenant_Nil(t *testing.T) {
 	assert.Nil(t, toProtoTenant(nil))
 }

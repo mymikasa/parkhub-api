@@ -46,6 +46,18 @@ type TenantListResponse struct {
 	TotalPages int
 }
 
+type TenantSummaryResponse struct {
+	Total                   int64
+	Active                  int64
+	Frozen                  int64
+	TotalParkingLots        int64
+	AvgParkingLotsPerTenant float64
+}
+
+type ParkingLotCounter interface {
+	CountParkingLots(ctx context.Context) (int64, error)
+}
+
 //go:generate mockgen -source=./interface.go -package=servicemocks -destination=./mocks/tenant_service.mock.go TenantService
 
 type TenantService interface {
@@ -56,4 +68,5 @@ type TenantService interface {
 	FreezeTenant(ctx context.Context, id string) (*domain.Tenant, error)
 	UnfreezeTenant(ctx context.Context, id string) (*domain.Tenant, error)
 	DeleteTenant(ctx context.Context, id string) error
+	GetTenantSummary(ctx context.Context) (*TenantSummaryResponse, error)
 }

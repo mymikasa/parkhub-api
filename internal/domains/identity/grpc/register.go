@@ -24,11 +24,11 @@ func (a *smsCodeVerifierAdapter) VerifyCode(ctx context.Context, phone, code str
 	return a.verifyFn(ctx, phone, code)
 }
 
-func RegisterServices(reg *registry.Registry, coreDB *gorm.DB, rdb *redis.Client, authCfg config.AuthConfig, smsVerifyFn func(ctx context.Context, phone, code string) error) {
+func RegisterServices(reg *registry.Registry, coreDB *gorm.DB, rdb *redis.Client, authCfg config.AuthConfig, smsVerifyFn func(ctx context.Context, phone, code string) error, parkingCounter service.ParkingLotCounter) {
 	// ── Tenant Service ──
 	tenantDAO := dao.NewTenantDAO(coreDB)
 	tenantRepo := repository.NewTenantRepo(tenantDAO)
-	tenantSvc := service.NewTenantService(tenantRepo)
+	tenantSvc := service.NewTenantService(tenantRepo, parkingCounter)
 
 	reg.MustRegister("identity.v1.TenantService", func(s *grpc.Server) {
 		identityv1.RegisterTenantServiceServer(s, NewTenantGRPCServer(tenantSvc))

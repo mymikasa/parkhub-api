@@ -41,6 +41,22 @@ func (m *MockTenantDAO) EXPECT() *MockTenantDAOMockRecorder {
 	return m.recorder
 }
 
+// CountByStatus mocks base method.
+func (m *MockTenantDAO) CountByStatus(ctx context.Context) (int64, int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CountByStatus", ctx)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(int64)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// CountByStatus indicates an expected call of CountByStatus.
+func (mr *MockTenantDAOMockRecorder) CountByStatus(ctx any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountByStatus", reflect.TypeOf((*MockTenantDAO)(nil).CountByStatus), ctx)
+}
+
 // Delete mocks base method.
 func (m *MockTenantDAO) Delete(ctx context.Context, id string) error {
 	m.ctrl.T.Helper()

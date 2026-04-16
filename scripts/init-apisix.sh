@@ -933,3 +933,64 @@ curl -sf "${APISIX_ADMIN}/routes/55" \
   }' && echo ""
 
 echo "APISIX ParkingLot routes configuration complete"
+
+# ══════════════════════════════════════════════════════════════════════
+# Routes: Tenant Summary & Tenant Parking Lots (issue #20)
+# ══════════════════════════════════════════════════════════════════════
+
+echo "Creating route: GetTenantSummary (GET /api/v1/tenants/summary)"
+curl -sf "${APISIX_ADMIN}/routes/17" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "tenant-summary",
+    "methods": ["GET"],
+    "uri": "/api/v1/tenants/summary",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": ["'"${JWT_INJECT}"'"]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.identity.v1.TenantService",
+        "method": "GetTenantSummary",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating route: ListTenantParkingLots (GET /api/v1/tenants/:id/parking-lots)"
+curl -sf "${APISIX_ADMIN}/routes/56" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "tenant-parking-lots",
+    "methods": ["GET"],
+    "uri": "/api/v1/tenants/*/parking-lots",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/api/v1/tenants/(.+)/parking-lots$\"); if id then ngx.req.set_uri_args({tenant_id = id}) end end"
+        ]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.parking.v1.ParkingLotService",
+        "method": "ListParkingLots",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "APISIX issue #20 routes configuration complete"

@@ -18,6 +18,45 @@ import (
 	gomock "go.uber.org/mock/gomock"
 )
 
+// MockParkingLotCounter is a mock of ParkingLotCounter interface.
+type MockParkingLotCounter struct {
+	ctrl     *gomock.Controller
+	recorder *MockParkingLotCounterMockRecorder
+	isgomock struct{}
+}
+
+// MockParkingLotCounterMockRecorder is the mock recorder for MockParkingLotCounter.
+type MockParkingLotCounterMockRecorder struct {
+	mock *MockParkingLotCounter
+}
+
+// NewMockParkingLotCounter creates a new mock instance.
+func NewMockParkingLotCounter(ctrl *gomock.Controller) *MockParkingLotCounter {
+	mock := &MockParkingLotCounter{ctrl: ctrl}
+	mock.recorder = &MockParkingLotCounterMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockParkingLotCounter) EXPECT() *MockParkingLotCounterMockRecorder {
+	return m.recorder
+}
+
+// CountParkingLots mocks base method.
+func (m *MockParkingLotCounter) CountParkingLots(ctx context.Context) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CountParkingLots", ctx)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountParkingLots indicates an expected call of CountParkingLots.
+func (mr *MockParkingLotCounterMockRecorder) CountParkingLots(ctx any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountParkingLots", reflect.TypeOf((*MockParkingLotCounter)(nil).CountParkingLots), ctx)
+}
+
 // MockTenantService is a mock of TenantService interface.
 type MockTenantService struct {
 	ctrl     *gomock.Controller
@@ -99,6 +138,21 @@ func (m *MockTenantService) GetTenant(ctx context.Context, id string) (*domain.T
 func (mr *MockTenantServiceMockRecorder) GetTenant(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTenant", reflect.TypeOf((*MockTenantService)(nil).GetTenant), ctx, id)
+}
+
+// GetTenantSummary mocks base method.
+func (m *MockTenantService) GetTenantSummary(ctx context.Context) (*service.TenantSummaryResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTenantSummary", ctx)
+	ret0, _ := ret[0].(*service.TenantSummaryResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTenantSummary indicates an expected call of GetTenantSummary.
+func (mr *MockTenantServiceMockRecorder) GetTenantSummary(ctx any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTenantSummary", reflect.TypeOf((*MockTenantService)(nil).GetTenantSummary), ctx)
 }
 
 // ListTenants mocks base method.

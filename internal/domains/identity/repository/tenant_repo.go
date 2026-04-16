@@ -59,6 +59,10 @@ func (r *tenantRepo) Delete(ctx context.Context, id string) error {
 	return r.dao.Delete(ctx, id)
 }
 
+func (r *tenantRepo) CountByStatus(ctx context.Context) (active, frozen int64, err error) {
+	return r.dao.CountByStatus(ctx)
+}
+
 func toDomain(d *dao.Tenant) *domain.Tenant {
 	if d == nil {
 		return nil

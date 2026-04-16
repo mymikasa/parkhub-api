@@ -114,6 +114,16 @@ message DeleteTenantRequest {
 
 message DeleteTenantResponse {}
 
+message GetTenantSummaryRequest {}
+
+message GetTenantSummaryResponse {
+  int64 total = 1;
+  int64 active = 2;
+  int64 frozen = 3;
+  int64 total_parking_lots = 4;
+  double avg_parking_lots_per_tenant = 5;
+}
+
 service TenantService {
   rpc CreateTenant(CreateTenantRequest) returns (CreateTenantResponse);
   rpc GetTenant(GetTenantRequest) returns (GetTenantResponse);
@@ -122,4 +132,5 @@ service TenantService {
   rpc FreezeTenant(FreezeTenantRequest) returns (FreezeTenantResponse);
   rpc UnfreezeTenant(UnfreezeTenantRequest) returns (UnfreezeTenantResponse);
   rpc DeleteTenant(DeleteTenantRequest) returns (DeleteTenantResponse);
+  rpc GetTenantSummary(GetTenantSummaryRequest) returns (GetTenantSummaryResponse);
 }

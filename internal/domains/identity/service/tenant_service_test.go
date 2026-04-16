@@ -6,18 +6,29 @@ import (
 
 	"github.com/parkhub/api/internal/domains/identity/domain"
 	"github.com/parkhub/api/internal/domains/identity/errs"
+	"github.com/parkhub/api/internal/domains/identity/repository"
 	repomocks "github.com/parkhub/api/internal/domains/identity/repository/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	go_mock "go.uber.org/mock/gomock"
 )
 
+type stubParkingLotCounter struct{}
+
+func (stubParkingLotCounter) CountParkingLots(_ context.Context) (int64, error) {
+	return 0, nil
+}
+
+func newSvc(repo repository.TenantRepo) *tenantService {
+	return NewTenantService(repo, stubParkingLotCounter{}).(*tenantService)
+}
+
 func TestTenantService_CreateTenant_Success(t *testing.T) {
 	ctrl := go_mock.NewController(t)
 	defer ctrl.Finish()
 
 	mockRepo := repomocks.NewMockTenantRepo(ctrl)
-	svc := NewTenantService(mockRepo)
+	svc := newSvc(mockRepo)
 
 	mockRepo.EXPECT().GetByName(go_mock.Any(), "Acme").Return(nil, errs.ErrTenantNotFound)
 	mockRepo.EXPECT().Create(go_mock.Any(), go_mock.Any()).Return(nil)
@@ -41,7 +52,7 @@ func TestTenantService_CreateTenant_AlreadyExists(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := repomocks.NewMockTenantRepo(ctrl)
-	svc := NewTenantService(mockRepo)
+	svc := newSvc(mockRepo)
 
 	mockRepo.EXPECT().GetByName(go_mock.Any(), "Acme").Return(&domain.Tenant{ID: "existing-id", Name: "Acme"}, nil)
 
@@ -56,7 +67,7 @@ func TestTenantService_GetTenant_Success(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := repomocks.NewMockTenantRepo(ctrl)
-	svc := NewTenantService(mockRepo)
+	svc := newSvc(mockRepo)
 
 	mockRepo.EXPECT().GetByID(go_mock.Any(), "test-id").Return(&domain.Tenant{ID: "test-id", Name: "Acme"}, nil)
 
@@ -70,7 +81,7 @@ func TestTenantService_GetTenant_NotFound(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := repomocks.NewMockTenantRepo(ctrl)
-	svc := NewTenantService(mockRepo)
+	svc := newSvc(mockRepo)
 
 	mockRepo.EXPECT().GetByID(go_mock.Any(), "bad-id").Return(nil, errs.ErrTenantNotFound)
 
@@ -83,7 +94,7 @@ func TestTenantService_ListTenants_Defaults(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := repomocks.NewMockTenantRepo(ctrl)
-	svc := NewTenantService(mockRepo)
+	svc := newSvc(mockRepo)
 
 	mockRepo.EXPECT().List(go_mock.Any(), go_mock.Any(), 1, 20).Return([]*domain.Tenant{}, int64(0), nil)
 
@@ -100,7 +111,7 @@ func TestTenantService_ListTenants_WithPagination(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := repomocks.NewMockTenantRepo(ctrl)
-	svc := NewTenantService(mockRepo)
+	svc := newSvc(mockRepo)
 
 	tenants := make([]*domain.Tenant, 5)
 	for i := range tenants {
@@ -121,7 +132,7 @@ func TestTenantService_ListTenants_PageSizeCap(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := repomocks.NewMockTenantRepo(ctrl)
-	svc := NewTenantService(mockRepo)
+	svc := newSvc(mockRepo)
 
 	mockRepo.EXPECT().List(go_mock.Any(), go_mock.Any(), 1, 100).Return([]*domain.Tenant{}, int64(0), nil)
 
@@ -135,7 +146,7 @@ func TestTenantService_UpdateTenant_Success(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := repomocks.NewMockTenantRepo(ctrl)
-	svc := NewTenantService(mockRepo)
+	svc := newSvc(mockRepo)
 
 	existing := &domain.Tenant{ID: "test-id", Name: "Acme", Status: domain.TenantStatusActive}
 	mockRepo.EXPECT().GetByID(go_mock.Any(), "test-id").Return(existing, nil)
@@ -155,7 +166,7 @@ func TestTenantService_UpdateTenant_NotFound(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := repomocks.NewMockTenantRepo(ctrl)
-	svc := NewTenantService(mockRepo)
+	svc := newSvc(mockRepo)
 
 	mockRepo.EXPECT().GetByID(go_mock.Any(), "bad-id").Return(nil, errs.ErrTenantNotFound)
 
@@ -168,7 +179,7 @@ func TestTenantService_DeleteTenant_Success(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := repomocks.NewMockTenantRepo(ctrl)
-	svc := NewTenantService(mockRepo)
+	svc := newSvc(mockRepo)
 
 	mockRepo.EXPECT().Delete(go_mock.Any(), "test-id").Return(nil)
 
@@ -181,7 +192,7 @@ func TestTenantService_DeleteTenant_NotFound(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := repomocks.NewMockTenantRepo(ctrl)
-	svc := NewTenantService(mockRepo)
+	svc := newSvc(mockRepo)
 
 	mockRepo.EXPECT().Delete(go_mock.Any(), "bad-id").Return(errs.ErrTenantNotFound)
 
@@ -194,7 +205,7 @@ func TestTenantService_ListTenants_TotalPagesCeiling(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := repomocks.NewMockTenantRepo(ctrl)
-	svc := NewTenantService(mockRepo)
+	svc := newSvc(mockRepo)
 
 	mockRepo.EXPECT().List(go_mock.Any(), go_mock.Any(), 1, 20).Return([]*domain.Tenant{}, int64(25), nil)
 
@@ -208,7 +219,7 @@ func TestTenantService_FreezeTenant_Success(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := repomocks.NewMockTenantRepo(ctrl)
-	svc := NewTenantService(mockRepo)
+	svc := newSvc(mockRepo)
 
 	existing := &domain.Tenant{ID: "test-id", Name: "Acme", Status: domain.TenantStatusActive}
 	mockRepo.EXPECT().GetByID(go_mock.Any(), "test-id").Return(existing, nil)
@@ -224,7 +235,7 @@ func TestTenantService_FreezeTenant_AlreadyFrozen(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := repomocks.NewMockTenantRepo(ctrl)
-	svc := NewTenantService(mockRepo)
+	svc := newSvc(mockRepo)
 
 	existing := &domain.Tenant{ID: "test-id", Name: "Acme", Status: domain.TenantStatusFrozen}
 	mockRepo.EXPECT().GetByID(go_mock.Any(), "test-id").Return(existing, nil)
@@ -238,7 +249,7 @@ func TestTenantService_FreezeTenant_NotFound(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := repomocks.NewMockTenantRepo(ctrl)
-	svc := NewTenantService(mockRepo)
+	svc := newSvc(mockRepo)
 
 	mockRepo.EXPECT().GetByID(go_mock.Any(), "bad-id").Return(nil, errs.ErrTenantNotFound)
 
@@ -251,7 +262,7 @@ func TestTenantService_UnfreezeTenant_Success(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := repomocks.NewMockTenantRepo(ctrl)
-	svc := NewTenantService(mockRepo)
+	svc := newSvc(mockRepo)
 
 	existing := &domain.Tenant{ID: "test-id", Name: "Acme", Status: domain.TenantStatusFrozen}
 	mockRepo.EXPECT().GetByID(go_mock.Any(), "test-id").Return(existing, nil)
@@ -267,7 +278,7 @@ func TestTenantService_UnfreezeTenant_AlreadyActive(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := repomocks.NewMockTenantRepo(ctrl)
-	svc := NewTenantService(mockRepo)
+	svc := newSvc(mockRepo)
 
 	existing := &domain.Tenant{ID: "test-id", Name: "Acme", Status: domain.TenantStatusActive}
 	mockRepo.EXPECT().GetByID(go_mock.Any(), "test-id").Return(existing, nil)
@@ -281,10 +292,68 @@ func TestTenantService_UnfreezeTenant_NotFound(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := repomocks.NewMockTenantRepo(ctrl)
-	svc := NewTenantService(mockRepo)
+	svc := newSvc(mockRepo)
 
 	mockRepo.EXPECT().GetByID(go_mock.Any(), "bad-id").Return(nil, errs.ErrTenantNotFound)
 
 	_, err := svc.UnfreezeTenant(context.Background(), "bad-id")
 	assert.ErrorIs(t, err, errs.ErrTenantNotFound)
+}
+
+func TestTenantService_GetTenantSummary_Success(t *testing.T) {
+	ctrl := go_mock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := repomocks.NewMockTenantRepo(ctrl)
+	counter := &trackingCounter{}
+	svc := NewTenantService(mockRepo, counter).(*tenantService)
+
+	mockRepo.EXPECT().CountByStatus(go_mock.Any()).Return(int64(8), int64(2), nil)
+
+	summary, err := svc.GetTenantSummary(context.Background())
+	assert.NoError(t, err)
+	assert.Equal(t, int64(10), summary.Total)
+	assert.Equal(t, int64(8), summary.Active)
+	assert.Equal(t, int64(2), summary.Frozen)
+	assert.Equal(t, counter.called, true)
+	assert.InDelta(t, float64(counter.returned)/float64(10), summary.AvgParkingLotsPerTenant, 0.01)
+}
+
+func TestTenantService_GetTenantSummary_ZeroTenants(t *testing.T) {
+	ctrl := go_mock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := repomocks.NewMockTenantRepo(ctrl)
+	svc := NewTenantService(mockRepo, stubParkingLotCounter{}).(*tenantService)
+
+	mockRepo.EXPECT().CountByStatus(go_mock.Any()).Return(int64(0), int64(0), nil)
+
+	summary, err := svc.GetTenantSummary(context.Background())
+	assert.NoError(t, err)
+	assert.Equal(t, int64(0), summary.Total)
+	assert.Equal(t, float64(0), summary.AvgParkingLotsPerTenant)
+}
+
+func TestTenantService_GetTenantSummary_RepoError(t *testing.T) {
+	ctrl := go_mock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := repomocks.NewMockTenantRepo(ctrl)
+	svc := NewTenantService(mockRepo, stubParkingLotCounter{}).(*tenantService)
+
+	mockRepo.EXPECT().CountByStatus(go_mock.Any()).Return(int64(0), int64(0), assert.AnError)
+
+	_, err := svc.GetTenantSummary(context.Background())
+	assert.ErrorIs(t, err, assert.AnError)
+}
+
+type trackingCounter struct {
+	called   bool
+	returned int64
+}
+
+func (c *trackingCounter) CountParkingLots(_ context.Context) (int64, error) {
+	c.called = true
+	c.returned = 25
+	return c.returned, nil
 }
