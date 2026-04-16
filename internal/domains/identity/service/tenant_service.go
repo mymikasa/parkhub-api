@@ -11,11 +11,12 @@ import (
 )
 
 type tenantService struct {
-	tenantRepo repository.TenantRepo
+	tenantRepo     repository.TenantRepo
+	parkingCounter ParkingLotCounter
 }
 
-func NewTenantService(repo repository.TenantRepo) TenantService {
-	return &tenantService{tenantRepo: repo}
+func NewTenantService(repo repository.TenantRepo, parkingCounter ParkingLotCounter) TenantService {
+	return &tenantService{tenantRepo: repo, parkingCounter: parkingCounter}
 }
 
 func (s *tenantService) CreateTenant(ctx context.Context, req *CreateTenantRequest) (*domain.Tenant, error) {
@@ -153,4 +154,34 @@ func (s *tenantService) UnfreezeTenant(ctx context.Context, id string) (*domain.
 
 func (s *tenantService) DeleteTenant(ctx context.Context, id string) error {
 	return s.tenantRepo.Delete(ctx, id)
+}
+
+func (s *tenantService) GetTenantSummary(ctx context.Context) (*TenantSummaryResponse, error) {
+	active, frozen, err := s.tenantRepo.CountByStatus(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	total := active + frozen
+
+	var totalParkingLots int64
+	if s.parkingCounter != nil {
+		totalParkingLots, err = s.parkingCounter.CountParkingLots(ctx)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var avg float64
+	if total > 0 {
+		avg = float64(totalParkingLots) / float64(total)
+	}
+
+	return &TenantSummaryResponse{
+		Total:                   total,
+		Active:                  active,
+		Frozen:                  frozen,
+		TotalParkingLots:        totalParkingLots,
+		AvgParkingLotsPerTenant: avg,
+	}, nil
 }

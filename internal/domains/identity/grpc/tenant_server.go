@@ -156,3 +156,17 @@ func (s *TenantGRPCServer) DeleteTenant(ctx context.Context, req *identityv1.Del
 	}
 	return &identityv1.DeleteTenantResponse{}, nil
 }
+
+func (s *TenantGRPCServer) GetTenantSummary(ctx context.Context, req *identityv1.GetTenantSummaryRequest) (*identityv1.GetTenantSummaryResponse, error) {
+	summary, err := s.tenantSvc.GetTenantSummary(ctx)
+	if err != nil {
+		return nil, toGRPCError(err)
+	}
+	return &identityv1.GetTenantSummaryResponse{
+		Total:                   summary.Total,
+		Active:                  summary.Active,
+		Frozen:                  summary.Frozen,
+		TotalParkingLots:        summary.TotalParkingLots,
+		AvgParkingLotsPerTenant: summary.AvgParkingLotsPerTenant,
+	}, nil
+}

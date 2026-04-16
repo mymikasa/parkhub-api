@@ -43,6 +43,7 @@ type TenantDAO interface {
 	FindAll(ctx context.Context, filter TenantFilter, page, pageSize int) ([]*Tenant, int64, error)
 	Update(ctx context.Context, tenant *Tenant) error
 	Delete(ctx context.Context, id string) error
+	CountByStatus(ctx context.Context) (active, frozen int64, err error)
 }
 
 type GORMTenantDAO struct {
@@ -133,4 +134,23 @@ func (d *GORMTenantDAO) Delete(ctx context.Context, id string) error {
 		return errs.ErrTenantNotFound
 	}
 	return nil
+}
+
+func (d *GORMTenantDAO) CountByStatus(ctx context.Context) (active, frozen int64, err error) {
+	var results []struct {
+		Status string
+		Count  int64
+	}
+	if err := d.db.WithContext(ctx).Model(&Tenant{}).Select("status, count(*) as count").Group("status").Scan(&results).Error; err != nil {
+		return 0, 0, err
+	}
+	for _, r := range results {
+		switch r.Status {
+		case "active":
+			active = r.Count
+		case "frozen":
+			frozen = r.Count
+		}
+	}
+	return
 }

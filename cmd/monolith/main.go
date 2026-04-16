@@ -15,6 +15,7 @@ import (
 	"github.com/parkhub/api/internal/config"
 	identitygrpc "github.com/parkhub/api/internal/domains/identity/grpc"
 	"github.com/parkhub/api/internal/domains/identity/repository/dao"
+	identityservice "github.com/parkhub/api/internal/domains/identity/service"
 	parkinggrpc "github.com/parkhub/api/internal/domains/parking/grpc"
 	parkingdao "github.com/parkhub/api/internal/domains/parking/repository/dao"
 	smsdomain "github.com/parkhub/api/internal/domains/sms/domain"
@@ -116,7 +117,9 @@ func run() error {
 			Purpose: smsdomain.SmsPurposeLogin,
 		})
 	}
-	identitygrpc.RegisterServices(reg, db, rdb, cfg.Auth, smsVerifyFn)
+
+	parkingLotCounter := newParkingLotCounter(parkingDB)
+	identitygrpc.RegisterServices(reg, db, rdb, cfg.Auth, smsVerifyFn, parkingLotCounter)
 	parkinggrpc.RegisterServices(reg, parkingDB)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Server.GRPCPort))
@@ -229,4 +232,16 @@ func gracefulStopGRPC(grpcServer *grpc.Server) {
 		slog.Warn("gRPC graceful stop timed out, forcing stop")
 		grpcServer.Stop()
 	}
+}
+
+type parkingLotCounterAdapter struct {
+	dao parkingdao.ParkingLotDAO
+}
+
+func newParkingLotCounter(db *gorm.DB) identityservice.ParkingLotCounter {
+	return &parkingLotCounterAdapter{dao: parkingdao.NewParkingLotDAO(db)}
+}
+
+func (a *parkingLotCounterAdapter) CountParkingLots(ctx context.Context) (int64, error) {
+	return a.dao.Count(ctx)
 }

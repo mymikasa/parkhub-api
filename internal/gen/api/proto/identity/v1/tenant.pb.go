@@ -1061,6 +1061,118 @@ func (*DeleteTenantResponse) Descriptor() ([]byte, []int) {
 	return file_identity_v1_tenant_proto_rawDescGZIP(), []int{14}
 }
 
+type GetTenantSummaryRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetTenantSummaryRequest) Reset() {
+	*x = GetTenantSummaryRequest{}
+	mi := &file_identity_v1_tenant_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetTenantSummaryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTenantSummaryRequest) ProtoMessage() {}
+
+func (x *GetTenantSummaryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_identity_v1_tenant_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTenantSummaryRequest.ProtoReflect.Descriptor instead.
+func (*GetTenantSummaryRequest) Descriptor() ([]byte, []int) {
+	return file_identity_v1_tenant_proto_rawDescGZIP(), []int{15}
+}
+
+type GetTenantSummaryResponse struct {
+	state                   protoimpl.MessageState `protogen:"open.v1"`
+	Total                   int64                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
+	Active                  int64                  `protobuf:"varint,2,opt,name=active,proto3" json:"active,omitempty"`
+	Frozen                  int64                  `protobuf:"varint,3,opt,name=frozen,proto3" json:"frozen,omitempty"`
+	TotalParkingLots        int64                  `protobuf:"varint,4,opt,name=total_parking_lots,json=totalParkingLots,proto3" json:"total_parking_lots,omitempty"`
+	AvgParkingLotsPerTenant float64                `protobuf:"fixed64,5,opt,name=avg_parking_lots_per_tenant,json=avgParkingLotsPerTenant,proto3" json:"avg_parking_lots_per_tenant,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
+}
+
+func (x *GetTenantSummaryResponse) Reset() {
+	*x = GetTenantSummaryResponse{}
+	mi := &file_identity_v1_tenant_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetTenantSummaryResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTenantSummaryResponse) ProtoMessage() {}
+
+func (x *GetTenantSummaryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_identity_v1_tenant_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTenantSummaryResponse.ProtoReflect.Descriptor instead.
+func (*GetTenantSummaryResponse) Descriptor() ([]byte, []int) {
+	return file_identity_v1_tenant_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *GetTenantSummaryResponse) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *GetTenantSummaryResponse) GetActive() int64 {
+	if x != nil {
+		return x.Active
+	}
+	return 0
+}
+
+func (x *GetTenantSummaryResponse) GetFrozen() int64 {
+	if x != nil {
+		return x.Frozen
+	}
+	return 0
+}
+
+func (x *GetTenantSummaryResponse) GetTotalParkingLots() int64 {
+	if x != nil {
+		return x.TotalParkingLots
+	}
+	return 0
+}
+
+func (x *GetTenantSummaryResponse) GetAvgParkingLotsPerTenant() float64 {
+	if x != nil {
+		return x.AvgParkingLotsPerTenant
+	}
+	return 0
+}
+
 var File_identity_v1_tenant_proto protoreflect.FileDescriptor
 
 const file_identity_v1_tenant_proto_rawDesc = "" +
@@ -1156,7 +1268,14 @@ const file_identity_v1_tenant_proto_rawDesc = "" +
 	"\x06tenant\x18\x01 \x01(\v2\x1b.parkhub.identity.v1.TenantR\x06tenant\"2\n" +
 	"\x13DeleteTenantRequest\x12\x1b\n" +
 	"\ttenant_id\x18\x01 \x01(\tR\btenantId\"\x16\n" +
-	"\x14DeleteTenantResponse*a\n" +
+	"\x14DeleteTenantResponse\"\x19\n" +
+	"\x17GetTenantSummaryRequest\"\xcc\x01\n" +
+	"\x18GetTenantSummaryResponse\x12\x14\n" +
+	"\x05total\x18\x01 \x01(\x03R\x05total\x12\x16\n" +
+	"\x06active\x18\x02 \x01(\x03R\x06active\x12\x16\n" +
+	"\x06frozen\x18\x03 \x01(\x03R\x06frozen\x12,\n" +
+	"\x12total_parking_lots\x18\x04 \x01(\x03R\x10totalParkingLots\x12<\n" +
+	"\x1bavg_parking_lots_per_tenant\x18\x05 \x01(\x01R\x17avgParkingLotsPerTenant*a\n" +
 	"\fTenantStatus\x12\x1d\n" +
 	"\x19TENANT_STATUS_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14TENANT_STATUS_ACTIVE\x10\x01\x12\x18\n" +
@@ -1166,7 +1285,7 @@ const file_identity_v1_tenant_proto_rawDesc = "" +
 	"\x0ePLAN_TYPE_FREE\x10\x01\x12\x13\n" +
 	"\x0fPLAN_TYPE_BASIC\x10\x02\x12\x11\n" +
 	"\rPLAN_TYPE_PRO\x10\x03\x12\x18\n" +
-	"\x14PLAN_TYPE_ENTERPRISE\x10\x042\xcc\x05\n" +
+	"\x14PLAN_TYPE_ENTERPRISE\x10\x042\xbd\x06\n" +
 	"\rTenantService\x12c\n" +
 	"\fCreateTenant\x12(.parkhub.identity.v1.CreateTenantRequest\x1a).parkhub.identity.v1.CreateTenantResponse\x12Z\n" +
 	"\tGetTenant\x12%.parkhub.identity.v1.GetTenantRequest\x1a&.parkhub.identity.v1.GetTenantResponse\x12`\n" +
@@ -1174,7 +1293,8 @@ const file_identity_v1_tenant_proto_rawDesc = "" +
 	"\fUpdateTenant\x12(.parkhub.identity.v1.UpdateTenantRequest\x1a).parkhub.identity.v1.UpdateTenantResponse\x12c\n" +
 	"\fFreezeTenant\x12(.parkhub.identity.v1.FreezeTenantRequest\x1a).parkhub.identity.v1.FreezeTenantResponse\x12i\n" +
 	"\x0eUnfreezeTenant\x12*.parkhub.identity.v1.UnfreezeTenantRequest\x1a+.parkhub.identity.v1.UnfreezeTenantResponse\x12c\n" +
-	"\fDeleteTenant\x12(.parkhub.identity.v1.DeleteTenantRequest\x1a).parkhub.identity.v1.DeleteTenantResponseBFZDgithub.com/parkhub/api/internal/gen/api/proto/identity/v1;identityv1b\x06proto3"
+	"\fDeleteTenant\x12(.parkhub.identity.v1.DeleteTenantRequest\x1a).parkhub.identity.v1.DeleteTenantResponse\x12o\n" +
+	"\x10GetTenantSummary\x12,.parkhub.identity.v1.GetTenantSummaryRequest\x1a-.parkhub.identity.v1.GetTenantSummaryResponseBFZDgithub.com/parkhub/api/internal/gen/api/proto/identity/v1;identityv1b\x06proto3"
 
 var (
 	file_identity_v1_tenant_proto_rawDescOnce sync.Once
@@ -1189,41 +1309,43 @@ func file_identity_v1_tenant_proto_rawDescGZIP() []byte {
 }
 
 var file_identity_v1_tenant_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_identity_v1_tenant_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_identity_v1_tenant_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_identity_v1_tenant_proto_goTypes = []any{
-	(TenantStatus)(0),              // 0: parkhub.identity.v1.TenantStatus
-	(PlanType)(0),                  // 1: parkhub.identity.v1.PlanType
-	(*Tenant)(nil),                 // 2: parkhub.identity.v1.Tenant
-	(*CreateTenantRequest)(nil),    // 3: parkhub.identity.v1.CreateTenantRequest
-	(*CreateTenantResponse)(nil),   // 4: parkhub.identity.v1.CreateTenantResponse
-	(*GetTenantRequest)(nil),       // 5: parkhub.identity.v1.GetTenantRequest
-	(*GetTenantResponse)(nil),      // 6: parkhub.identity.v1.GetTenantResponse
-	(*ListTenantsRequest)(nil),     // 7: parkhub.identity.v1.ListTenantsRequest
-	(*ListTenantsResponse)(nil),    // 8: parkhub.identity.v1.ListTenantsResponse
-	(*UpdateTenantRequest)(nil),    // 9: parkhub.identity.v1.UpdateTenantRequest
-	(*FreezeTenantRequest)(nil),    // 10: parkhub.identity.v1.FreezeTenantRequest
-	(*FreezeTenantResponse)(nil),   // 11: parkhub.identity.v1.FreezeTenantResponse
-	(*UnfreezeTenantRequest)(nil),  // 12: parkhub.identity.v1.UnfreezeTenantRequest
-	(*UnfreezeTenantResponse)(nil), // 13: parkhub.identity.v1.UnfreezeTenantResponse
-	(*UpdateTenantResponse)(nil),   // 14: parkhub.identity.v1.UpdateTenantResponse
-	(*DeleteTenantRequest)(nil),    // 15: parkhub.identity.v1.DeleteTenantRequest
-	(*DeleteTenantResponse)(nil),   // 16: parkhub.identity.v1.DeleteTenantResponse
-	(*timestamppb.Timestamp)(nil),  // 17: google.protobuf.Timestamp
-	(*v1.PaginationRequest)(nil),   // 18: parkhub.common.v1.PaginationRequest
-	(*v1.PaginationResponse)(nil),  // 19: parkhub.common.v1.PaginationResponse
+	(TenantStatus)(0),                // 0: parkhub.identity.v1.TenantStatus
+	(PlanType)(0),                    // 1: parkhub.identity.v1.PlanType
+	(*Tenant)(nil),                   // 2: parkhub.identity.v1.Tenant
+	(*CreateTenantRequest)(nil),      // 3: parkhub.identity.v1.CreateTenantRequest
+	(*CreateTenantResponse)(nil),     // 4: parkhub.identity.v1.CreateTenantResponse
+	(*GetTenantRequest)(nil),         // 5: parkhub.identity.v1.GetTenantRequest
+	(*GetTenantResponse)(nil),        // 6: parkhub.identity.v1.GetTenantResponse
+	(*ListTenantsRequest)(nil),       // 7: parkhub.identity.v1.ListTenantsRequest
+	(*ListTenantsResponse)(nil),      // 8: parkhub.identity.v1.ListTenantsResponse
+	(*UpdateTenantRequest)(nil),      // 9: parkhub.identity.v1.UpdateTenantRequest
+	(*FreezeTenantRequest)(nil),      // 10: parkhub.identity.v1.FreezeTenantRequest
+	(*FreezeTenantResponse)(nil),     // 11: parkhub.identity.v1.FreezeTenantResponse
+	(*UnfreezeTenantRequest)(nil),    // 12: parkhub.identity.v1.UnfreezeTenantRequest
+	(*UnfreezeTenantResponse)(nil),   // 13: parkhub.identity.v1.UnfreezeTenantResponse
+	(*UpdateTenantResponse)(nil),     // 14: parkhub.identity.v1.UpdateTenantResponse
+	(*DeleteTenantRequest)(nil),      // 15: parkhub.identity.v1.DeleteTenantRequest
+	(*DeleteTenantResponse)(nil),     // 16: parkhub.identity.v1.DeleteTenantResponse
+	(*GetTenantSummaryRequest)(nil),  // 17: parkhub.identity.v1.GetTenantSummaryRequest
+	(*GetTenantSummaryResponse)(nil), // 18: parkhub.identity.v1.GetTenantSummaryResponse
+	(*timestamppb.Timestamp)(nil),    // 19: google.protobuf.Timestamp
+	(*v1.PaginationRequest)(nil),     // 20: parkhub.common.v1.PaginationRequest
+	(*v1.PaginationResponse)(nil),    // 21: parkhub.common.v1.PaginationResponse
 }
 var file_identity_v1_tenant_proto_depIdxs = []int32{
 	0,  // 0: parkhub.identity.v1.Tenant.status:type_name -> parkhub.identity.v1.TenantStatus
 	1,  // 1: parkhub.identity.v1.Tenant.plan_type:type_name -> parkhub.identity.v1.PlanType
-	17, // 2: parkhub.identity.v1.Tenant.created_at:type_name -> google.protobuf.Timestamp
-	17, // 3: parkhub.identity.v1.Tenant.updated_at:type_name -> google.protobuf.Timestamp
+	19, // 2: parkhub.identity.v1.Tenant.created_at:type_name -> google.protobuf.Timestamp
+	19, // 3: parkhub.identity.v1.Tenant.updated_at:type_name -> google.protobuf.Timestamp
 	1,  // 4: parkhub.identity.v1.CreateTenantRequest.plan_type:type_name -> parkhub.identity.v1.PlanType
 	2,  // 5: parkhub.identity.v1.CreateTenantResponse.tenant:type_name -> parkhub.identity.v1.Tenant
 	2,  // 6: parkhub.identity.v1.GetTenantResponse.tenant:type_name -> parkhub.identity.v1.Tenant
 	0,  // 7: parkhub.identity.v1.ListTenantsRequest.status:type_name -> parkhub.identity.v1.TenantStatus
-	18, // 8: parkhub.identity.v1.ListTenantsRequest.pagination:type_name -> parkhub.common.v1.PaginationRequest
+	20, // 8: parkhub.identity.v1.ListTenantsRequest.pagination:type_name -> parkhub.common.v1.PaginationRequest
 	2,  // 9: parkhub.identity.v1.ListTenantsResponse.tenants:type_name -> parkhub.identity.v1.Tenant
-	19, // 10: parkhub.identity.v1.ListTenantsResponse.pagination:type_name -> parkhub.common.v1.PaginationResponse
+	21, // 10: parkhub.identity.v1.ListTenantsResponse.pagination:type_name -> parkhub.common.v1.PaginationResponse
 	1,  // 11: parkhub.identity.v1.UpdateTenantRequest.plan_type:type_name -> parkhub.identity.v1.PlanType
 	0,  // 12: parkhub.identity.v1.UpdateTenantRequest.status:type_name -> parkhub.identity.v1.TenantStatus
 	2,  // 13: parkhub.identity.v1.FreezeTenantResponse.tenant:type_name -> parkhub.identity.v1.Tenant
@@ -1236,15 +1358,17 @@ var file_identity_v1_tenant_proto_depIdxs = []int32{
 	10, // 20: parkhub.identity.v1.TenantService.FreezeTenant:input_type -> parkhub.identity.v1.FreezeTenantRequest
 	12, // 21: parkhub.identity.v1.TenantService.UnfreezeTenant:input_type -> parkhub.identity.v1.UnfreezeTenantRequest
 	15, // 22: parkhub.identity.v1.TenantService.DeleteTenant:input_type -> parkhub.identity.v1.DeleteTenantRequest
-	4,  // 23: parkhub.identity.v1.TenantService.CreateTenant:output_type -> parkhub.identity.v1.CreateTenantResponse
-	6,  // 24: parkhub.identity.v1.TenantService.GetTenant:output_type -> parkhub.identity.v1.GetTenantResponse
-	8,  // 25: parkhub.identity.v1.TenantService.ListTenants:output_type -> parkhub.identity.v1.ListTenantsResponse
-	14, // 26: parkhub.identity.v1.TenantService.UpdateTenant:output_type -> parkhub.identity.v1.UpdateTenantResponse
-	11, // 27: parkhub.identity.v1.TenantService.FreezeTenant:output_type -> parkhub.identity.v1.FreezeTenantResponse
-	13, // 28: parkhub.identity.v1.TenantService.UnfreezeTenant:output_type -> parkhub.identity.v1.UnfreezeTenantResponse
-	16, // 29: parkhub.identity.v1.TenantService.DeleteTenant:output_type -> parkhub.identity.v1.DeleteTenantResponse
-	23, // [23:30] is the sub-list for method output_type
-	16, // [16:23] is the sub-list for method input_type
+	17, // 23: parkhub.identity.v1.TenantService.GetTenantSummary:input_type -> parkhub.identity.v1.GetTenantSummaryRequest
+	4,  // 24: parkhub.identity.v1.TenantService.CreateTenant:output_type -> parkhub.identity.v1.CreateTenantResponse
+	6,  // 25: parkhub.identity.v1.TenantService.GetTenant:output_type -> parkhub.identity.v1.GetTenantResponse
+	8,  // 26: parkhub.identity.v1.TenantService.ListTenants:output_type -> parkhub.identity.v1.ListTenantsResponse
+	14, // 27: parkhub.identity.v1.TenantService.UpdateTenant:output_type -> parkhub.identity.v1.UpdateTenantResponse
+	11, // 28: parkhub.identity.v1.TenantService.FreezeTenant:output_type -> parkhub.identity.v1.FreezeTenantResponse
+	13, // 29: parkhub.identity.v1.TenantService.UnfreezeTenant:output_type -> parkhub.identity.v1.UnfreezeTenantResponse
+	16, // 30: parkhub.identity.v1.TenantService.DeleteTenant:output_type -> parkhub.identity.v1.DeleteTenantResponse
+	18, // 31: parkhub.identity.v1.TenantService.GetTenantSummary:output_type -> parkhub.identity.v1.GetTenantSummaryResponse
+	24, // [24:32] is the sub-list for method output_type
+	16, // [16:24] is the sub-list for method input_type
 	16, // [16:16] is the sub-list for extension type_name
 	16, // [16:16] is the sub-list for extension extendee
 	0,  // [0:16] is the sub-list for field type_name
@@ -1264,7 +1388,7 @@ func file_identity_v1_tenant_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_identity_v1_tenant_proto_rawDesc), len(file_identity_v1_tenant_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   15,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

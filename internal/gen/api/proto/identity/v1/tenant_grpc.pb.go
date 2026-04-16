@@ -19,13 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TenantService_CreateTenant_FullMethodName   = "/parkhub.identity.v1.TenantService/CreateTenant"
-	TenantService_GetTenant_FullMethodName      = "/parkhub.identity.v1.TenantService/GetTenant"
-	TenantService_ListTenants_FullMethodName    = "/parkhub.identity.v1.TenantService/ListTenants"
-	TenantService_UpdateTenant_FullMethodName   = "/parkhub.identity.v1.TenantService/UpdateTenant"
-	TenantService_FreezeTenant_FullMethodName   = "/parkhub.identity.v1.TenantService/FreezeTenant"
-	TenantService_UnfreezeTenant_FullMethodName = "/parkhub.identity.v1.TenantService/UnfreezeTenant"
-	TenantService_DeleteTenant_FullMethodName   = "/parkhub.identity.v1.TenantService/DeleteTenant"
+	TenantService_CreateTenant_FullMethodName     = "/parkhub.identity.v1.TenantService/CreateTenant"
+	TenantService_GetTenant_FullMethodName        = "/parkhub.identity.v1.TenantService/GetTenant"
+	TenantService_ListTenants_FullMethodName      = "/parkhub.identity.v1.TenantService/ListTenants"
+	TenantService_UpdateTenant_FullMethodName     = "/parkhub.identity.v1.TenantService/UpdateTenant"
+	TenantService_FreezeTenant_FullMethodName     = "/parkhub.identity.v1.TenantService/FreezeTenant"
+	TenantService_UnfreezeTenant_FullMethodName   = "/parkhub.identity.v1.TenantService/UnfreezeTenant"
+	TenantService_DeleteTenant_FullMethodName     = "/parkhub.identity.v1.TenantService/DeleteTenant"
+	TenantService_GetTenantSummary_FullMethodName = "/parkhub.identity.v1.TenantService/GetTenantSummary"
 )
 
 // TenantServiceClient is the client API for TenantService service.
@@ -39,6 +40,7 @@ type TenantServiceClient interface {
 	FreezeTenant(ctx context.Context, in *FreezeTenantRequest, opts ...grpc.CallOption) (*FreezeTenantResponse, error)
 	UnfreezeTenant(ctx context.Context, in *UnfreezeTenantRequest, opts ...grpc.CallOption) (*UnfreezeTenantResponse, error)
 	DeleteTenant(ctx context.Context, in *DeleteTenantRequest, opts ...grpc.CallOption) (*DeleteTenantResponse, error)
+	GetTenantSummary(ctx context.Context, in *GetTenantSummaryRequest, opts ...grpc.CallOption) (*GetTenantSummaryResponse, error)
 }
 
 type tenantServiceClient struct {
@@ -119,6 +121,16 @@ func (c *tenantServiceClient) DeleteTenant(ctx context.Context, in *DeleteTenant
 	return out, nil
 }
 
+func (c *tenantServiceClient) GetTenantSummary(ctx context.Context, in *GetTenantSummaryRequest, opts ...grpc.CallOption) (*GetTenantSummaryResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetTenantSummaryResponse)
+	err := c.cc.Invoke(ctx, TenantService_GetTenantSummary_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TenantServiceServer is the server API for TenantService service.
 // All implementations must embed UnimplementedTenantServiceServer
 // for forward compatibility.
@@ -130,6 +142,7 @@ type TenantServiceServer interface {
 	FreezeTenant(context.Context, *FreezeTenantRequest) (*FreezeTenantResponse, error)
 	UnfreezeTenant(context.Context, *UnfreezeTenantRequest) (*UnfreezeTenantResponse, error)
 	DeleteTenant(context.Context, *DeleteTenantRequest) (*DeleteTenantResponse, error)
+	GetTenantSummary(context.Context, *GetTenantSummaryRequest) (*GetTenantSummaryResponse, error)
 	mustEmbedUnimplementedTenantServiceServer()
 }
 
@@ -160,6 +173,9 @@ func (UnimplementedTenantServiceServer) UnfreezeTenant(context.Context, *Unfreez
 }
 func (UnimplementedTenantServiceServer) DeleteTenant(context.Context, *DeleteTenantRequest) (*DeleteTenantResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteTenant not implemented")
+}
+func (UnimplementedTenantServiceServer) GetTenantSummary(context.Context, *GetTenantSummaryRequest) (*GetTenantSummaryResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetTenantSummary not implemented")
 }
 func (UnimplementedTenantServiceServer) mustEmbedUnimplementedTenantServiceServer() {}
 func (UnimplementedTenantServiceServer) testEmbeddedByValue()                       {}
@@ -308,6 +324,24 @@ func _TenantService_DeleteTenant_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TenantService_GetTenantSummary_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTenantSummaryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TenantServiceServer).GetTenantSummary(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TenantService_GetTenantSummary_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TenantServiceServer).GetTenantSummary(ctx, req.(*GetTenantSummaryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TenantService_ServiceDesc is the grpc.ServiceDesc for TenantService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -342,6 +376,10 @@ var TenantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteTenant",
 			Handler:    _TenantService_DeleteTenant_Handler,
+		},
+		{
+			MethodName: "GetTenantSummary",
+			Handler:    _TenantService_GetTenantSummary_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -545,6 +545,30 @@ components:
           type: integer
           format: int64
 
+    TenantSummaryResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          format: int64
+          description: 租户总数
+        active:
+          type: integer
+          format: int64
+          description: 活跃租户数
+        frozen:
+          type: integer
+          format: int64
+          description: 冻结租户数
+        total_parking_lots:
+          type: integer
+          format: int64
+          description: 停车场总数
+        avg_parking_lots_per_tenant:
+          type: number
+          format: double
+          description: 平均每租户停车场数
+
     securitySchemes:
       BearerAuth:
         type: http
@@ -1144,6 +1168,76 @@ paths:
           description: 租户已是正常状态
         '404':
           description: 租户不存在
+
+  /api/v1/tenants/summary:
+    get:
+      tags: [Tenant]
+      operationId: getTenantSummary
+      summary: 获取租户概览统计
+      description: 返回租户总数、活跃/冻结数、停车场总数及平均数
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantSummaryResponse'
+        '401':
+          description: 未认证
+
+  /api/v1/tenants/{tenant_id}/parking-lots:
+    get:
+      tags: [Tenant, ParkingLot]
+      operationId: listTenantParkingLots
+      summary: 获取指定租户的停车场列表
+      description: 通过租户ID查询其名下所有停车场
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ParkingLotStatus'
+        - name: lot_type
+          in: query
+          schema:
+            $ref: '#/components/schemas/LotType'
+        - name: keyword
+          in: query
+          schema:
+            type: string
+          description: 按名称/地址搜索
+        - name: page
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 20
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  parking_lots:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ParkingLot'
+                  pagination:
+                    $ref: '#/components/schemas/PaginationResponse'
+        '401':
+          description: 未认证
 
   /parking/v1/lots/stats:
     get:
