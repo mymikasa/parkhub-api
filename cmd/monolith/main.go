@@ -15,6 +15,8 @@ import (
 	"github.com/parkhub/api/internal/config"
 	identitygrpc "github.com/parkhub/api/internal/domains/identity/grpc"
 	"github.com/parkhub/api/internal/domains/identity/repository/dao"
+	parkinggrpc "github.com/parkhub/api/internal/domains/parking/grpc"
+	parkingdao "github.com/parkhub/api/internal/domains/parking/repository/dao"
 	smsdomain "github.com/parkhub/api/internal/domains/sms/domain"
 	smsgrpc "github.com/parkhub/api/internal/domains/sms/grpc"
 	smsdao "github.com/parkhub/api/internal/domains/sms/repository/dao"
@@ -91,6 +93,14 @@ func run() error {
 		return fmt.Errorf("auto migrate: %w", err)
 	}
 
+	parkingDB, err := gorm.Open(mysql.Open(cfg.ParkingDatabase.DSN()), &gorm.Config{})
+	if err != nil {
+		return fmt.Errorf("connect parking database: %w", err)
+	}
+	if err := parkingDB.AutoMigrate(&parkingdao.ParkingLot{}); err != nil {
+		return fmt.Errorf("auto migrate parking: %w", err)
+	}
+
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     cfg.Redis.Addr,
 		Password: cfg.Redis.Password,
@@ -107,6 +117,7 @@ func run() error {
 		})
 	}
 	identitygrpc.RegisterServices(reg, db, rdb, cfg.Auth, smsVerifyFn)
+	parkinggrpc.RegisterServices(reg, parkingDB)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Server.GRPCPort))
 	if err != nil {
