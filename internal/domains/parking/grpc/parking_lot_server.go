@@ -124,8 +124,8 @@ func (s *ParkingLotGRPCServer) ListParkingLots(ctx context.Context, req *parking
 	return &parkingv1.ListParkingLotsResponse{
 		ParkingLots: lots,
 		Pagination: &commonv1.PaginationResponse{
-			Page:       page,
-			PageSize:   pageSize,
+			Page:       int32(resp.Page),
+			PageSize:   int32(resp.PageSize),
 			Total:      resp.Total,
 			TotalPages: int32(resp.TotalPages),
 		},

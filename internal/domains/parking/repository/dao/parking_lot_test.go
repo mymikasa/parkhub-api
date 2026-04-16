@@ -244,6 +244,24 @@ func TestParkingLotDAO_Update(t *testing.T) {
 	assert.Equal(t, "更新后地址", found.Address)
 }
 
+func TestParkingLotDAO_Update_ZeroAvailableSpaces(t *testing.T) {
+	db := setupParkingTestDB(t)
+	dao := NewParkingLotDAO(db)
+	ctx := context.Background()
+
+	lot := newTestLot("tenant-1", "FullLot")
+	lot.TotalSpaces = 50
+	lot.AvailableSpaces = 10
+	require.NoError(t, dao.Insert(ctx, lot))
+
+	lot.AvailableSpaces = 0
+	err := dao.Update(ctx, lot)
+	assert.NoError(t, err)
+
+	found, _ := dao.FindByID(ctx, "tenant-1", lot.ID)
+	assert.Equal(t, 0, found.AvailableSpaces)
+}
+
 func TestParkingLotDAO_Update_NotFound(t *testing.T) {
 	db := setupParkingTestDB(t)
 	dao := NewParkingLotDAO(db)

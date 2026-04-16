@@ -46,7 +46,7 @@ func domainLotTypeFromProto(lt parkingv1.LotType) domain.LotType {
 	case parkingv1.LotType_LOT_TYPE_STEREO:
 		return domain.LotTypeStereo
 	default:
-		return domain.LotTypeGround
+		return ""
 	}
 }
 
@@ -68,7 +68,7 @@ func domainStatusFromProto(s parkingv1.ParkingLotStatus) domain.ParkingLotStatus
 	case parkingv1.ParkingLotStatus_PARKING_LOT_STATUS_INACTIVE:
 		return domain.ParkingLotStatusInactive
 	default:
-		return domain.ParkingLotStatusActive
+		return ""
 	}
 }
 

@@ -208,6 +208,40 @@ func TestGRPC_ListParkingLots_WithPagination(t *testing.T) {
 	assert.Equal(t, int32(10), resp.Pagination.PageSize)
 }
 
+func TestGRPC_ListParkingLots_ReturnsServicePagination(t *testing.T) {
+	client, mockSvc, ctrl := setupParkingTestServer(t)
+	defer ctrl.Finish()
+
+	mockSvc.EXPECT().
+		List(go_mock.Any(), go_mock.Any()).
+		Return(&service.ParkingLotListResponse{
+			ParkingLots: []*domain.ParkingLot{},
+			Total:       50, Page: 1, PageSize: 100, TotalPages: 1,
+		}, nil)
+
+	resp, err := client.ListParkingLots(ctxWithTenant(), &parkingv1.ListParkingLotsRequest{
+		Pagination: &commonv1.PaginationRequest{Page: 1, PageSize: 999},
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, int32(100), resp.Pagination.PageSize)
+}
+
+func TestGRPC_ListParkingLots_UnspecifiedFiltersNoFilter(t *testing.T) {
+	client, mockSvc, ctrl := setupParkingTestServer(t)
+	defer ctrl.Finish()
+
+	mockSvc.EXPECT().
+		List(go_mock.Any(), go_mock.Any()).
+		DoAndReturn(func(_ context.Context, req *service.ListParkingLotsRequest) (*service.ParkingLotListResponse, error) {
+			assert.Equal(t, domain.ParkingLotStatus(""), req.Status)
+			assert.Equal(t, domain.LotType(""), req.LotType)
+			return &service.ParkingLotListResponse{}, nil
+		})
+
+	_, err := client.ListParkingLots(ctxWithTenant(), &parkingv1.ListParkingLotsRequest{})
+	assert.NoError(t, err)
+}
+
 func TestGRPC_UpdateParkingLot_PartialUpdate(t *testing.T) {
 	client, mockSvc, ctrl := setupParkingTestServer(t)
 	defer ctrl.Finish()
@@ -328,6 +362,14 @@ func TestDomainStatusToProto_AllCases(t *testing.T) {
 	for _, tt := range tests {
 		assert.Equal(t, tt.expected, domainStatusToProto(tt.input), "input: %s", tt.input)
 	}
+}
+
+func TestDomainLotTypeFromProto_Unspecified(t *testing.T) {
+	assert.Equal(t, domain.LotType(""), domainLotTypeFromProto(parkingv1.LotType_LOT_TYPE_UNSPECIFIED))
+}
+
+func TestDomainStatusFromProto_Unspecified(t *testing.T) {
+	assert.Equal(t, domain.ParkingLotStatus(""), domainStatusFromProto(parkingv1.ParkingLotStatus_PARKING_LOT_STATUS_UNSPECIFIED))
 }
 
 func strPtr(s string) *string {

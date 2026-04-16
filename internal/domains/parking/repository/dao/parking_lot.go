@@ -106,7 +106,10 @@ func (d *GORMParkingLotDAO) FindAll(ctx context.Context, filter ParkingLotFilter
 }
 
 func (d *GORMParkingLotDAO) Update(ctx context.Context, lot *ParkingLot) error {
-	result := d.db.WithContext(ctx).Model(&ParkingLot{}).Where("tenant_id = ? AND id = ?", lot.TenantID, lot.ID).Updates(lot)
+	result := d.db.WithContext(ctx).Model(&ParkingLot{}).
+		Where("tenant_id = ? AND id = ?", lot.TenantID, lot.ID).
+		Select("name", "address", "total_spaces", "available_spaces", "lot_type", "status", "updated_at").
+		Updates(lot)
 	if result.Error != nil {
 		return result.Error
 	}
