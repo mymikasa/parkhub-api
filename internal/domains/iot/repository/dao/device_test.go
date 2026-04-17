@@ -56,7 +56,7 @@ func TestDeviceDAO_FindByID(t *testing.T) {
 
 	require.NoError(t, dao.Insert(ctx, newTestDevice("DEV-001", "测试设备")))
 
-	device, err := dao.FindByID(ctx, "DEV-001")
+	device, err := dao.FindByID(ctx, "tenant-1", "DEV-001")
 	assert.NoError(t, err)
 	assert.Equal(t, "测试设备", device.Name)
 }
@@ -66,7 +66,18 @@ func TestDeviceDAO_FindByID_NotFound(t *testing.T) {
 	dao := NewDeviceDAO(db)
 	ctx := context.Background()
 
-	_, err := dao.FindByID(ctx, "BAD-ID")
+	_, err := dao.FindByID(ctx, "tenant-1", "BAD-ID")
+	assert.ErrorIs(t, err, errs.ErrDeviceNotFound)
+}
+
+func TestDeviceDAO_FindByID_WrongTenant(t *testing.T) {
+	db := setupIOTTestDB(t)
+	dao := NewDeviceDAO(db)
+	ctx := context.Background()
+
+	require.NoError(t, dao.Insert(ctx, newTestDevice("DEV-001", "测试设备")))
+
+	_, err := dao.FindByID(ctx, "wrong-tenant", "DEV-001")
 	assert.ErrorIs(t, err, errs.ErrDeviceNotFound)
 }
 
@@ -126,7 +137,7 @@ func TestDeviceDAO_Update(t *testing.T) {
 
 	require.NoError(t, dao.Insert(ctx, newTestDevice("DEV-001", "旧名称")))
 
-	device, err := dao.FindByID(ctx, "DEV-001")
+	device, err := dao.FindByID(ctx, "tenant-1", "DEV-001")
 	require.NoError(t, err)
 	device.Name = "新名称"
 	device.Status = "active"
@@ -134,7 +145,7 @@ func TestDeviceDAO_Update(t *testing.T) {
 	err = dao.Update(ctx, device)
 	assert.NoError(t, err)
 
-	updated, err := dao.FindByID(ctx, "DEV-001")
+	updated, err := dao.FindByID(ctx, "tenant-1", "DEV-001")
 	assert.NoError(t, err)
 	assert.Equal(t, "新名称", updated.Name)
 	assert.Equal(t, "active", updated.Status)
@@ -145,7 +156,7 @@ func TestDeviceDAO_Update_NotFound(t *testing.T) {
 	dao := NewDeviceDAO(db)
 	ctx := context.Background()
 
-	err := dao.Update(ctx, &Device{ID: "BAD-ID", Name: "test"})
+	err := dao.Update(ctx, &Device{ID: "BAD-ID", TenantID: "tenant-1", Name: "test"})
 	assert.ErrorIs(t, err, errs.ErrDeviceNotFound)
 }
 
@@ -156,10 +167,10 @@ func TestDeviceDAO_Delete(t *testing.T) {
 
 	require.NoError(t, dao.Insert(ctx, newTestDevice("DEV-001", "测试")))
 
-	err := dao.Delete(ctx, "DEV-001")
+	err := dao.Delete(ctx, "tenant-1", "DEV-001")
 	assert.NoError(t, err)
 
-	_, err = dao.FindByID(ctx, "DEV-001")
+	_, err = dao.FindByID(ctx, "tenant-1", "DEV-001")
 	assert.ErrorIs(t, err, errs.ErrDeviceNotFound)
 }
 
@@ -168,7 +179,7 @@ func TestDeviceDAO_Delete_NotFound(t *testing.T) {
 	dao := NewDeviceDAO(db)
 	ctx := context.Background()
 
-	err := dao.Delete(ctx, "BAD-ID")
+	err := dao.Delete(ctx, "tenant-1", "BAD-ID")
 	assert.ErrorIs(t, err, errs.ErrDeviceNotFound)
 }
 
@@ -181,7 +192,7 @@ func TestDeviceDAO_DeleteBatch(t *testing.T) {
 	require.NoError(t, dao.Insert(ctx, newTestDevice("DEV-002", "设备2")))
 	require.NoError(t, dao.Insert(ctx, newTestDevice("DEV-003", "设备3")))
 
-	affected, err := dao.DeleteBatch(ctx, []string{"DEV-001", "DEV-003"})
+	affected, err := dao.DeleteBatch(ctx, "tenant-1", []string{"DEV-001", "DEV-003"})
 	assert.NoError(t, err)
 	assert.Equal(t, int64(2), affected)
 
@@ -225,10 +236,10 @@ func TestDeviceDAO_UpdateStatus(t *testing.T) {
 
 	require.NoError(t, dao.Insert(ctx, newTestDevice("DEV-001", "设备1")))
 
-	err := dao.UpdateStatus(ctx, "DEV-001", "active")
+	err := dao.UpdateStatus(ctx, "tenant-1", "DEV-001", "active")
 	assert.NoError(t, err)
 
-	device, _ := dao.FindByID(ctx, "DEV-001")
+	device, _ := dao.FindByID(ctx, "tenant-1", "DEV-001")
 	assert.Equal(t, "active", device.Status)
 }
 
@@ -240,7 +251,7 @@ func TestDeviceDAO_UpdateStatusBatch(t *testing.T) {
 	require.NoError(t, dao.Insert(ctx, newTestDevice("DEV-001", "设备1")))
 	require.NoError(t, dao.Insert(ctx, newTestDevice("DEV-002", "设备2")))
 
-	affected, err := dao.UpdateStatusBatch(ctx, []string{"DEV-001", "DEV-002"}, "disabled")
+	affected, err := dao.UpdateStatusBatch(ctx, "tenant-1", []string{"DEV-001", "DEV-002"}, "disabled")
 	assert.NoError(t, err)
 	assert.Equal(t, int64(2), affected)
 }
@@ -257,10 +268,10 @@ func TestDeviceDAO_UnbindByDeviceIDs(t *testing.T) {
 	d.GateID = &gateID
 	require.NoError(t, dao.Insert(ctx, d))
 
-	err := dao.UnbindByDeviceIDs(ctx, []string{"DEV-001"})
+	err := dao.UnbindByDeviceIDs(ctx, "tenant-1", []string{"DEV-001"})
 	assert.NoError(t, err)
 
-	device, _ := dao.FindByID(ctx, "DEV-001")
+	device, _ := dao.FindByID(ctx, "tenant-1", "DEV-001")
 	assert.Nil(t, device.ParkingLotID)
 	assert.Nil(t, device.GateID)
 }

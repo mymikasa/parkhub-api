@@ -41,7 +41,7 @@ func TestDeviceService_GetByID(t *testing.T) {
 	defer ctrl.Finish()
 	svc, repo := newTestSvc(ctrl)
 
-	repo.EXPECT().GetByID(go_mock.Any(), "DEV-001").Return(&domain.Device{ID: "DEV-001"}, nil)
+	repo.EXPECT().GetByID(go_mock.Any(), "t1", "DEV-001").Return(&domain.Device{ID: "DEV-001"}, nil)
 
 	d, err := svc.GetByID(context.Background(), &GetDeviceRequest{TenantID: "t1", ID: "DEV-001"})
 	assert.NoError(t, err)
@@ -66,7 +66,7 @@ func TestDeviceService_UpdateName(t *testing.T) {
 	defer ctrl.Finish()
 	svc, repo := newTestSvc(ctrl)
 
-	repo.EXPECT().GetByID(go_mock.Any(), "DEV-001").Return(&domain.Device{ID: "DEV-001", Name: "旧"}, nil)
+	repo.EXPECT().GetByID(go_mock.Any(), "t1", "DEV-001").Return(&domain.Device{ID: "DEV-001", Name: "旧"}, nil)
 	repo.EXPECT().Update(go_mock.Any(), go_mock.Any()).Return(nil)
 
 	d, err := svc.UpdateName(context.Background(), &UpdateDeviceNameRequest{TenantID: "t1", ID: "DEV-001", Name: "新"})
@@ -79,7 +79,7 @@ func TestDeviceService_Bind(t *testing.T) {
 	defer ctrl.Finish()
 	svc, repo := newTestSvc(ctrl)
 
-	repo.EXPECT().GetByID(go_mock.Any(), "DEV-001").Return(&domain.Device{ID: "DEV-001", Status: domain.DeviceStatusPending}, nil)
+	repo.EXPECT().GetByID(go_mock.Any(), "t1", "DEV-001").Return(&domain.Device{ID: "DEV-001", Status: domain.DeviceStatusPending}, nil)
 	repo.EXPECT().Update(go_mock.Any(), go_mock.Any()).Return(nil)
 
 	d, err := svc.Bind(context.Background(), &BindDeviceRequest{TenantID: "t1", ID: "DEV-001", ParkingLotID: "lot-1", GateID: "gate-1"})
@@ -95,7 +95,7 @@ func TestDeviceService_Unbind(t *testing.T) {
 
 	lotID := "lot-1"
 	gateID := "gate-1"
-	repo.EXPECT().GetByID(go_mock.Any(), "DEV-001").Return(&domain.Device{ID: "DEV-001", ParkingLotID: &lotID, GateID: &gateID}, nil)
+	repo.EXPECT().GetByID(go_mock.Any(), "t1", "DEV-001").Return(&domain.Device{ID: "DEV-001", ParkingLotID: &lotID, GateID: &gateID}, nil)
 	repo.EXPECT().Update(go_mock.Any(), go_mock.Any()).Return(nil)
 
 	d, err := svc.Unbind(context.Background(), &UnbindDeviceRequest{TenantID: "t1", ID: "DEV-001"})
@@ -108,7 +108,7 @@ func TestDeviceService_Disable(t *testing.T) {
 	defer ctrl.Finish()
 	svc, repo := newTestSvc(ctrl)
 
-	repo.EXPECT().GetByID(go_mock.Any(), "DEV-001").Return(&domain.Device{ID: "DEV-001", Status: domain.DeviceStatusActive}, nil)
+	repo.EXPECT().GetByID(go_mock.Any(), "t1", "DEV-001").Return(&domain.Device{ID: "DEV-001", Status: domain.DeviceStatusActive}, nil)
 	repo.EXPECT().Update(go_mock.Any(), go_mock.Any()).Return(nil)
 
 	d, err := svc.Disable(context.Background(), &ChangeDeviceStatusRequest{TenantID: "t1", ID: "DEV-001"})
@@ -121,7 +121,7 @@ func TestDeviceService_Enable(t *testing.T) {
 	defer ctrl.Finish()
 	svc, repo := newTestSvc(ctrl)
 
-	repo.EXPECT().GetByID(go_mock.Any(), "DEV-001").Return(&domain.Device{ID: "DEV-001", Status: domain.DeviceStatusDisabled}, nil)
+	repo.EXPECT().GetByID(go_mock.Any(), "t1", "DEV-001").Return(&domain.Device{ID: "DEV-001", Status: domain.DeviceStatusDisabled}, nil)
 	repo.EXPECT().Update(go_mock.Any(), go_mock.Any()).Return(nil)
 
 	d, err := svc.Enable(context.Background(), &ChangeDeviceStatusRequest{TenantID: "t1", ID: "DEV-001"})
@@ -134,8 +134,8 @@ func TestDeviceService_Delete(t *testing.T) {
 	defer ctrl.Finish()
 	svc, repo := newTestSvc(ctrl)
 
-	repo.EXPECT().GetByID(go_mock.Any(), "DEV-001").Return(&domain.Device{ID: "DEV-001"}, nil)
-	repo.EXPECT().Delete(go_mock.Any(), "DEV-001").Return(nil)
+	repo.EXPECT().GetByID(go_mock.Any(), "t1", "DEV-001").Return(&domain.Device{ID: "DEV-001"}, nil)
+	repo.EXPECT().Delete(go_mock.Any(), "t1", "DEV-001").Return(nil)
 
 	err := svc.Delete(context.Background(), &DeleteDeviceRequest{TenantID: "t1", ID: "DEV-001"})
 	assert.NoError(t, err)
@@ -147,7 +147,7 @@ func TestDeviceService_Delete_Bound(t *testing.T) {
 	svc, repo := newTestSvc(ctrl)
 
 	lotID := "lot-1"
-	repo.EXPECT().GetByID(go_mock.Any(), "DEV-001").Return(&domain.Device{ID: "DEV-001", ParkingLotID: &lotID}, nil)
+	repo.EXPECT().GetByID(go_mock.Any(), "t1", "DEV-001").Return(&domain.Device{ID: "DEV-001", ParkingLotID: &lotID}, nil)
 
 	err := svc.Delete(context.Background(), &DeleteDeviceRequest{TenantID: "t1", ID: "DEV-001"})
 	assert.ErrorIs(t, err, errs.ErrDeviceMustUnbind)
@@ -174,7 +174,7 @@ func TestDeviceService_SendCommand_Up(t *testing.T) {
 	defer ctrl.Finish()
 	svc, repo := newTestSvc(ctrl)
 
-	repo.EXPECT().GetByID(go_mock.Any(), "DEV-001").Return(&domain.Device{ID: "DEV-001", Status: domain.DeviceStatusActive}, nil)
+	repo.EXPECT().GetByID(go_mock.Any(), "t1", "DEV-001").Return(&domain.Device{ID: "DEV-001", Status: domain.DeviceStatusActive}, nil)
 
 	resp, err := svc.SendCommand(context.Background(), "t1", "DEV-001", "up")
 	assert.NoError(t, err)
@@ -187,7 +187,7 @@ func TestDeviceService_SendCommand_Offline(t *testing.T) {
 	defer ctrl.Finish()
 	svc, repo := newTestSvc(ctrl)
 
-	repo.EXPECT().GetByID(go_mock.Any(), "DEV-001").Return(&domain.Device{ID: "DEV-001", Status: domain.DeviceStatusOffline}, nil)
+	repo.EXPECT().GetByID(go_mock.Any(), "t1", "DEV-001").Return(&domain.Device{ID: "DEV-001", Status: domain.DeviceStatusOffline}, nil)
 
 	_, err := svc.SendCommand(context.Background(), "t1", "DEV-001", "up")
 	assert.ErrorIs(t, err, errs.ErrDeviceOffline)
@@ -198,7 +198,7 @@ func TestDeviceService_BatchDisable(t *testing.T) {
 	defer ctrl.Finish()
 	svc, repo := newTestSvc(ctrl)
 
-	repo.EXPECT().UpdateStatusBatch(go_mock.Any(), []string{"DEV-001", "DEV-002"}, "disabled").Return(int64(2), nil)
+	repo.EXPECT().UpdateStatusBatch(go_mock.Any(), "t1", []string{"DEV-001", "DEV-002"}, "disabled").Return(int64(2), nil)
 
 	err := svc.BatchDisable(context.Background(), &BatchChangeDeviceStatusRequest{TenantID: "t1", IDs: []string{"DEV-001", "DEV-002"}})
 	assert.NoError(t, err)
@@ -209,8 +209,8 @@ func TestDeviceService_BatchDelete(t *testing.T) {
 	defer ctrl.Finish()
 	svc, repo := newTestSvc(ctrl)
 
-	repo.EXPECT().UnbindByDeviceIDs(go_mock.Any(), []string{"DEV-001"}).Return(nil)
-	repo.EXPECT().DeleteBatch(go_mock.Any(), []string{"DEV-001"}).Return(int64(1), nil)
+	repo.EXPECT().UnbindByDeviceIDs(go_mock.Any(), "t1", []string{"DEV-001"}).Return(nil)
+	repo.EXPECT().DeleteBatch(go_mock.Any(), "t1", []string{"DEV-001"}).Return(int64(1), nil)
 
 	err := svc.BatchDelete(context.Background(), &BatchDeleteDeviceRequest{TenantID: "t1", IDs: []string{"DEV-001"}})
 	require.NoError(t, err)

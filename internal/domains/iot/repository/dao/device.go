@@ -38,15 +38,15 @@ type DeviceFilter struct {
 
 type DeviceDAO interface {
 	Insert(ctx context.Context, device *Device) error
-	FindByID(ctx context.Context, id string) (*Device, error)
+	FindByID(ctx context.Context, tenantID, id string) (*Device, error)
 	FindAll(ctx context.Context, filter DeviceFilter, page, pageSize int) ([]*Device, int64, error)
 	Update(ctx context.Context, device *Device) error
-	Delete(ctx context.Context, id string) error
-	DeleteBatch(ctx context.Context, ids []string) (int64, error)
+	Delete(ctx context.Context, tenantID, id string) error
+	DeleteBatch(ctx context.Context, tenantID string, ids []string) (int64, error)
 	CountByStatus(ctx context.Context, tenantID string) (pending, active, offline, disabled int64, err error)
-	UpdateStatus(ctx context.Context, id, status string) error
-	UpdateStatusBatch(ctx context.Context, ids []string, status string) (int64, error)
-	UnbindByDeviceIDs(ctx context.Context, ids []string) error
+	UpdateStatus(ctx context.Context, tenantID, id, status string) error
+	UpdateStatusBatch(ctx context.Context, tenantID string, ids []string, status string) (int64, error)
+	UnbindByDeviceIDs(ctx context.Context, tenantID string, ids []string) error
 }
 
 type GORMDeviceDAO struct {
@@ -68,9 +68,9 @@ func (d *GORMDeviceDAO) Insert(ctx context.Context, device *Device) error {
 	return nil
 }
 
-func (d *GORMDeviceDAO) FindByID(ctx context.Context, id string) (*Device, error) {
+func (d *GORMDeviceDAO) FindByID(ctx context.Context, tenantID, id string) (*Device, error) {
 	var device Device
-	err := d.db.WithContext(ctx).Where("id = ?", id).First(&device).Error
+	err := d.db.WithContext(ctx).Where("tenant_id = ? AND id = ?", tenantID, id).First(&device).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errs.ErrDeviceNotFound
@@ -113,7 +113,7 @@ func (d *GORMDeviceDAO) FindAll(ctx context.Context, filter DeviceFilter, page, 
 
 func (d *GORMDeviceDAO) Update(ctx context.Context, device *Device) error {
 	result := d.db.WithContext(ctx).Model(&Device{}).
-		Where("id = ?", device.ID).
+		Where("tenant_id = ? AND id = ?", device.TenantID, device.ID).
 		Select("name", "type", "status", "firmware_version", "last_heartbeat_at", "parking_lot_id", "gate_id", "updated_at").
 		Updates(device)
 	if result.Error != nil {
@@ -125,8 +125,8 @@ func (d *GORMDeviceDAO) Update(ctx context.Context, device *Device) error {
 	return nil
 }
 
-func (d *GORMDeviceDAO) Delete(ctx context.Context, id string) error {
-	result := d.db.WithContext(ctx).Where("id = ?", id).Delete(&Device{})
+func (d *GORMDeviceDAO) Delete(ctx context.Context, tenantID, id string) error {
+	result := d.db.WithContext(ctx).Where("tenant_id = ? AND id = ?", tenantID, id).Delete(&Device{})
 	if result.Error != nil {
 		return result.Error
 	}
@@ -136,8 +136,8 @@ func (d *GORMDeviceDAO) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-func (d *GORMDeviceDAO) DeleteBatch(ctx context.Context, ids []string) (int64, error) {
-	result := d.db.WithContext(ctx).Where("id IN ?", ids).Delete(&Device{})
+func (d *GORMDeviceDAO) DeleteBatch(ctx context.Context, tenantID string, ids []string) (int64, error) {
+	result := d.db.WithContext(ctx).Where("tenant_id = ? AND id IN ?", tenantID, ids).Delete(&Device{})
 	if result.Error != nil {
 		return 0, result.Error
 	}
@@ -175,9 +175,9 @@ func (d *GORMDeviceDAO) CountByStatus(ctx context.Context, tenantID string) (int
 	return pending, active, offline, disabled, nil
 }
 
-func (d *GORMDeviceDAO) UpdateStatus(ctx context.Context, id, status string) error {
+func (d *GORMDeviceDAO) UpdateStatus(ctx context.Context, tenantID, id, status string) error {
 	result := d.db.WithContext(ctx).Model(&Device{}).
-		Where("id = ?", id).
+		Where("tenant_id = ? AND id = ?", tenantID, id).
 		Update("status", status)
 	if result.Error != nil {
 		return result.Error
@@ -188,9 +188,9 @@ func (d *GORMDeviceDAO) UpdateStatus(ctx context.Context, id, status string) err
 	return nil
 }
 
-func (d *GORMDeviceDAO) UpdateStatusBatch(ctx context.Context, ids []string, status string) (int64, error) {
+func (d *GORMDeviceDAO) UpdateStatusBatch(ctx context.Context, tenantID string, ids []string, status string) (int64, error) {
 	result := d.db.WithContext(ctx).Model(&Device{}).
-		Where("id IN ?", ids).
+		Where("tenant_id = ? AND id IN ?", tenantID, ids).
 		Update("status", status)
 	if result.Error != nil {
 		return 0, result.Error
@@ -198,9 +198,9 @@ func (d *GORMDeviceDAO) UpdateStatusBatch(ctx context.Context, ids []string, sta
 	return result.RowsAffected, nil
 }
 
-func (d *GORMDeviceDAO) UnbindByDeviceIDs(ctx context.Context, ids []string) error {
+func (d *GORMDeviceDAO) UnbindByDeviceIDs(ctx context.Context, tenantID string, ids []string) error {
 	return d.db.WithContext(ctx).Model(&Device{}).
-		Where("id IN ?", ids).
+		Where("tenant_id = ? AND id IN ?", tenantID, ids).
 		Select("parking_lot_id", "gate_id").
 		Updates(map[string]interface{}{"parking_lot_id": nil, "gate_id": nil}).Error
 }

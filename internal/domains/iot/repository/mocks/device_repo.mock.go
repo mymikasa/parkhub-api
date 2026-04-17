@@ -75,47 +75,47 @@ func (mr *MockDeviceRepoMockRecorder) Create(ctx, device any) *gomock.Call {
 }
 
 // Delete mocks base method.
-func (m *MockDeviceRepo) Delete(ctx context.Context, id string) error {
+func (m *MockDeviceRepo) Delete(ctx context.Context, tenantID, id string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", ctx, id)
+	ret := m.ctrl.Call(m, "Delete", ctx, tenantID, id)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockDeviceRepoMockRecorder) Delete(ctx, id any) *gomock.Call {
+func (mr *MockDeviceRepoMockRecorder) Delete(ctx, tenantID, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockDeviceRepo)(nil).Delete), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockDeviceRepo)(nil).Delete), ctx, tenantID, id)
 }
 
 // DeleteBatch mocks base method.
-func (m *MockDeviceRepo) DeleteBatch(ctx context.Context, ids []string) (int64, error) {
+func (m *MockDeviceRepo) DeleteBatch(ctx context.Context, tenantID string, ids []string) (int64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteBatch", ctx, ids)
+	ret := m.ctrl.Call(m, "DeleteBatch", ctx, tenantID, ids)
 	ret0, _ := ret[0].(int64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // DeleteBatch indicates an expected call of DeleteBatch.
-func (mr *MockDeviceRepoMockRecorder) DeleteBatch(ctx, ids any) *gomock.Call {
+func (mr *MockDeviceRepoMockRecorder) DeleteBatch(ctx, tenantID, ids any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBatch", reflect.TypeOf((*MockDeviceRepo)(nil).DeleteBatch), ctx, ids)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBatch", reflect.TypeOf((*MockDeviceRepo)(nil).DeleteBatch), ctx, tenantID, ids)
 }
 
 // GetByID mocks base method.
-func (m *MockDeviceRepo) GetByID(ctx context.Context, id string) (*domain.Device, error) {
+func (m *MockDeviceRepo) GetByID(ctx context.Context, tenantID, id string) (*domain.Device, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByID", ctx, id)
+	ret := m.ctrl.Call(m, "GetByID", ctx, tenantID, id)
 	ret0, _ := ret[0].(*domain.Device)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetByID indicates an expected call of GetByID.
-func (mr *MockDeviceRepoMockRecorder) GetByID(ctx, id any) *gomock.Call {
+func (mr *MockDeviceRepoMockRecorder) GetByID(ctx, tenantID, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockDeviceRepo)(nil).GetByID), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockDeviceRepo)(nil).GetByID), ctx, tenantID, id)
 }
 
 // List mocks base method.
@@ -135,17 +135,17 @@ func (mr *MockDeviceRepoMockRecorder) List(ctx, filter, page, pageSize any) *gom
 }
 
 // UnbindByDeviceIDs mocks base method.
-func (m *MockDeviceRepo) UnbindByDeviceIDs(ctx context.Context, ids []string) error {
+func (m *MockDeviceRepo) UnbindByDeviceIDs(ctx context.Context, tenantID string, ids []string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UnbindByDeviceIDs", ctx, ids)
+	ret := m.ctrl.Call(m, "UnbindByDeviceIDs", ctx, tenantID, ids)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UnbindByDeviceIDs indicates an expected call of UnbindByDeviceIDs.
-func (mr *MockDeviceRepoMockRecorder) UnbindByDeviceIDs(ctx, ids any) *gomock.Call {
+func (mr *MockDeviceRepoMockRecorder) UnbindByDeviceIDs(ctx, tenantID, ids any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnbindByDeviceIDs", reflect.TypeOf((*MockDeviceRepo)(nil).UnbindByDeviceIDs), ctx, ids)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnbindByDeviceIDs", reflect.TypeOf((*MockDeviceRepo)(nil).UnbindByDeviceIDs), ctx, tenantID, ids)
 }
 
 // Update mocks base method.
@@ -163,30 +163,30 @@ func (mr *MockDeviceRepoMockRecorder) Update(ctx, device any) *gomock.Call {
 }
 
 // UpdateStatus mocks base method.
-func (m *MockDeviceRepo) UpdateStatus(ctx context.Context, id, status string) error {
+func (m *MockDeviceRepo) UpdateStatus(ctx context.Context, tenantID, id, status string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateStatus", ctx, id, status)
+	ret := m.ctrl.Call(m, "UpdateStatus", ctx, tenantID, id, status)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateStatus indicates an expected call of UpdateStatus.
-func (mr *MockDeviceRepoMockRecorder) UpdateStatus(ctx, id, status any) *gomock.Call {
+func (mr *MockDeviceRepoMockRecorder) UpdateStatus(ctx, tenantID, id, status any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStatus", reflect.TypeOf((*MockDeviceRepo)(nil).UpdateStatus), ctx, id, status)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStatus", reflect.TypeOf((*MockDeviceRepo)(nil).UpdateStatus), ctx, tenantID, id, status)
 }
 
 // UpdateStatusBatch mocks base method.
-func (m *MockDeviceRepo) UpdateStatusBatch(ctx context.Context, ids []string, status string) (int64, error) {
+func (m *MockDeviceRepo) UpdateStatusBatch(ctx context.Context, tenantID string, ids []string, status string) (int64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateStatusBatch", ctx, ids, status)
+	ret := m.ctrl.Call(m, "UpdateStatusBatch", ctx, tenantID, ids, status)
 	ret0, _ := ret[0].(int64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // UpdateStatusBatch indicates an expected call of UpdateStatusBatch.
-func (mr *MockDeviceRepoMockRecorder) UpdateStatusBatch(ctx, ids, status any) *gomock.Call {
+func (mr *MockDeviceRepoMockRecorder) UpdateStatusBatch(ctx, tenantID, ids, status any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStatusBatch", reflect.TypeOf((*MockDeviceRepo)(nil).UpdateStatusBatch), ctx, ids, status)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStatusBatch", reflect.TypeOf((*MockDeviceRepo)(nil).UpdateStatusBatch), ctx, tenantID, ids, status)
 }

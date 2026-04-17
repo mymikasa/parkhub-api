@@ -20,8 +20,8 @@ func (r *deviceRepo) Create(ctx context.Context, device *domain.Device) error {
 	return r.dao.Insert(ctx, toDAODevice(device))
 }
 
-func (r *deviceRepo) GetByID(ctx context.Context, id string) (*domain.Device, error) {
-	d, err := r.dao.FindByID(ctx, id)
+func (r *deviceRepo) GetByID(ctx context.Context, tenantID, id string) (*domain.Device, error) {
+	d, err := r.dao.FindByID(ctx, tenantID, id)
 	if err != nil {
 		return nil, err
 	}
@@ -50,28 +50,28 @@ func (r *deviceRepo) Update(ctx context.Context, device *domain.Device) error {
 	return r.dao.Update(ctx, toDAODevice(device))
 }
 
-func (r *deviceRepo) Delete(ctx context.Context, id string) error {
-	return r.dao.Delete(ctx, id)
+func (r *deviceRepo) Delete(ctx context.Context, tenantID, id string) error {
+	return r.dao.Delete(ctx, tenantID, id)
 }
 
-func (r *deviceRepo) DeleteBatch(ctx context.Context, ids []string) (int64, error) {
-	return r.dao.DeleteBatch(ctx, ids)
+func (r *deviceRepo) DeleteBatch(ctx context.Context, tenantID string, ids []string) (int64, error) {
+	return r.dao.DeleteBatch(ctx, tenantID, ids)
 }
 
 func (r *deviceRepo) CountByStatus(ctx context.Context, tenantID string) (int64, int64, int64, int64, error) {
 	return r.dao.CountByStatus(ctx, tenantID)
 }
 
-func (r *deviceRepo) UpdateStatus(ctx context.Context, id, status string) error {
-	return r.dao.UpdateStatus(ctx, id, status)
+func (r *deviceRepo) UpdateStatus(ctx context.Context, tenantID, id, status string) error {
+	return r.dao.UpdateStatus(ctx, tenantID, id, status)
 }
 
-func (r *deviceRepo) UpdateStatusBatch(ctx context.Context, ids []string, status string) (int64, error) {
-	return r.dao.UpdateStatusBatch(ctx, ids, status)
+func (r *deviceRepo) UpdateStatusBatch(ctx context.Context, tenantID string, ids []string, status string) (int64, error) {
+	return r.dao.UpdateStatusBatch(ctx, tenantID, ids, status)
 }
 
-func (r *deviceRepo) UnbindByDeviceIDs(ctx context.Context, ids []string) error {
-	return r.dao.UnbindByDeviceIDs(ctx, ids)
+func (r *deviceRepo) UnbindByDeviceIDs(ctx context.Context, tenantID string, ids []string) error {
+	return r.dao.UnbindByDeviceIDs(ctx, tenantID, ids)
 }
 
 func toDomainDevice(d *dao.Device) *domain.Device {

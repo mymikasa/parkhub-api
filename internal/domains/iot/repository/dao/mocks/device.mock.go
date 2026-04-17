@@ -60,32 +60,32 @@ func (mr *MockDeviceDAOMockRecorder) CountByStatus(ctx, tenantID any) *gomock.Ca
 }
 
 // Delete mocks base method.
-func (m *MockDeviceDAO) Delete(ctx context.Context, id string) error {
+func (m *MockDeviceDAO) Delete(ctx context.Context, tenantID, id string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", ctx, id)
+	ret := m.ctrl.Call(m, "Delete", ctx, tenantID, id)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockDeviceDAOMockRecorder) Delete(ctx, id any) *gomock.Call {
+func (mr *MockDeviceDAOMockRecorder) Delete(ctx, tenantID, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockDeviceDAO)(nil).Delete), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockDeviceDAO)(nil).Delete), ctx, tenantID, id)
 }
 
 // DeleteBatch mocks base method.
-func (m *MockDeviceDAO) DeleteBatch(ctx context.Context, ids []string) (int64, error) {
+func (m *MockDeviceDAO) DeleteBatch(ctx context.Context, tenantID string, ids []string) (int64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteBatch", ctx, ids)
+	ret := m.ctrl.Call(m, "DeleteBatch", ctx, tenantID, ids)
 	ret0, _ := ret[0].(int64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // DeleteBatch indicates an expected call of DeleteBatch.
-func (mr *MockDeviceDAOMockRecorder) DeleteBatch(ctx, ids any) *gomock.Call {
+func (mr *MockDeviceDAOMockRecorder) DeleteBatch(ctx, tenantID, ids any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBatch", reflect.TypeOf((*MockDeviceDAO)(nil).DeleteBatch), ctx, ids)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBatch", reflect.TypeOf((*MockDeviceDAO)(nil).DeleteBatch), ctx, tenantID, ids)
 }
 
 // FindAll mocks base method.
@@ -105,18 +105,18 @@ func (mr *MockDeviceDAOMockRecorder) FindAll(ctx, filter, page, pageSize any) *g
 }
 
 // FindByID mocks base method.
-func (m *MockDeviceDAO) FindByID(ctx context.Context, id string) (*dao.Device, error) {
+func (m *MockDeviceDAO) FindByID(ctx context.Context, tenantID, id string) (*dao.Device, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindByID", ctx, id)
+	ret := m.ctrl.Call(m, "FindByID", ctx, tenantID, id)
 	ret0, _ := ret[0].(*dao.Device)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FindByID indicates an expected call of FindByID.
-func (mr *MockDeviceDAOMockRecorder) FindByID(ctx, id any) *gomock.Call {
+func (mr *MockDeviceDAOMockRecorder) FindByID(ctx, tenantID, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockDeviceDAO)(nil).FindByID), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockDeviceDAO)(nil).FindByID), ctx, tenantID, id)
 }
 
 // Insert mocks base method.
@@ -134,17 +134,17 @@ func (mr *MockDeviceDAOMockRecorder) Insert(ctx, device any) *gomock.Call {
 }
 
 // UnbindByDeviceIDs mocks base method.
-func (m *MockDeviceDAO) UnbindByDeviceIDs(ctx context.Context, ids []string) error {
+func (m *MockDeviceDAO) UnbindByDeviceIDs(ctx context.Context, tenantID string, ids []string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UnbindByDeviceIDs", ctx, ids)
+	ret := m.ctrl.Call(m, "UnbindByDeviceIDs", ctx, tenantID, ids)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UnbindByDeviceIDs indicates an expected call of UnbindByDeviceIDs.
-func (mr *MockDeviceDAOMockRecorder) UnbindByDeviceIDs(ctx, ids any) *gomock.Call {
+func (mr *MockDeviceDAOMockRecorder) UnbindByDeviceIDs(ctx, tenantID, ids any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnbindByDeviceIDs", reflect.TypeOf((*MockDeviceDAO)(nil).UnbindByDeviceIDs), ctx, ids)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnbindByDeviceIDs", reflect.TypeOf((*MockDeviceDAO)(nil).UnbindByDeviceIDs), ctx, tenantID, ids)
 }
 
 // Update mocks base method.
@@ -162,30 +162,30 @@ func (mr *MockDeviceDAOMockRecorder) Update(ctx, device any) *gomock.Call {
 }
 
 // UpdateStatus mocks base method.
-func (m *MockDeviceDAO) UpdateStatus(ctx context.Context, id, status string) error {
+func (m *MockDeviceDAO) UpdateStatus(ctx context.Context, tenantID, id, status string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateStatus", ctx, id, status)
+	ret := m.ctrl.Call(m, "UpdateStatus", ctx, tenantID, id, status)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateStatus indicates an expected call of UpdateStatus.
-func (mr *MockDeviceDAOMockRecorder) UpdateStatus(ctx, id, status any) *gomock.Call {
+func (mr *MockDeviceDAOMockRecorder) UpdateStatus(ctx, tenantID, id, status any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStatus", reflect.TypeOf((*MockDeviceDAO)(nil).UpdateStatus), ctx, id, status)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStatus", reflect.TypeOf((*MockDeviceDAO)(nil).UpdateStatus), ctx, tenantID, id, status)
 }
 
 // UpdateStatusBatch mocks base method.
-func (m *MockDeviceDAO) UpdateStatusBatch(ctx context.Context, ids []string, status string) (int64, error) {
+func (m *MockDeviceDAO) UpdateStatusBatch(ctx context.Context, tenantID string, ids []string, status string) (int64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateStatusBatch", ctx, ids, status)
+	ret := m.ctrl.Call(m, "UpdateStatusBatch", ctx, tenantID, ids, status)
 	ret0, _ := ret[0].(int64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // UpdateStatusBatch indicates an expected call of UpdateStatusBatch.
-func (mr *MockDeviceDAOMockRecorder) UpdateStatusBatch(ctx, ids, status any) *gomock.Call {
+func (mr *MockDeviceDAOMockRecorder) UpdateStatusBatch(ctx, tenantID, ids, status any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStatusBatch", reflect.TypeOf((*MockDeviceDAO)(nil).UpdateStatusBatch), ctx, ids, status)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStatusBatch", reflect.TypeOf((*MockDeviceDAO)(nil).UpdateStatusBatch), ctx, tenantID, ids, status)
 }

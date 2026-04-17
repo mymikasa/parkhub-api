@@ -122,7 +122,7 @@ func TestGRPC_CreateDevice_MissingID(t *testing.T) {
 	_, err := client.CreateDevice(ctxWithTenant(), &iotv1.CreateDeviceRequest{
 		Name: "test",
 	})
-	assert.Equal(t, codes.Internal, status.Code(err))
+	assert.Equal(t, codes.InvalidArgument, status.Code(err))
 }
 
 func TestGRPC_CreateDevice_DuplicateID(t *testing.T) {

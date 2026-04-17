@@ -27,7 +27,7 @@ func (s *deviceService) Create(ctx context.Context, req *CreateDeviceRequest) (*
 }
 
 func (s *deviceService) GetByID(ctx context.Context, req *GetDeviceRequest) (*domain.Device, error) {
-	return s.repo.GetByID(ctx, req.ID)
+	return s.repo.GetByID(ctx, req.TenantID, req.ID)
 }
 
 func (s *deviceService) List(ctx context.Context, req *ListDevicesRequest) (*DeviceListResponse, error) {
@@ -67,7 +67,7 @@ func (s *deviceService) List(ctx context.Context, req *ListDevicesRequest) (*Dev
 }
 
 func (s *deviceService) UpdateName(ctx context.Context, req *UpdateDeviceNameRequest) (*domain.Device, error) {
-	d, err := s.repo.GetByID(ctx, req.ID)
+	d, err := s.repo.GetByID(ctx, req.TenantID, req.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (s *deviceService) UpdateName(ctx context.Context, req *UpdateDeviceNameReq
 }
 
 func (s *deviceService) Bind(ctx context.Context, req *BindDeviceRequest) (*domain.Device, error) {
-	d, err := s.repo.GetByID(ctx, req.ID)
+	d, err := s.repo.GetByID(ctx, req.TenantID, req.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func (s *deviceService) Bind(ctx context.Context, req *BindDeviceRequest) (*doma
 }
 
 func (s *deviceService) Unbind(ctx context.Context, req *UnbindDeviceRequest) (*domain.Device, error) {
-	d, err := s.repo.GetByID(ctx, req.ID)
+	d, err := s.repo.GetByID(ctx, req.TenantID, req.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (s *deviceService) Unbind(ctx context.Context, req *UnbindDeviceRequest) (*
 }
 
 func (s *deviceService) Disable(ctx context.Context, req *ChangeDeviceStatusRequest) (*domain.Device, error) {
-	d, err := s.repo.GetByID(ctx, req.ID)
+	d, err := s.repo.GetByID(ctx, req.TenantID, req.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +122,7 @@ func (s *deviceService) Disable(ctx context.Context, req *ChangeDeviceStatusRequ
 }
 
 func (s *deviceService) Enable(ctx context.Context, req *ChangeDeviceStatusRequest) (*domain.Device, error) {
-	d, err := s.repo.GetByID(ctx, req.ID)
+	d, err := s.repo.GetByID(ctx, req.TenantID, req.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -136,37 +136,37 @@ func (s *deviceService) Enable(ctx context.Context, req *ChangeDeviceStatusReque
 }
 
 func (s *deviceService) Delete(ctx context.Context, req *DeleteDeviceRequest) error {
-	d, err := s.repo.GetByID(ctx, req.ID)
+	d, err := s.repo.GetByID(ctx, req.TenantID, req.ID)
 	if err != nil {
 		return err
 	}
 	if d.IsBound() {
 		return errs.ErrDeviceMustUnbind
 	}
-	return s.repo.Delete(ctx, req.ID)
+	return s.repo.Delete(ctx, req.TenantID, req.ID)
 }
 
 func (s *deviceService) BatchDisable(ctx context.Context, req *BatchChangeDeviceStatusRequest) error {
-	_, err := s.repo.UpdateStatusBatch(ctx, req.IDs, string(domain.DeviceStatusDisabled))
+	_, err := s.repo.UpdateStatusBatch(ctx, req.TenantID, req.IDs, string(domain.DeviceStatusDisabled))
 	return err
 }
 
 func (s *deviceService) BatchEnable(ctx context.Context, req *BatchChangeDeviceStatusRequest) error {
-	_, err := s.repo.UpdateStatusBatch(ctx, req.IDs, string(domain.DeviceStatusActive))
+	_, err := s.repo.UpdateStatusBatch(ctx, req.TenantID, req.IDs, string(domain.DeviceStatusActive))
 	return err
 }
 
 func (s *deviceService) BatchDelete(ctx context.Context, req *BatchDeleteDeviceRequest) error {
-	if err := s.repo.UnbindByDeviceIDs(ctx, req.IDs); err != nil {
+	if err := s.repo.UnbindByDeviceIDs(ctx, req.TenantID, req.IDs); err != nil {
 		return err
 	}
-	_, err := s.repo.DeleteBatch(ctx, req.IDs)
+	_, err := s.repo.DeleteBatch(ctx, req.TenantID, req.IDs)
 	return err
 }
 
 func (s *deviceService) BatchBind(ctx context.Context, req *BatchBindDeviceRequest) error {
 	for _, b := range req.Bindings {
-		d, err := s.repo.GetByID(ctx, b.ID)
+		d, err := s.repo.GetByID(ctx, req.TenantID, b.ID)
 		if err != nil {
 			return err
 		}
@@ -199,7 +199,7 @@ func (s *deviceService) SendCommand(ctx context.Context, tenantID, deviceID, act
 	if action != "up" && action != "down" {
 		return nil, errs.ErrInvalidCommand
 	}
-	d, err := s.repo.GetByID(ctx, deviceID)
+	d, err := s.repo.GetByID(ctx, tenantID, deviceID)
 	if err != nil {
 		return nil, err
 	}

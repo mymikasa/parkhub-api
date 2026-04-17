@@ -9,6 +9,7 @@ import (
 	iotv1 "github.com/parkhub/api/internal/gen/api/proto/iot/v1"
 	"github.com/parkhub/api/pkg/grpcutil"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type DeviceGRPCServer struct {
@@ -39,7 +40,7 @@ func (s *DeviceGRPCServer) CreateDevice(ctx context.Context, req *iotv1.CreateDe
 		return nil, err
 	}
 	if req.GetId() == "" {
-		return nil, grpcutil.ToGRPCError(errs.ErrDeviceNotFound, nil)
+		return nil, status.Error(codes.InvalidArgument, "device id is required")
 	}
 
 	d, err := s.svc.Create(ctx, &service.CreateDeviceRequest{
