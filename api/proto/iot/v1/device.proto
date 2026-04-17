@@ -116,23 +116,31 @@ message DeleteDeviceRequest {
 
 message DeleteDeviceResponse {}
 
-message BatchChangeDeviceStatusRequest {
+message BatchDisableDevicesRequest {
   repeated string ids = 1;
 }
 
-message BatchChangeDeviceStatusResponse {
+message BatchDisableDevicesResponse {
   int32 affected = 1;
 }
 
-message BatchDeleteDeviceRequest {
+message BatchEnableDevicesRequest {
   repeated string ids = 1;
 }
 
-message BatchDeleteDeviceResponse {
+message BatchEnableDevicesResponse {
   int32 affected = 1;
 }
 
-message BatchBindRequest {
+message BatchDeleteDevicesRequest {
+  repeated string ids = 1;
+}
+
+message BatchDeleteDevicesResponse {
+  int32 affected = 1;
+}
+
+message BatchBindDevicesRequest {
   message Binding {
     string id = 1;
     string parking_lot_id = 2;
@@ -141,7 +149,7 @@ message BatchBindRequest {
   repeated Binding bindings = 1;
 }
 
-message BatchBindResponse {
+message BatchBindDevicesResponse {
   int32 affected = 1;
 }
 
@@ -175,10 +183,10 @@ service DeviceService {
   rpc DisableDevice(DisableDeviceRequest) returns (DisableDeviceResponse);
   rpc EnableDevice(EnableDeviceRequest) returns (EnableDeviceResponse);
   rpc DeleteDevice(DeleteDeviceRequest) returns (DeleteDeviceResponse);
-  rpc BatchDisableDevices(BatchChangeDeviceStatusRequest) returns (BatchChangeDeviceStatusResponse);
-  rpc BatchEnableDevices(BatchChangeDeviceStatusRequest) returns (BatchChangeDeviceStatusResponse);
-  rpc BatchDeleteDevices(BatchDeleteDeviceRequest) returns (BatchDeleteDeviceResponse);
-  rpc BatchBindDevices(BatchBindRequest) returns (BatchBindResponse);
+  rpc BatchDisableDevices(BatchDisableDevicesRequest) returns (BatchDisableDevicesResponse);
+  rpc BatchEnableDevices(BatchEnableDevicesRequest) returns (BatchEnableDevicesResponse);
+  rpc BatchDeleteDevices(BatchDeleteDevicesRequest) returns (BatchDeleteDevicesResponse);
+  rpc BatchBindDevices(BatchBindDevicesRequest) returns (BatchBindDevicesResponse);
   rpc GetDeviceStats(GetDeviceStatsRequest) returns (GetDeviceStatsResponse);
   rpc SendDeviceCommand(SendDeviceCommandRequest) returns (SendDeviceCommandResponse);
 }

@@ -1118,27 +1118,27 @@ func (*DeleteDeviceResponse) Descriptor() ([]byte, []int) {
 	return file_iot_v1_device_proto_rawDescGZIP(), []int{18}
 }
 
-type BatchChangeDeviceStatusRequest struct {
+type BatchDisableDevicesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Ids           []string               `protobuf:"bytes,1,rep,name=ids,proto3" json:"ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *BatchChangeDeviceStatusRequest) Reset() {
-	*x = BatchChangeDeviceStatusRequest{}
+func (x *BatchDisableDevicesRequest) Reset() {
+	*x = BatchDisableDevicesRequest{}
 	mi := &file_iot_v1_device_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *BatchChangeDeviceStatusRequest) String() string {
+func (x *BatchDisableDevicesRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*BatchChangeDeviceStatusRequest) ProtoMessage() {}
+func (*BatchDisableDevicesRequest) ProtoMessage() {}
 
-func (x *BatchChangeDeviceStatusRequest) ProtoReflect() protoreflect.Message {
+func (x *BatchDisableDevicesRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_iot_v1_device_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1150,39 +1150,39 @@ func (x *BatchChangeDeviceStatusRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BatchChangeDeviceStatusRequest.ProtoReflect.Descriptor instead.
-func (*BatchChangeDeviceStatusRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use BatchDisableDevicesRequest.ProtoReflect.Descriptor instead.
+func (*BatchDisableDevicesRequest) Descriptor() ([]byte, []int) {
 	return file_iot_v1_device_proto_rawDescGZIP(), []int{19}
 }
 
-func (x *BatchChangeDeviceStatusRequest) GetIds() []string {
+func (x *BatchDisableDevicesRequest) GetIds() []string {
 	if x != nil {
 		return x.Ids
 	}
 	return nil
 }
 
-type BatchChangeDeviceStatusResponse struct {
+type BatchDisableDevicesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Affected      int32                  `protobuf:"varint,1,opt,name=affected,proto3" json:"affected,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *BatchChangeDeviceStatusResponse) Reset() {
-	*x = BatchChangeDeviceStatusResponse{}
+func (x *BatchDisableDevicesResponse) Reset() {
+	*x = BatchDisableDevicesResponse{}
 	mi := &file_iot_v1_device_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *BatchChangeDeviceStatusResponse) String() string {
+func (x *BatchDisableDevicesResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*BatchChangeDeviceStatusResponse) ProtoMessage() {}
+func (*BatchDisableDevicesResponse) ProtoMessage() {}
 
-func (x *BatchChangeDeviceStatusResponse) ProtoReflect() protoreflect.Message {
+func (x *BatchDisableDevicesResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_iot_v1_device_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1194,39 +1194,39 @@ func (x *BatchChangeDeviceStatusResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BatchChangeDeviceStatusResponse.ProtoReflect.Descriptor instead.
-func (*BatchChangeDeviceStatusResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use BatchDisableDevicesResponse.ProtoReflect.Descriptor instead.
+func (*BatchDisableDevicesResponse) Descriptor() ([]byte, []int) {
 	return file_iot_v1_device_proto_rawDescGZIP(), []int{20}
 }
 
-func (x *BatchChangeDeviceStatusResponse) GetAffected() int32 {
+func (x *BatchDisableDevicesResponse) GetAffected() int32 {
 	if x != nil {
 		return x.Affected
 	}
 	return 0
 }
 
-type BatchDeleteDeviceRequest struct {
+type BatchEnableDevicesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Ids           []string               `protobuf:"bytes,1,rep,name=ids,proto3" json:"ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *BatchDeleteDeviceRequest) Reset() {
-	*x = BatchDeleteDeviceRequest{}
+func (x *BatchEnableDevicesRequest) Reset() {
+	*x = BatchEnableDevicesRequest{}
 	mi := &file_iot_v1_device_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *BatchDeleteDeviceRequest) String() string {
+func (x *BatchEnableDevicesRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*BatchDeleteDeviceRequest) ProtoMessage() {}
+func (*BatchEnableDevicesRequest) ProtoMessage() {}
 
-func (x *BatchDeleteDeviceRequest) ProtoReflect() protoreflect.Message {
+func (x *BatchEnableDevicesRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_iot_v1_device_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1238,39 +1238,39 @@ func (x *BatchDeleteDeviceRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BatchDeleteDeviceRequest.ProtoReflect.Descriptor instead.
-func (*BatchDeleteDeviceRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use BatchEnableDevicesRequest.ProtoReflect.Descriptor instead.
+func (*BatchEnableDevicesRequest) Descriptor() ([]byte, []int) {
 	return file_iot_v1_device_proto_rawDescGZIP(), []int{21}
 }
 
-func (x *BatchDeleteDeviceRequest) GetIds() []string {
+func (x *BatchEnableDevicesRequest) GetIds() []string {
 	if x != nil {
 		return x.Ids
 	}
 	return nil
 }
 
-type BatchDeleteDeviceResponse struct {
+type BatchEnableDevicesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Affected      int32                  `protobuf:"varint,1,opt,name=affected,proto3" json:"affected,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *BatchDeleteDeviceResponse) Reset() {
-	*x = BatchDeleteDeviceResponse{}
+func (x *BatchEnableDevicesResponse) Reset() {
+	*x = BatchEnableDevicesResponse{}
 	mi := &file_iot_v1_device_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *BatchDeleteDeviceResponse) String() string {
+func (x *BatchEnableDevicesResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*BatchDeleteDeviceResponse) ProtoMessage() {}
+func (*BatchEnableDevicesResponse) ProtoMessage() {}
 
-func (x *BatchDeleteDeviceResponse) ProtoReflect() protoreflect.Message {
+func (x *BatchEnableDevicesResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_iot_v1_device_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1282,39 +1282,39 @@ func (x *BatchDeleteDeviceResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BatchDeleteDeviceResponse.ProtoReflect.Descriptor instead.
-func (*BatchDeleteDeviceResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use BatchEnableDevicesResponse.ProtoReflect.Descriptor instead.
+func (*BatchEnableDevicesResponse) Descriptor() ([]byte, []int) {
 	return file_iot_v1_device_proto_rawDescGZIP(), []int{22}
 }
 
-func (x *BatchDeleteDeviceResponse) GetAffected() int32 {
+func (x *BatchEnableDevicesResponse) GetAffected() int32 {
 	if x != nil {
 		return x.Affected
 	}
 	return 0
 }
 
-type BatchBindRequest struct {
-	state         protoimpl.MessageState      `protogen:"open.v1"`
-	Bindings      []*BatchBindRequest_Binding `protobuf:"bytes,1,rep,name=bindings,proto3" json:"bindings,omitempty"`
+type BatchDeleteDevicesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Ids           []string               `protobuf:"bytes,1,rep,name=ids,proto3" json:"ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *BatchBindRequest) Reset() {
-	*x = BatchBindRequest{}
+func (x *BatchDeleteDevicesRequest) Reset() {
+	*x = BatchDeleteDevicesRequest{}
 	mi := &file_iot_v1_device_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *BatchBindRequest) String() string {
+func (x *BatchDeleteDevicesRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*BatchBindRequest) ProtoMessage() {}
+func (*BatchDeleteDevicesRequest) ProtoMessage() {}
 
-func (x *BatchBindRequest) ProtoReflect() protoreflect.Message {
+func (x *BatchDeleteDevicesRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_iot_v1_device_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1326,40 +1326,128 @@ func (x *BatchBindRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BatchBindRequest.ProtoReflect.Descriptor instead.
-func (*BatchBindRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use BatchDeleteDevicesRequest.ProtoReflect.Descriptor instead.
+func (*BatchDeleteDevicesRequest) Descriptor() ([]byte, []int) {
 	return file_iot_v1_device_proto_rawDescGZIP(), []int{23}
 }
 
-func (x *BatchBindRequest) GetBindings() []*BatchBindRequest_Binding {
+func (x *BatchDeleteDevicesRequest) GetIds() []string {
+	if x != nil {
+		return x.Ids
+	}
+	return nil
+}
+
+type BatchDeleteDevicesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Affected      int32                  `protobuf:"varint,1,opt,name=affected,proto3" json:"affected,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BatchDeleteDevicesResponse) Reset() {
+	*x = BatchDeleteDevicesResponse{}
+	mi := &file_iot_v1_device_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BatchDeleteDevicesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BatchDeleteDevicesResponse) ProtoMessage() {}
+
+func (x *BatchDeleteDevicesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_iot_v1_device_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BatchDeleteDevicesResponse.ProtoReflect.Descriptor instead.
+func (*BatchDeleteDevicesResponse) Descriptor() ([]byte, []int) {
+	return file_iot_v1_device_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *BatchDeleteDevicesResponse) GetAffected() int32 {
+	if x != nil {
+		return x.Affected
+	}
+	return 0
+}
+
+type BatchBindDevicesRequest struct {
+	state         protoimpl.MessageState             `protogen:"open.v1"`
+	Bindings      []*BatchBindDevicesRequest_Binding `protobuf:"bytes,1,rep,name=bindings,proto3" json:"bindings,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BatchBindDevicesRequest) Reset() {
+	*x = BatchBindDevicesRequest{}
+	mi := &file_iot_v1_device_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BatchBindDevicesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BatchBindDevicesRequest) ProtoMessage() {}
+
+func (x *BatchBindDevicesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_iot_v1_device_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BatchBindDevicesRequest.ProtoReflect.Descriptor instead.
+func (*BatchBindDevicesRequest) Descriptor() ([]byte, []int) {
+	return file_iot_v1_device_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *BatchBindDevicesRequest) GetBindings() []*BatchBindDevicesRequest_Binding {
 	if x != nil {
 		return x.Bindings
 	}
 	return nil
 }
 
-type BatchBindResponse struct {
+type BatchBindDevicesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Affected      int32                  `protobuf:"varint,1,opt,name=affected,proto3" json:"affected,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *BatchBindResponse) Reset() {
-	*x = BatchBindResponse{}
-	mi := &file_iot_v1_device_proto_msgTypes[24]
+func (x *BatchBindDevicesResponse) Reset() {
+	*x = BatchBindDevicesResponse{}
+	mi := &file_iot_v1_device_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *BatchBindResponse) String() string {
+func (x *BatchBindDevicesResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*BatchBindResponse) ProtoMessage() {}
+func (*BatchBindDevicesResponse) ProtoMessage() {}
 
-func (x *BatchBindResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_iot_v1_device_proto_msgTypes[24]
+func (x *BatchBindDevicesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_iot_v1_device_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1370,12 +1458,12 @@ func (x *BatchBindResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BatchBindResponse.ProtoReflect.Descriptor instead.
-func (*BatchBindResponse) Descriptor() ([]byte, []int) {
-	return file_iot_v1_device_proto_rawDescGZIP(), []int{24}
+// Deprecated: Use BatchBindDevicesResponse.ProtoReflect.Descriptor instead.
+func (*BatchBindDevicesResponse) Descriptor() ([]byte, []int) {
+	return file_iot_v1_device_proto_rawDescGZIP(), []int{26}
 }
 
-func (x *BatchBindResponse) GetAffected() int32 {
+func (x *BatchBindDevicesResponse) GetAffected() int32 {
 	if x != nil {
 		return x.Affected
 	}
@@ -1390,7 +1478,7 @@ type GetDeviceStatsRequest struct {
 
 func (x *GetDeviceStatsRequest) Reset() {
 	*x = GetDeviceStatsRequest{}
-	mi := &file_iot_v1_device_proto_msgTypes[25]
+	mi := &file_iot_v1_device_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1402,7 +1490,7 @@ func (x *GetDeviceStatsRequest) String() string {
 func (*GetDeviceStatsRequest) ProtoMessage() {}
 
 func (x *GetDeviceStatsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iot_v1_device_proto_msgTypes[25]
+	mi := &file_iot_v1_device_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1415,7 +1503,7 @@ func (x *GetDeviceStatsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDeviceStatsRequest.ProtoReflect.Descriptor instead.
 func (*GetDeviceStatsRequest) Descriptor() ([]byte, []int) {
-	return file_iot_v1_device_proto_rawDescGZIP(), []int{25}
+	return file_iot_v1_device_proto_rawDescGZIP(), []int{27}
 }
 
 type GetDeviceStatsResponse struct {
@@ -1431,7 +1519,7 @@ type GetDeviceStatsResponse struct {
 
 func (x *GetDeviceStatsResponse) Reset() {
 	*x = GetDeviceStatsResponse{}
-	mi := &file_iot_v1_device_proto_msgTypes[26]
+	mi := &file_iot_v1_device_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1443,7 +1531,7 @@ func (x *GetDeviceStatsResponse) String() string {
 func (*GetDeviceStatsResponse) ProtoMessage() {}
 
 func (x *GetDeviceStatsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_iot_v1_device_proto_msgTypes[26]
+	mi := &file_iot_v1_device_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1456,7 +1544,7 @@ func (x *GetDeviceStatsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDeviceStatsResponse.ProtoReflect.Descriptor instead.
 func (*GetDeviceStatsResponse) Descriptor() ([]byte, []int) {
-	return file_iot_v1_device_proto_rawDescGZIP(), []int{26}
+	return file_iot_v1_device_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *GetDeviceStatsResponse) GetTotal() int64 {
@@ -1504,7 +1592,7 @@ type SendDeviceCommandRequest struct {
 
 func (x *SendDeviceCommandRequest) Reset() {
 	*x = SendDeviceCommandRequest{}
-	mi := &file_iot_v1_device_proto_msgTypes[27]
+	mi := &file_iot_v1_device_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1516,7 +1604,7 @@ func (x *SendDeviceCommandRequest) String() string {
 func (*SendDeviceCommandRequest) ProtoMessage() {}
 
 func (x *SendDeviceCommandRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iot_v1_device_proto_msgTypes[27]
+	mi := &file_iot_v1_device_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1529,7 +1617,7 @@ func (x *SendDeviceCommandRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendDeviceCommandRequest.ProtoReflect.Descriptor instead.
 func (*SendDeviceCommandRequest) Descriptor() ([]byte, []int) {
-	return file_iot_v1_device_proto_rawDescGZIP(), []int{27}
+	return file_iot_v1_device_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *SendDeviceCommandRequest) GetId() string {
@@ -1556,7 +1644,7 @@ type SendDeviceCommandResponse struct {
 
 func (x *SendDeviceCommandResponse) Reset() {
 	*x = SendDeviceCommandResponse{}
-	mi := &file_iot_v1_device_proto_msgTypes[28]
+	mi := &file_iot_v1_device_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1568,7 +1656,7 @@ func (x *SendDeviceCommandResponse) String() string {
 func (*SendDeviceCommandResponse) ProtoMessage() {}
 
 func (x *SendDeviceCommandResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_iot_v1_device_proto_msgTypes[28]
+	mi := &file_iot_v1_device_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1581,7 +1669,7 @@ func (x *SendDeviceCommandResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendDeviceCommandResponse.ProtoReflect.Descriptor instead.
 func (*SendDeviceCommandResponse) Descriptor() ([]byte, []int) {
-	return file_iot_v1_device_proto_rawDescGZIP(), []int{28}
+	return file_iot_v1_device_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *SendDeviceCommandResponse) GetSuccess() bool {
@@ -1598,7 +1686,7 @@ func (x *SendDeviceCommandResponse) GetMessage() string {
 	return ""
 }
 
-type BatchBindRequest_Binding struct {
+type BatchBindDevicesRequest_Binding struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	ParkingLotId  string                 `protobuf:"bytes,2,opt,name=parking_lot_id,json=parkingLotId,proto3" json:"parking_lot_id,omitempty"`
@@ -1607,21 +1695,21 @@ type BatchBindRequest_Binding struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *BatchBindRequest_Binding) Reset() {
-	*x = BatchBindRequest_Binding{}
-	mi := &file_iot_v1_device_proto_msgTypes[29]
+func (x *BatchBindDevicesRequest_Binding) Reset() {
+	*x = BatchBindDevicesRequest_Binding{}
+	mi := &file_iot_v1_device_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *BatchBindRequest_Binding) String() string {
+func (x *BatchBindDevicesRequest_Binding) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*BatchBindRequest_Binding) ProtoMessage() {}
+func (*BatchBindDevicesRequest_Binding) ProtoMessage() {}
 
-func (x *BatchBindRequest_Binding) ProtoReflect() protoreflect.Message {
-	mi := &file_iot_v1_device_proto_msgTypes[29]
+func (x *BatchBindDevicesRequest_Binding) ProtoReflect() protoreflect.Message {
+	mi := &file_iot_v1_device_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1632,26 +1720,26 @@ func (x *BatchBindRequest_Binding) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BatchBindRequest_Binding.ProtoReflect.Descriptor instead.
-func (*BatchBindRequest_Binding) Descriptor() ([]byte, []int) {
-	return file_iot_v1_device_proto_rawDescGZIP(), []int{23, 0}
+// Deprecated: Use BatchBindDevicesRequest_Binding.ProtoReflect.Descriptor instead.
+func (*BatchBindDevicesRequest_Binding) Descriptor() ([]byte, []int) {
+	return file_iot_v1_device_proto_rawDescGZIP(), []int{25, 0}
 }
 
-func (x *BatchBindRequest_Binding) GetId() string {
+func (x *BatchBindDevicesRequest_Binding) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *BatchBindRequest_Binding) GetParkingLotId() string {
+func (x *BatchBindDevicesRequest_Binding) GetParkingLotId() string {
 	if x != nil {
 		return x.ParkingLotId
 	}
 	return ""
 }
 
-func (x *BatchBindRequest_Binding) GetGateId() string {
+func (x *BatchBindDevicesRequest_Binding) GetGateId() string {
 	if x != nil {
 		return x.GateId
 	}
@@ -1729,22 +1817,26 @@ const file_iot_v1_device_proto_rawDesc = "" +
 	"\x06device\x18\x01 \x01(\v2\x16.parkhub.iot.v1.DeviceR\x06device\"%\n" +
 	"\x13DeleteDeviceRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\x16\n" +
-	"\x14DeleteDeviceResponse\"2\n" +
-	"\x1eBatchChangeDeviceStatusRequest\x12\x10\n" +
-	"\x03ids\x18\x01 \x03(\tR\x03ids\"=\n" +
-	"\x1fBatchChangeDeviceStatusResponse\x12\x1a\n" +
-	"\baffected\x18\x01 \x01(\x05R\baffected\",\n" +
-	"\x18BatchDeleteDeviceRequest\x12\x10\n" +
-	"\x03ids\x18\x01 \x03(\tR\x03ids\"7\n" +
-	"\x19BatchDeleteDeviceResponse\x12\x1a\n" +
-	"\baffected\x18\x01 \x01(\x05R\baffected\"\xb2\x01\n" +
-	"\x10BatchBindRequest\x12D\n" +
-	"\bbindings\x18\x01 \x03(\v2(.parkhub.iot.v1.BatchBindRequest.BindingR\bbindings\x1aX\n" +
+	"\x14DeleteDeviceResponse\".\n" +
+	"\x1aBatchDisableDevicesRequest\x12\x10\n" +
+	"\x03ids\x18\x01 \x03(\tR\x03ids\"9\n" +
+	"\x1bBatchDisableDevicesResponse\x12\x1a\n" +
+	"\baffected\x18\x01 \x01(\x05R\baffected\"-\n" +
+	"\x19BatchEnableDevicesRequest\x12\x10\n" +
+	"\x03ids\x18\x01 \x03(\tR\x03ids\"8\n" +
+	"\x1aBatchEnableDevicesResponse\x12\x1a\n" +
+	"\baffected\x18\x01 \x01(\x05R\baffected\"-\n" +
+	"\x19BatchDeleteDevicesRequest\x12\x10\n" +
+	"\x03ids\x18\x01 \x03(\tR\x03ids\"8\n" +
+	"\x1aBatchDeleteDevicesResponse\x12\x1a\n" +
+	"\baffected\x18\x01 \x01(\x05R\baffected\"\xc0\x01\n" +
+	"\x17BatchBindDevicesRequest\x12K\n" +
+	"\bbindings\x18\x01 \x03(\v2/.parkhub.iot.v1.BatchBindDevicesRequest.BindingR\bbindings\x1aX\n" +
 	"\aBinding\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12$\n" +
 	"\x0eparking_lot_id\x18\x02 \x01(\tR\fparkingLotId\x12\x17\n" +
-	"\agate_id\x18\x03 \x01(\tR\x06gateId\"/\n" +
-	"\x11BatchBindResponse\x12\x1a\n" +
+	"\agate_id\x18\x03 \x01(\tR\x06gateId\"6\n" +
+	"\x18BatchBindDevicesResponse\x12\x1a\n" +
 	"\baffected\x18\x01 \x01(\x05R\baffected\"\x17\n" +
 	"\x15GetDeviceStatsRequest\"\x96\x01\n" +
 	"\x16GetDeviceStatsResponse\x12\x14\n" +
@@ -1770,7 +1862,7 @@ const file_iot_v1_device_proto_rawDesc = "" +
 	"\x15DEVICE_STATUS_PENDING\x10\x01\x12\x18\n" +
 	"\x14DEVICE_STATUS_ACTIVE\x10\x02\x12\x19\n" +
 	"\x15DEVICE_STATUS_OFFLINE\x10\x03\x12\x1a\n" +
-	"\x16DEVICE_STATUS_DISABLED\x10\x042\xbd\v\n" +
+	"\x16DEVICE_STATUS_DISABLED\x10\x042\xbb\v\n" +
 	"\rDeviceService\x12Y\n" +
 	"\fCreateDevice\x12#.parkhub.iot.v1.CreateDeviceRequest\x1a$.parkhub.iot.v1.CreateDeviceResponse\x12P\n" +
 	"\tGetDevice\x12 .parkhub.iot.v1.GetDeviceRequest\x1a!.parkhub.iot.v1.GetDeviceResponse\x12V\n" +
@@ -1781,11 +1873,11 @@ const file_iot_v1_device_proto_rawDesc = "" +
 	"\fUnbindDevice\x12#.parkhub.iot.v1.UnbindDeviceRequest\x1a$.parkhub.iot.v1.UnbindDeviceResponse\x12\\\n" +
 	"\rDisableDevice\x12$.parkhub.iot.v1.DisableDeviceRequest\x1a%.parkhub.iot.v1.DisableDeviceResponse\x12Y\n" +
 	"\fEnableDevice\x12#.parkhub.iot.v1.EnableDeviceRequest\x1a$.parkhub.iot.v1.EnableDeviceResponse\x12Y\n" +
-	"\fDeleteDevice\x12#.parkhub.iot.v1.DeleteDeviceRequest\x1a$.parkhub.iot.v1.DeleteDeviceResponse\x12v\n" +
-	"\x13BatchDisableDevices\x12..parkhub.iot.v1.BatchChangeDeviceStatusRequest\x1a/.parkhub.iot.v1.BatchChangeDeviceStatusResponse\x12u\n" +
-	"\x12BatchEnableDevices\x12..parkhub.iot.v1.BatchChangeDeviceStatusRequest\x1a/.parkhub.iot.v1.BatchChangeDeviceStatusResponse\x12i\n" +
-	"\x12BatchDeleteDevices\x12(.parkhub.iot.v1.BatchDeleteDeviceRequest\x1a).parkhub.iot.v1.BatchDeleteDeviceResponse\x12W\n" +
-	"\x10BatchBindDevices\x12 .parkhub.iot.v1.BatchBindRequest\x1a!.parkhub.iot.v1.BatchBindResponse\x12_\n" +
+	"\fDeleteDevice\x12#.parkhub.iot.v1.DeleteDeviceRequest\x1a$.parkhub.iot.v1.DeleteDeviceResponse\x12n\n" +
+	"\x13BatchDisableDevices\x12*.parkhub.iot.v1.BatchDisableDevicesRequest\x1a+.parkhub.iot.v1.BatchDisableDevicesResponse\x12k\n" +
+	"\x12BatchEnableDevices\x12).parkhub.iot.v1.BatchEnableDevicesRequest\x1a*.parkhub.iot.v1.BatchEnableDevicesResponse\x12k\n" +
+	"\x12BatchDeleteDevices\x12).parkhub.iot.v1.BatchDeleteDevicesRequest\x1a*.parkhub.iot.v1.BatchDeleteDevicesResponse\x12e\n" +
+	"\x10BatchBindDevices\x12'.parkhub.iot.v1.BatchBindDevicesRequest\x1a(.parkhub.iot.v1.BatchBindDevicesResponse\x12_\n" +
 	"\x0eGetDeviceStats\x12%.parkhub.iot.v1.GetDeviceStatsRequest\x1a&.parkhub.iot.v1.GetDeviceStatsResponse\x12h\n" +
 	"\x11SendDeviceCommand\x12(.parkhub.iot.v1.SendDeviceCommandRequest\x1a).parkhub.iot.v1.SendDeviceCommandResponseB<Z:github.com/parkhub/api/internal/gen/api/proto/iot/v1;iotv1b\x06proto3"
 
@@ -1802,7 +1894,7 @@ func file_iot_v1_device_proto_rawDescGZIP() []byte {
 }
 
 var file_iot_v1_device_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_iot_v1_device_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
+var file_iot_v1_device_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
 var file_iot_v1_device_proto_goTypes = []any{
 	(DeviceType)(0),                         // 0: parkhub.iot.v1.DeviceType
 	(DeviceStatus)(0),                       // 1: parkhub.iot.v1.DeviceStatus
@@ -1825,40 +1917,42 @@ var file_iot_v1_device_proto_goTypes = []any{
 	(*EnableDeviceResponse)(nil),            // 18: parkhub.iot.v1.EnableDeviceResponse
 	(*DeleteDeviceRequest)(nil),             // 19: parkhub.iot.v1.DeleteDeviceRequest
 	(*DeleteDeviceResponse)(nil),            // 20: parkhub.iot.v1.DeleteDeviceResponse
-	(*BatchChangeDeviceStatusRequest)(nil),  // 21: parkhub.iot.v1.BatchChangeDeviceStatusRequest
-	(*BatchChangeDeviceStatusResponse)(nil), // 22: parkhub.iot.v1.BatchChangeDeviceStatusResponse
-	(*BatchDeleteDeviceRequest)(nil),        // 23: parkhub.iot.v1.BatchDeleteDeviceRequest
-	(*BatchDeleteDeviceResponse)(nil),       // 24: parkhub.iot.v1.BatchDeleteDeviceResponse
-	(*BatchBindRequest)(nil),                // 25: parkhub.iot.v1.BatchBindRequest
-	(*BatchBindResponse)(nil),               // 26: parkhub.iot.v1.BatchBindResponse
-	(*GetDeviceStatsRequest)(nil),           // 27: parkhub.iot.v1.GetDeviceStatsRequest
-	(*GetDeviceStatsResponse)(nil),          // 28: parkhub.iot.v1.GetDeviceStatsResponse
-	(*SendDeviceCommandRequest)(nil),        // 29: parkhub.iot.v1.SendDeviceCommandRequest
-	(*SendDeviceCommandResponse)(nil),       // 30: parkhub.iot.v1.SendDeviceCommandResponse
-	(*BatchBindRequest_Binding)(nil),        // 31: parkhub.iot.v1.BatchBindRequest.Binding
-	(*timestamppb.Timestamp)(nil),           // 32: google.protobuf.Timestamp
-	(*v1.PaginationRequest)(nil),            // 33: parkhub.common.v1.PaginationRequest
-	(*v1.PaginationResponse)(nil),           // 34: parkhub.common.v1.PaginationResponse
+	(*BatchDisableDevicesRequest)(nil),      // 21: parkhub.iot.v1.BatchDisableDevicesRequest
+	(*BatchDisableDevicesResponse)(nil),     // 22: parkhub.iot.v1.BatchDisableDevicesResponse
+	(*BatchEnableDevicesRequest)(nil),       // 23: parkhub.iot.v1.BatchEnableDevicesRequest
+	(*BatchEnableDevicesResponse)(nil),      // 24: parkhub.iot.v1.BatchEnableDevicesResponse
+	(*BatchDeleteDevicesRequest)(nil),       // 25: parkhub.iot.v1.BatchDeleteDevicesRequest
+	(*BatchDeleteDevicesResponse)(nil),      // 26: parkhub.iot.v1.BatchDeleteDevicesResponse
+	(*BatchBindDevicesRequest)(nil),         // 27: parkhub.iot.v1.BatchBindDevicesRequest
+	(*BatchBindDevicesResponse)(nil),        // 28: parkhub.iot.v1.BatchBindDevicesResponse
+	(*GetDeviceStatsRequest)(nil),           // 29: parkhub.iot.v1.GetDeviceStatsRequest
+	(*GetDeviceStatsResponse)(nil),          // 30: parkhub.iot.v1.GetDeviceStatsResponse
+	(*SendDeviceCommandRequest)(nil),        // 31: parkhub.iot.v1.SendDeviceCommandRequest
+	(*SendDeviceCommandResponse)(nil),       // 32: parkhub.iot.v1.SendDeviceCommandResponse
+	(*BatchBindDevicesRequest_Binding)(nil), // 33: parkhub.iot.v1.BatchBindDevicesRequest.Binding
+	(*timestamppb.Timestamp)(nil),           // 34: google.protobuf.Timestamp
+	(*v1.PaginationRequest)(nil),            // 35: parkhub.common.v1.PaginationRequest
+	(*v1.PaginationResponse)(nil),           // 36: parkhub.common.v1.PaginationResponse
 }
 var file_iot_v1_device_proto_depIdxs = []int32{
 	0,  // 0: parkhub.iot.v1.Device.type:type_name -> parkhub.iot.v1.DeviceType
 	1,  // 1: parkhub.iot.v1.Device.status:type_name -> parkhub.iot.v1.DeviceStatus
-	32, // 2: parkhub.iot.v1.Device.last_heartbeat:type_name -> google.protobuf.Timestamp
-	32, // 3: parkhub.iot.v1.Device.created_at:type_name -> google.protobuf.Timestamp
-	32, // 4: parkhub.iot.v1.Device.updated_at:type_name -> google.protobuf.Timestamp
+	34, // 2: parkhub.iot.v1.Device.last_heartbeat:type_name -> google.protobuf.Timestamp
+	34, // 3: parkhub.iot.v1.Device.created_at:type_name -> google.protobuf.Timestamp
+	34, // 4: parkhub.iot.v1.Device.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 5: parkhub.iot.v1.CreateDeviceRequest.type:type_name -> parkhub.iot.v1.DeviceType
 	2,  // 6: parkhub.iot.v1.CreateDeviceResponse.device:type_name -> parkhub.iot.v1.Device
 	2,  // 7: parkhub.iot.v1.GetDeviceResponse.device:type_name -> parkhub.iot.v1.Device
 	1,  // 8: parkhub.iot.v1.ListDevicesRequest.status:type_name -> parkhub.iot.v1.DeviceStatus
-	33, // 9: parkhub.iot.v1.ListDevicesRequest.pagination:type_name -> parkhub.common.v1.PaginationRequest
+	35, // 9: parkhub.iot.v1.ListDevicesRequest.pagination:type_name -> parkhub.common.v1.PaginationRequest
 	2,  // 10: parkhub.iot.v1.ListDevicesResponse.devices:type_name -> parkhub.iot.v1.Device
-	34, // 11: parkhub.iot.v1.ListDevicesResponse.pagination:type_name -> parkhub.common.v1.PaginationResponse
+	36, // 11: parkhub.iot.v1.ListDevicesResponse.pagination:type_name -> parkhub.common.v1.PaginationResponse
 	2,  // 12: parkhub.iot.v1.UpdateDeviceNameResponse.device:type_name -> parkhub.iot.v1.Device
 	2,  // 13: parkhub.iot.v1.BindDeviceResponse.device:type_name -> parkhub.iot.v1.Device
 	2,  // 14: parkhub.iot.v1.UnbindDeviceResponse.device:type_name -> parkhub.iot.v1.Device
 	2,  // 15: parkhub.iot.v1.DisableDeviceResponse.device:type_name -> parkhub.iot.v1.Device
 	2,  // 16: parkhub.iot.v1.EnableDeviceResponse.device:type_name -> parkhub.iot.v1.Device
-	31, // 17: parkhub.iot.v1.BatchBindRequest.bindings:type_name -> parkhub.iot.v1.BatchBindRequest.Binding
+	33, // 17: parkhub.iot.v1.BatchBindDevicesRequest.bindings:type_name -> parkhub.iot.v1.BatchBindDevicesRequest.Binding
 	3,  // 18: parkhub.iot.v1.DeviceService.CreateDevice:input_type -> parkhub.iot.v1.CreateDeviceRequest
 	5,  // 19: parkhub.iot.v1.DeviceService.GetDevice:input_type -> parkhub.iot.v1.GetDeviceRequest
 	7,  // 20: parkhub.iot.v1.DeviceService.ListDevices:input_type -> parkhub.iot.v1.ListDevicesRequest
@@ -1868,12 +1962,12 @@ var file_iot_v1_device_proto_depIdxs = []int32{
 	15, // 24: parkhub.iot.v1.DeviceService.DisableDevice:input_type -> parkhub.iot.v1.DisableDeviceRequest
 	17, // 25: parkhub.iot.v1.DeviceService.EnableDevice:input_type -> parkhub.iot.v1.EnableDeviceRequest
 	19, // 26: parkhub.iot.v1.DeviceService.DeleteDevice:input_type -> parkhub.iot.v1.DeleteDeviceRequest
-	21, // 27: parkhub.iot.v1.DeviceService.BatchDisableDevices:input_type -> parkhub.iot.v1.BatchChangeDeviceStatusRequest
-	21, // 28: parkhub.iot.v1.DeviceService.BatchEnableDevices:input_type -> parkhub.iot.v1.BatchChangeDeviceStatusRequest
-	23, // 29: parkhub.iot.v1.DeviceService.BatchDeleteDevices:input_type -> parkhub.iot.v1.BatchDeleteDeviceRequest
-	25, // 30: parkhub.iot.v1.DeviceService.BatchBindDevices:input_type -> parkhub.iot.v1.BatchBindRequest
-	27, // 31: parkhub.iot.v1.DeviceService.GetDeviceStats:input_type -> parkhub.iot.v1.GetDeviceStatsRequest
-	29, // 32: parkhub.iot.v1.DeviceService.SendDeviceCommand:input_type -> parkhub.iot.v1.SendDeviceCommandRequest
+	21, // 27: parkhub.iot.v1.DeviceService.BatchDisableDevices:input_type -> parkhub.iot.v1.BatchDisableDevicesRequest
+	23, // 28: parkhub.iot.v1.DeviceService.BatchEnableDevices:input_type -> parkhub.iot.v1.BatchEnableDevicesRequest
+	25, // 29: parkhub.iot.v1.DeviceService.BatchDeleteDevices:input_type -> parkhub.iot.v1.BatchDeleteDevicesRequest
+	27, // 30: parkhub.iot.v1.DeviceService.BatchBindDevices:input_type -> parkhub.iot.v1.BatchBindDevicesRequest
+	29, // 31: parkhub.iot.v1.DeviceService.GetDeviceStats:input_type -> parkhub.iot.v1.GetDeviceStatsRequest
+	31, // 32: parkhub.iot.v1.DeviceService.SendDeviceCommand:input_type -> parkhub.iot.v1.SendDeviceCommandRequest
 	4,  // 33: parkhub.iot.v1.DeviceService.CreateDevice:output_type -> parkhub.iot.v1.CreateDeviceResponse
 	6,  // 34: parkhub.iot.v1.DeviceService.GetDevice:output_type -> parkhub.iot.v1.GetDeviceResponse
 	8,  // 35: parkhub.iot.v1.DeviceService.ListDevices:output_type -> parkhub.iot.v1.ListDevicesResponse
@@ -1883,12 +1977,12 @@ var file_iot_v1_device_proto_depIdxs = []int32{
 	16, // 39: parkhub.iot.v1.DeviceService.DisableDevice:output_type -> parkhub.iot.v1.DisableDeviceResponse
 	18, // 40: parkhub.iot.v1.DeviceService.EnableDevice:output_type -> parkhub.iot.v1.EnableDeviceResponse
 	20, // 41: parkhub.iot.v1.DeviceService.DeleteDevice:output_type -> parkhub.iot.v1.DeleteDeviceResponse
-	22, // 42: parkhub.iot.v1.DeviceService.BatchDisableDevices:output_type -> parkhub.iot.v1.BatchChangeDeviceStatusResponse
-	22, // 43: parkhub.iot.v1.DeviceService.BatchEnableDevices:output_type -> parkhub.iot.v1.BatchChangeDeviceStatusResponse
-	24, // 44: parkhub.iot.v1.DeviceService.BatchDeleteDevices:output_type -> parkhub.iot.v1.BatchDeleteDeviceResponse
-	26, // 45: parkhub.iot.v1.DeviceService.BatchBindDevices:output_type -> parkhub.iot.v1.BatchBindResponse
-	28, // 46: parkhub.iot.v1.DeviceService.GetDeviceStats:output_type -> parkhub.iot.v1.GetDeviceStatsResponse
-	30, // 47: parkhub.iot.v1.DeviceService.SendDeviceCommand:output_type -> parkhub.iot.v1.SendDeviceCommandResponse
+	22, // 42: parkhub.iot.v1.DeviceService.BatchDisableDevices:output_type -> parkhub.iot.v1.BatchDisableDevicesResponse
+	24, // 43: parkhub.iot.v1.DeviceService.BatchEnableDevices:output_type -> parkhub.iot.v1.BatchEnableDevicesResponse
+	26, // 44: parkhub.iot.v1.DeviceService.BatchDeleteDevices:output_type -> parkhub.iot.v1.BatchDeleteDevicesResponse
+	28, // 45: parkhub.iot.v1.DeviceService.BatchBindDevices:output_type -> parkhub.iot.v1.BatchBindDevicesResponse
+	30, // 46: parkhub.iot.v1.DeviceService.GetDeviceStats:output_type -> parkhub.iot.v1.GetDeviceStatsResponse
+	32, // 47: parkhub.iot.v1.DeviceService.SendDeviceCommand:output_type -> parkhub.iot.v1.SendDeviceCommandResponse
 	33, // [33:48] is the sub-list for method output_type
 	18, // [18:33] is the sub-list for method input_type
 	18, // [18:18] is the sub-list for extension type_name
@@ -1908,7 +2002,7 @@ func file_iot_v1_device_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_iot_v1_device_proto_rawDesc), len(file_iot_v1_device_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   30,
+			NumMessages:   32,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

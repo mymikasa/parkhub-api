@@ -195,7 +195,7 @@ func (s *DeviceGRPCServer) DeleteDevice(ctx context.Context, req *iotv1.DeleteDe
 	return &iotv1.DeleteDeviceResponse{}, nil
 }
 
-func (s *DeviceGRPCServer) BatchDisableDevices(ctx context.Context, req *iotv1.BatchChangeDeviceStatusRequest) (*iotv1.BatchChangeDeviceStatusResponse, error) {
+func (s *DeviceGRPCServer) BatchDisableDevices(ctx context.Context, req *iotv1.BatchDisableDevicesRequest) (*iotv1.BatchDisableDevicesResponse, error) {
 	tenantID, err := extractTenantID(ctx)
 	if err != nil {
 		return nil, err
@@ -204,10 +204,10 @@ func (s *DeviceGRPCServer) BatchDisableDevices(ctx context.Context, req *iotv1.B
 	if err := s.svc.BatchDisable(ctx, &service.BatchChangeDeviceStatusRequest{TenantID: tenantID, IDs: req.GetIds()}); err != nil {
 		return nil, toDeviceGRPCError(err)
 	}
-	return &iotv1.BatchChangeDeviceStatusResponse{Affected: int32(len(req.GetIds()))}, nil
+	return &iotv1.BatchDisableDevicesResponse{Affected: int32(len(req.GetIds()))}, nil
 }
 
-func (s *DeviceGRPCServer) BatchEnableDevices(ctx context.Context, req *iotv1.BatchChangeDeviceStatusRequest) (*iotv1.BatchChangeDeviceStatusResponse, error) {
+func (s *DeviceGRPCServer) BatchEnableDevices(ctx context.Context, req *iotv1.BatchEnableDevicesRequest) (*iotv1.BatchEnableDevicesResponse, error) {
 	tenantID, err := extractTenantID(ctx)
 	if err != nil {
 		return nil, err
@@ -216,10 +216,10 @@ func (s *DeviceGRPCServer) BatchEnableDevices(ctx context.Context, req *iotv1.Ba
 	if err := s.svc.BatchEnable(ctx, &service.BatchChangeDeviceStatusRequest{TenantID: tenantID, IDs: req.GetIds()}); err != nil {
 		return nil, toDeviceGRPCError(err)
 	}
-	return &iotv1.BatchChangeDeviceStatusResponse{Affected: int32(len(req.GetIds()))}, nil
+	return &iotv1.BatchEnableDevicesResponse{Affected: int32(len(req.GetIds()))}, nil
 }
 
-func (s *DeviceGRPCServer) BatchDeleteDevices(ctx context.Context, req *iotv1.BatchDeleteDeviceRequest) (*iotv1.BatchDeleteDeviceResponse, error) {
+func (s *DeviceGRPCServer) BatchDeleteDevices(ctx context.Context, req *iotv1.BatchDeleteDevicesRequest) (*iotv1.BatchDeleteDevicesResponse, error) {
 	tenantID, err := extractTenantID(ctx)
 	if err != nil {
 		return nil, err
@@ -228,10 +228,10 @@ func (s *DeviceGRPCServer) BatchDeleteDevices(ctx context.Context, req *iotv1.Ba
 	if err := s.svc.BatchDelete(ctx, &service.BatchDeleteDeviceRequest{TenantID: tenantID, IDs: req.GetIds()}); err != nil {
 		return nil, toDeviceGRPCError(err)
 	}
-	return &iotv1.BatchDeleteDeviceResponse{Affected: int32(len(req.GetIds()))}, nil
+	return &iotv1.BatchDeleteDevicesResponse{Affected: int32(len(req.GetIds()))}, nil
 }
 
-func (s *DeviceGRPCServer) BatchBindDevices(ctx context.Context, req *iotv1.BatchBindRequest) (*iotv1.BatchBindResponse, error) {
+func (s *DeviceGRPCServer) BatchBindDevices(ctx context.Context, req *iotv1.BatchBindDevicesRequest) (*iotv1.BatchBindDevicesResponse, error) {
 	tenantID, err := extractTenantID(ctx)
 	if err != nil {
 		return nil, err
@@ -249,7 +249,7 @@ func (s *DeviceGRPCServer) BatchBindDevices(ctx context.Context, req *iotv1.Batc
 	if err := s.svc.BatchBind(ctx, &service.BatchBindDeviceRequest{TenantID: tenantID, Bindings: bindings}); err != nil {
 		return nil, toDeviceGRPCError(err)
 	}
-	return &iotv1.BatchBindResponse{Affected: int32(len(bindings))}, nil
+	return &iotv1.BatchBindDevicesResponse{Affected: int32(len(bindings))}, nil
 }
 
 func (s *DeviceGRPCServer) GetDeviceStats(ctx context.Context, req *iotv1.GetDeviceStatsRequest) (*iotv1.GetDeviceStatsResponse, error) {

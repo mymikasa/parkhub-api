@@ -371,7 +371,7 @@ func TestGRPC_BatchDisableDevices_Success(t *testing.T) {
 		BatchDisable(go_mock.Any(), go_mock.Any()).
 		Return(nil)
 
-	resp, err := client.BatchDisableDevices(ctxWithTenant(), &iotv1.BatchChangeDeviceStatusRequest{
+	resp, err := client.BatchDisableDevices(ctxWithTenant(), &iotv1.BatchDisableDevicesRequest{
 		Ids: []string{"DEV-001", "DEV-002"},
 	})
 	assert.NoError(t, err)
@@ -386,7 +386,7 @@ func TestGRPC_BatchEnableDevices_Success(t *testing.T) {
 		BatchEnable(go_mock.Any(), go_mock.Any()).
 		Return(nil)
 
-	resp, err := client.BatchEnableDevices(ctxWithTenant(), &iotv1.BatchChangeDeviceStatusRequest{
+	resp, err := client.BatchEnableDevices(ctxWithTenant(), &iotv1.BatchEnableDevicesRequest{
 		Ids: []string{"DEV-001"},
 	})
 	assert.NoError(t, err)
@@ -401,7 +401,7 @@ func TestGRPC_BatchDeleteDevices_Success(t *testing.T) {
 		BatchDelete(go_mock.Any(), go_mock.Any()).
 		Return(nil)
 
-	resp, err := client.BatchDeleteDevices(ctxWithTenant(), &iotv1.BatchDeleteDeviceRequest{
+	resp, err := client.BatchDeleteDevices(ctxWithTenant(), &iotv1.BatchDeleteDevicesRequest{
 		Ids: []string{"DEV-001", "DEV-002", "DEV-003"},
 	})
 	assert.NoError(t, err)
@@ -416,8 +416,8 @@ func TestGRPC_BatchBindDevices_Success(t *testing.T) {
 		BatchBind(go_mock.Any(), go_mock.Any()).
 		Return(nil)
 
-	resp, err := client.BatchBindDevices(ctxWithTenant(), &iotv1.BatchBindRequest{
-		Bindings: []*iotv1.BatchBindRequest_Binding{
+	resp, err := client.BatchBindDevices(ctxWithTenant(), &iotv1.BatchBindDevicesRequest{
+		Bindings: []*iotv1.BatchBindDevicesRequest_Binding{
 			{Id: "DEV-001", ParkingLotId: "lot-1", GateId: "gate-1"},
 			{Id: "DEV-002", ParkingLotId: "lot-1", GateId: "gate-2"},
 		},

@@ -49,10 +49,10 @@ type DeviceServiceClient interface {
 	DisableDevice(ctx context.Context, in *DisableDeviceRequest, opts ...grpc.CallOption) (*DisableDeviceResponse, error)
 	EnableDevice(ctx context.Context, in *EnableDeviceRequest, opts ...grpc.CallOption) (*EnableDeviceResponse, error)
 	DeleteDevice(ctx context.Context, in *DeleteDeviceRequest, opts ...grpc.CallOption) (*DeleteDeviceResponse, error)
-	BatchDisableDevices(ctx context.Context, in *BatchChangeDeviceStatusRequest, opts ...grpc.CallOption) (*BatchChangeDeviceStatusResponse, error)
-	BatchEnableDevices(ctx context.Context, in *BatchChangeDeviceStatusRequest, opts ...grpc.CallOption) (*BatchChangeDeviceStatusResponse, error)
-	BatchDeleteDevices(ctx context.Context, in *BatchDeleteDeviceRequest, opts ...grpc.CallOption) (*BatchDeleteDeviceResponse, error)
-	BatchBindDevices(ctx context.Context, in *BatchBindRequest, opts ...grpc.CallOption) (*BatchBindResponse, error)
+	BatchDisableDevices(ctx context.Context, in *BatchDisableDevicesRequest, opts ...grpc.CallOption) (*BatchDisableDevicesResponse, error)
+	BatchEnableDevices(ctx context.Context, in *BatchEnableDevicesRequest, opts ...grpc.CallOption) (*BatchEnableDevicesResponse, error)
+	BatchDeleteDevices(ctx context.Context, in *BatchDeleteDevicesRequest, opts ...grpc.CallOption) (*BatchDeleteDevicesResponse, error)
+	BatchBindDevices(ctx context.Context, in *BatchBindDevicesRequest, opts ...grpc.CallOption) (*BatchBindDevicesResponse, error)
 	GetDeviceStats(ctx context.Context, in *GetDeviceStatsRequest, opts ...grpc.CallOption) (*GetDeviceStatsResponse, error)
 	SendDeviceCommand(ctx context.Context, in *SendDeviceCommandRequest, opts ...grpc.CallOption) (*SendDeviceCommandResponse, error)
 }
@@ -155,9 +155,9 @@ func (c *deviceServiceClient) DeleteDevice(ctx context.Context, in *DeleteDevice
 	return out, nil
 }
 
-func (c *deviceServiceClient) BatchDisableDevices(ctx context.Context, in *BatchChangeDeviceStatusRequest, opts ...grpc.CallOption) (*BatchChangeDeviceStatusResponse, error) {
+func (c *deviceServiceClient) BatchDisableDevices(ctx context.Context, in *BatchDisableDevicesRequest, opts ...grpc.CallOption) (*BatchDisableDevicesResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(BatchChangeDeviceStatusResponse)
+	out := new(BatchDisableDevicesResponse)
 	err := c.cc.Invoke(ctx, DeviceService_BatchDisableDevices_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -165,9 +165,9 @@ func (c *deviceServiceClient) BatchDisableDevices(ctx context.Context, in *Batch
 	return out, nil
 }
 
-func (c *deviceServiceClient) BatchEnableDevices(ctx context.Context, in *BatchChangeDeviceStatusRequest, opts ...grpc.CallOption) (*BatchChangeDeviceStatusResponse, error) {
+func (c *deviceServiceClient) BatchEnableDevices(ctx context.Context, in *BatchEnableDevicesRequest, opts ...grpc.CallOption) (*BatchEnableDevicesResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(BatchChangeDeviceStatusResponse)
+	out := new(BatchEnableDevicesResponse)
 	err := c.cc.Invoke(ctx, DeviceService_BatchEnableDevices_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -175,9 +175,9 @@ func (c *deviceServiceClient) BatchEnableDevices(ctx context.Context, in *BatchC
 	return out, nil
 }
 
-func (c *deviceServiceClient) BatchDeleteDevices(ctx context.Context, in *BatchDeleteDeviceRequest, opts ...grpc.CallOption) (*BatchDeleteDeviceResponse, error) {
+func (c *deviceServiceClient) BatchDeleteDevices(ctx context.Context, in *BatchDeleteDevicesRequest, opts ...grpc.CallOption) (*BatchDeleteDevicesResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(BatchDeleteDeviceResponse)
+	out := new(BatchDeleteDevicesResponse)
 	err := c.cc.Invoke(ctx, DeviceService_BatchDeleteDevices_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -185,9 +185,9 @@ func (c *deviceServiceClient) BatchDeleteDevices(ctx context.Context, in *BatchD
 	return out, nil
 }
 
-func (c *deviceServiceClient) BatchBindDevices(ctx context.Context, in *BatchBindRequest, opts ...grpc.CallOption) (*BatchBindResponse, error) {
+func (c *deviceServiceClient) BatchBindDevices(ctx context.Context, in *BatchBindDevicesRequest, opts ...grpc.CallOption) (*BatchBindDevicesResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(BatchBindResponse)
+	out := new(BatchBindDevicesResponse)
 	err := c.cc.Invoke(ctx, DeviceService_BatchBindDevices_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -228,10 +228,10 @@ type DeviceServiceServer interface {
 	DisableDevice(context.Context, *DisableDeviceRequest) (*DisableDeviceResponse, error)
 	EnableDevice(context.Context, *EnableDeviceRequest) (*EnableDeviceResponse, error)
 	DeleteDevice(context.Context, *DeleteDeviceRequest) (*DeleteDeviceResponse, error)
-	BatchDisableDevices(context.Context, *BatchChangeDeviceStatusRequest) (*BatchChangeDeviceStatusResponse, error)
-	BatchEnableDevices(context.Context, *BatchChangeDeviceStatusRequest) (*BatchChangeDeviceStatusResponse, error)
-	BatchDeleteDevices(context.Context, *BatchDeleteDeviceRequest) (*BatchDeleteDeviceResponse, error)
-	BatchBindDevices(context.Context, *BatchBindRequest) (*BatchBindResponse, error)
+	BatchDisableDevices(context.Context, *BatchDisableDevicesRequest) (*BatchDisableDevicesResponse, error)
+	BatchEnableDevices(context.Context, *BatchEnableDevicesRequest) (*BatchEnableDevicesResponse, error)
+	BatchDeleteDevices(context.Context, *BatchDeleteDevicesRequest) (*BatchDeleteDevicesResponse, error)
+	BatchBindDevices(context.Context, *BatchBindDevicesRequest) (*BatchBindDevicesResponse, error)
 	GetDeviceStats(context.Context, *GetDeviceStatsRequest) (*GetDeviceStatsResponse, error)
 	SendDeviceCommand(context.Context, *SendDeviceCommandRequest) (*SendDeviceCommandResponse, error)
 	mustEmbedUnimplementedDeviceServiceServer()
@@ -271,16 +271,16 @@ func (UnimplementedDeviceServiceServer) EnableDevice(context.Context, *EnableDev
 func (UnimplementedDeviceServiceServer) DeleteDevice(context.Context, *DeleteDeviceRequest) (*DeleteDeviceResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteDevice not implemented")
 }
-func (UnimplementedDeviceServiceServer) BatchDisableDevices(context.Context, *BatchChangeDeviceStatusRequest) (*BatchChangeDeviceStatusResponse, error) {
+func (UnimplementedDeviceServiceServer) BatchDisableDevices(context.Context, *BatchDisableDevicesRequest) (*BatchDisableDevicesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method BatchDisableDevices not implemented")
 }
-func (UnimplementedDeviceServiceServer) BatchEnableDevices(context.Context, *BatchChangeDeviceStatusRequest) (*BatchChangeDeviceStatusResponse, error) {
+func (UnimplementedDeviceServiceServer) BatchEnableDevices(context.Context, *BatchEnableDevicesRequest) (*BatchEnableDevicesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method BatchEnableDevices not implemented")
 }
-func (UnimplementedDeviceServiceServer) BatchDeleteDevices(context.Context, *BatchDeleteDeviceRequest) (*BatchDeleteDeviceResponse, error) {
+func (UnimplementedDeviceServiceServer) BatchDeleteDevices(context.Context, *BatchDeleteDevicesRequest) (*BatchDeleteDevicesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method BatchDeleteDevices not implemented")
 }
-func (UnimplementedDeviceServiceServer) BatchBindDevices(context.Context, *BatchBindRequest) (*BatchBindResponse, error) {
+func (UnimplementedDeviceServiceServer) BatchBindDevices(context.Context, *BatchBindDevicesRequest) (*BatchBindDevicesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method BatchBindDevices not implemented")
 }
 func (UnimplementedDeviceServiceServer) GetDeviceStats(context.Context, *GetDeviceStatsRequest) (*GetDeviceStatsResponse, error) {
@@ -473,7 +473,7 @@ func _DeviceService_DeleteDevice_Handler(srv interface{}, ctx context.Context, d
 }
 
 func _DeviceService_BatchDisableDevices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BatchChangeDeviceStatusRequest)
+	in := new(BatchDisableDevicesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -485,13 +485,13 @@ func _DeviceService_BatchDisableDevices_Handler(srv interface{}, ctx context.Con
 		FullMethod: DeviceService_BatchDisableDevices_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DeviceServiceServer).BatchDisableDevices(ctx, req.(*BatchChangeDeviceStatusRequest))
+		return srv.(DeviceServiceServer).BatchDisableDevices(ctx, req.(*BatchDisableDevicesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _DeviceService_BatchEnableDevices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BatchChangeDeviceStatusRequest)
+	in := new(BatchEnableDevicesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -503,13 +503,13 @@ func _DeviceService_BatchEnableDevices_Handler(srv interface{}, ctx context.Cont
 		FullMethod: DeviceService_BatchEnableDevices_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DeviceServiceServer).BatchEnableDevices(ctx, req.(*BatchChangeDeviceStatusRequest))
+		return srv.(DeviceServiceServer).BatchEnableDevices(ctx, req.(*BatchEnableDevicesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _DeviceService_BatchDeleteDevices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BatchDeleteDeviceRequest)
+	in := new(BatchDeleteDevicesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -521,13 +521,13 @@ func _DeviceService_BatchDeleteDevices_Handler(srv interface{}, ctx context.Cont
 		FullMethod: DeviceService_BatchDeleteDevices_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DeviceServiceServer).BatchDeleteDevices(ctx, req.(*BatchDeleteDeviceRequest))
+		return srv.(DeviceServiceServer).BatchDeleteDevices(ctx, req.(*BatchDeleteDevicesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _DeviceService_BatchBindDevices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BatchBindRequest)
+	in := new(BatchBindDevicesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -539,7 +539,7 @@ func _DeviceService_BatchBindDevices_Handler(srv interface{}, ctx context.Contex
 		FullMethod: DeviceService_BatchBindDevices_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DeviceServiceServer).BatchBindDevices(ctx, req.(*BatchBindRequest))
+		return srv.(DeviceServiceServer).BatchBindDevices(ctx, req.(*BatchBindDevicesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
