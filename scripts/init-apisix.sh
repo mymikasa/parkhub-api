@@ -999,49 +999,418 @@ echo "APISIX issue #20 routes configuration complete"
 # Routes: IoT DeviceService
 # ══════════════════════════════════════════════════════════════════════
 
-for ROUTE_DEF in \
-  '60|CreateDevice|POST|/iot/v1/devices|DeviceService|CreateDevice' \
-  '61|GetDevice|GET|/iot/v1/devices/*|DeviceService|GetDevice' \
-  '62|ListDevices|GET|/iot/v1/devices|DeviceService|ListDevices' \
-  '63|GetDeviceStats|GET|/iot/v1/devices/stats|DeviceService|GetDeviceStats' \
-  '64|UpdateDeviceName|PATCH|/iot/v1/devices/*|DeviceService|UpdateDeviceName' \
-  '65|BindDevice|POST|/iot/v1/devices/*/bind|DeviceService|BindDevice' \
-  '66|UnbindDevice|POST|/iot/v1/devices/*/unbind|DeviceService|UnbindDevice' \
-  '67|DisableDevice|POST|/iot/v1/devices/*/disable|DeviceService|DisableDevice' \
-  '68|EnableDevice|POST|/iot/v1/devices/*/enable|DeviceService|EnableDevice' \
-  '69|DeleteDevice|DELETE|/iot/v1/devices/*|DeviceService|DeleteDevice' \
-  '70|SendDeviceCommand|POST|/iot/v1/devices/*/command|DeviceService|SendDeviceCommand' \
-  '71|BatchDisableDevices|POST|/iot/v1/devices/batch/disable|DeviceService|BatchDisableDevices' \
-  '72|BatchEnableDevices|POST|/iot/v1/devices/batch/enable|DeviceService|BatchEnableDevices' \
-  '73|BatchDeleteDevices|POST|/iot/v1/devices/batch/delete|DeviceService|BatchDeleteDevices' \
-  '74|BatchBindDevices|POST|/iot/v1/devices/batch/bind|DeviceService|BatchBindDevices' \
-; do
-  IFS='|' read -r ID NAME METHOD URI SVC METHOD_NAME <<< "$ROUTE_DEF"
-  echo "Creating IoT route ${ID}: ${NAME} (${METHOD} ${URI})"
-  curl -sf "${APISIX_ADMIN}/routes/${ID}" \
-    -H "X-API-KEY: ${API_KEY}" \
-    -X PUT \
-    -d "{
-      \"name\": \"iot-${NAME}\",
-      \"methods\": [\"${METHOD}\"],
-      \"uri\": \"${URI}\",
-      \"upstream_id\": \"1\",
-      \"plugins\": {
-        \"jwt-auth\": { \"store_in_ctx\": true },
-        \"serverless-pre-function\": {
-          \"phase\": \"access\",
-          \"functions\": [\"'${JWT_INJECT}'\"]
-        },
-        \"grpc-transcode\": {
-          \"proto_id\": \"1\",
-          \"service\": \"parkhub.iot.v1.${SVC}\",
-          \"method\": \"${METHOD_NAME}\",
-          \"pb_option\": [\"enum_as_name\", \"int64_as_number\"]
-        },
-        \"opentelemetry\": { \"sampler\": { \"name\": \"always_on\" } },
-        \"prometheus\": {}
-      }
-    }" && echo ""
-done
+echo "Creating IoT route 60: CreateDevice (POST /iot/v1/devices)"
+curl -sf "${APISIX_ADMIN}/routes/60" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "iot-CreateDevice",
+    "methods": ["POST"],
+    "uri": "/iot/v1/devices",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": ["'"${JWT_INJECT}"'"]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.iot.v1.DeviceService",
+        "method": "CreateDevice",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating IoT route 61: GetDevice (GET /iot/v1/devices/:id)"
+curl -sf "${APISIX_ADMIN}/routes/61" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "iot-GetDevice",
+    "methods": ["GET"],
+    "uri": "/iot/v1/devices/*",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/iot/v1/devices/(.+)$\"); if id then ngx.req.set_uri_args({id = id}) end end"
+        ]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.iot.v1.DeviceService",
+        "method": "GetDevice",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating IoT route 62: ListDevices (GET /iot/v1/devices)"
+curl -sf "${APISIX_ADMIN}/routes/62" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "iot-ListDevices",
+    "methods": ["GET"],
+    "uri": "/iot/v1/devices",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": ["'"${JWT_INJECT}"'"]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.iot.v1.DeviceService",
+        "method": "ListDevices",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating IoT route 63: GetDeviceStats (GET /iot/v1/devices/stats)"
+curl -sf "${APISIX_ADMIN}/routes/63" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "iot-GetDeviceStats",
+    "methods": ["GET"],
+    "uri": "/iot/v1/devices/stats",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": ["'"${JWT_INJECT}"'"]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.iot.v1.DeviceService",
+        "method": "GetDeviceStats",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating IoT route 64: UpdateDeviceName (PATCH /iot/v1/devices/:id)"
+curl -sf "${APISIX_ADMIN}/routes/64" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "iot-UpdateDeviceName",
+    "methods": ["PATCH"],
+    "uri": "/iot/v1/devices/*",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/iot/v1/devices/(.+)$\"); ngx.req.read_body(); local body = ngx.req.get_body_data(); if body then local cjson = require(\"cjson.safe\"); local t = cjson.decode(body); if t and id then t.id = id; ngx.req.set_body_data(cjson.encode(t)) end end end"
+        ]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.iot.v1.DeviceService",
+        "method": "UpdateDeviceName",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating IoT route 65: BindDevice (POST /iot/v1/devices/:id/bind)"
+curl -sf "${APISIX_ADMIN}/routes/65" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "iot-BindDevice",
+    "methods": ["POST"],
+    "uri": "/iot/v1/devices/*/bind",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/iot/v1/devices/(.+)/bind$\"); ngx.req.read_body(); local body = ngx.req.get_body_data(); if body then local cjson = require(\"cjson.safe\"); local t = cjson.decode(body); if t and id then t.id = id; ngx.req.set_body_data(cjson.encode(t)) end end end"
+        ]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.iot.v1.DeviceService",
+        "method": "BindDevice",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating IoT route 66: UnbindDevice (POST /iot/v1/devices/:id/unbind)"
+curl -sf "${APISIX_ADMIN}/routes/66" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "iot-UnbindDevice",
+    "methods": ["POST"],
+    "uri": "/iot/v1/devices/*/unbind",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/iot/v1/devices/(.+)/unbind$\"); ngx.req.read_body(); local body = ngx.req.get_body_data(); if not body then body = \"{}\" end; local cjson = require(\"cjson.safe\"); local t = cjson.decode(body); if t and id then t.id = id; ngx.req.set_body_data(cjson.encode(t)) end end"
+        ]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.iot.v1.DeviceService",
+        "method": "UnbindDevice",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating IoT route 67: DisableDevice (POST /iot/v1/devices/:id/disable)"
+curl -sf "${APISIX_ADMIN}/routes/67" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "iot-DisableDevice",
+    "methods": ["POST"],
+    "uri": "/iot/v1/devices/*/disable",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/iot/v1/devices/(.+)/disable$\"); ngx.req.read_body(); local body = ngx.req.get_body_data(); if not body then body = \"{}\" end; local cjson = require(\"cjson.safe\"); local t = cjson.decode(body); if t and id then t.id = id; ngx.req.set_body_data(cjson.encode(t)) end end"
+        ]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.iot.v1.DeviceService",
+        "method": "DisableDevice",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating IoT route 68: EnableDevice (POST /iot/v1/devices/:id/enable)"
+curl -sf "${APISIX_ADMIN}/routes/68" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "iot-EnableDevice",
+    "methods": ["POST"],
+    "uri": "/iot/v1/devices/*/enable",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/iot/v1/devices/(.+)/enable$\"); ngx.req.read_body(); local body = ngx.req.get_body_data(); if not body then body = \"{}\" end; local cjson = require(\"cjson.safe\"); local t = cjson.decode(body); if t and id then t.id = id; ngx.req.set_body_data(cjson.encode(t)) end end"
+        ]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.iot.v1.DeviceService",
+        "method": "EnableDevice",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating IoT route 69: DeleteDevice (DELETE /iot/v1/devices/:id)"
+curl -sf "${APISIX_ADMIN}/routes/69" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "iot-DeleteDevice",
+    "methods": ["DELETE"],
+    "uri": "/iot/v1/devices/*",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/iot/v1/devices/(.+)$\"); if id then ngx.req.set_uri_args({id = id}) end end"
+        ]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.iot.v1.DeviceService",
+        "method": "DeleteDevice",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating IoT route 70: SendDeviceCommand (POST /iot/v1/devices/:id/command)"
+curl -sf "${APISIX_ADMIN}/routes/70" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "iot-SendDeviceCommand",
+    "methods": ["POST"],
+    "uri": "/iot/v1/devices/*/command",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/iot/v1/devices/(.+)/command$\"); ngx.req.read_body(); local body = ngx.req.get_body_data(); if body then local cjson = require(\"cjson.safe\"); local t = cjson.decode(body); if t and id then t.id = id; ngx.req.set_body_data(cjson.encode(t)) end end end"
+        ]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.iot.v1.DeviceService",
+        "method": "SendDeviceCommand",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating IoT route 71: BatchDisableDevices (POST /iot/v1/devices/batch/disable)"
+curl -sf "${APISIX_ADMIN}/routes/71" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "iot-BatchDisableDevices",
+    "methods": ["POST"],
+    "uri": "/iot/v1/devices/batch/disable",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": ["'"${JWT_INJECT}"'"]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.iot.v1.DeviceService",
+        "method": "BatchDisableDevices",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating IoT route 72: BatchEnableDevices (POST /iot/v1/devices/batch/enable)"
+curl -sf "${APISIX_ADMIN}/routes/72" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "iot-BatchEnableDevices",
+    "methods": ["POST"],
+    "uri": "/iot/v1/devices/batch/enable",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": ["'"${JWT_INJECT}"'"]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.iot.v1.DeviceService",
+        "method": "BatchEnableDevices",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating IoT route 73: BatchDeleteDevices (POST /iot/v1/devices/batch/delete)"
+curl -sf "${APISIX_ADMIN}/routes/73" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "iot-BatchDeleteDevices",
+    "methods": ["POST"],
+    "uri": "/iot/v1/devices/batch/delete",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": ["'"${JWT_INJECT}"'"]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.iot.v1.DeviceService",
+        "method": "BatchDeleteDevices",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating IoT route 74: BatchBindDevices (POST /iot/v1/devices/batch/bind)"
+curl -sf "${APISIX_ADMIN}/routes/74" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "iot-BatchBindDevices",
+    "methods": ["POST"],
+    "uri": "/iot/v1/devices/batch/bind",
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": ["'"${JWT_INJECT}"'"]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.iot.v1.DeviceService",
+        "method": "BatchBindDevices",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
 
 echo "APISIX IoT DeviceService routes configuration complete"
