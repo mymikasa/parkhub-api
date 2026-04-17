@@ -994,3 +994,54 @@ curl -sf "${APISIX_ADMIN}/routes/56" \
   }' && echo ""
 
 echo "APISIX issue #20 routes configuration complete"
+
+# ══════════════════════════════════════════════════════════════════════
+# Routes: IoT DeviceService
+# ══════════════════════════════════════════════════════════════════════
+
+for ROUTE_DEF in \
+  '60|CreateDevice|POST|/iot/v1/devices|DeviceService|CreateDevice' \
+  '61|GetDevice|GET|/iot/v1/devices/*|DeviceService|GetDevice' \
+  '62|ListDevices|GET|/iot/v1/devices|DeviceService|ListDevices' \
+  '63|GetDeviceStats|GET|/iot/v1/devices/stats|DeviceService|GetDeviceStats' \
+  '64|UpdateDeviceName|PATCH|/iot/v1/devices/*|DeviceService|UpdateDeviceName' \
+  '65|BindDevice|POST|/iot/v1/devices/*/bind|DeviceService|BindDevice' \
+  '66|UnbindDevice|POST|/iot/v1/devices/*/unbind|DeviceService|UnbindDevice' \
+  '67|DisableDevice|POST|/iot/v1/devices/*/disable|DeviceService|DisableDevice' \
+  '68|EnableDevice|POST|/iot/v1/devices/*/enable|DeviceService|EnableDevice' \
+  '69|DeleteDevice|DELETE|/iot/v1/devices/*|DeviceService|DeleteDevice' \
+  '70|SendDeviceCommand|POST|/iot/v1/devices/*/command|DeviceService|SendDeviceCommand' \
+  '71|BatchDisableDevices|POST|/iot/v1/devices/batch/disable|DeviceService|BatchDisableDevices' \
+  '72|BatchEnableDevices|POST|/iot/v1/devices/batch/enable|DeviceService|BatchEnableDevices' \
+  '73|BatchDeleteDevices|POST|/iot/v1/devices/batch/delete|DeviceService|BatchDeleteDevices' \
+  '74|BatchBindDevices|POST|/iot/v1/devices/batch/bind|DeviceService|BatchBindDevices' \
+; do
+  IFS='|' read -r ID NAME METHOD URI SVC METHOD_NAME <<< "$ROUTE_DEF"
+  echo "Creating IoT route ${ID}: ${NAME} (${METHOD} ${URI})"
+  curl -sf "${APISIX_ADMIN}/routes/${ID}" \
+    -H "X-API-KEY: ${API_KEY}" \
+    -X PUT \
+    -d "{
+      \"name\": \"iot-${NAME}\",
+      \"methods\": [\"${METHOD}\"],
+      \"uri\": \"${URI}\",
+      \"upstream_id\": \"1\",
+      \"plugins\": {
+        \"jwt-auth\": { \"store_in_ctx\": true },
+        \"serverless-pre-function\": {
+          \"phase\": \"access\",
+          \"functions\": [\"'${JWT_INJECT}'\"]
+        },
+        \"grpc-transcode\": {
+          \"proto_id\": \"1\",
+          \"service\": \"parkhub.iot.v1.${SVC}\",
+          \"method\": \"${METHOD_NAME}\",
+          \"pb_option\": [\"enum_as_name\", \"int64_as_number\"]
+        },
+        \"opentelemetry\": { \"sampler\": { \"name\": \"always_on\" } },
+        \"prometheus\": {}
+      }
+    }" && echo ""
+done
+
+echo "APISIX IoT DeviceService routes configuration complete"

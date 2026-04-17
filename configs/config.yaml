@@ -17,6 +17,13 @@ parking_database:
   password: parkhub
   dbname: parkhub_parking
 
+iot_database:
+  host: localhost
+  port: 3306
+  user: parkhub
+  password: parkhub
+  dbname: parkhub_iot
+
 auth:
   issuer: parkhub
   access_ttl: 15m
