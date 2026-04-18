@@ -198,7 +198,7 @@ func (s *authService) generateTokenPair(ctx context.Context, user *domain.User) 
 		return nil, err
 	}
 
-	if err := s.refreshRepo.Save(ctx, refreshJTI, user.ID, s.refreshTTL); err != nil {
+	if err := s.refreshRepo.Save(context.WithoutCancel(ctx), refreshJTI, user.ID, s.refreshTTL); err != nil {
 		return nil, err
 	}
 
