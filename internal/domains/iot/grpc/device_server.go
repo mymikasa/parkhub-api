@@ -42,6 +42,9 @@ func (s *DeviceGRPCServer) CreateDevice(ctx context.Context, req *iotv1.CreateDe
 	if req.GetId() == "" {
 		return nil, status.Error(codes.InvalidArgument, "device id is required")
 	}
+	if req.GetType() == iotv1.DeviceType_DEVICE_TYPE_UNSPECIFIED {
+		return nil, status.Error(codes.InvalidArgument, "device type is required")
+	}
 
 	d, err := s.svc.Create(ctx, &service.CreateDeviceRequest{
 		TenantID:        tenantID,
@@ -60,6 +63,9 @@ func (s *DeviceGRPCServer) GetDevice(ctx context.Context, req *iotv1.GetDeviceRe
 	tenantID, err := extractTenantID(ctx)
 	if err != nil {
 		return nil, err
+	}
+	if req.GetId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "device id is required")
 	}
 
 	d, err := s.svc.GetByID(ctx, &service.GetDeviceRequest{TenantID: tenantID, ID: req.GetId()})
@@ -119,6 +125,9 @@ func (s *DeviceGRPCServer) UpdateDeviceName(ctx context.Context, req *iotv1.Upda
 	if err != nil {
 		return nil, err
 	}
+	if req.GetId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "device id is required")
+	}
 
 	d, err := s.svc.UpdateName(ctx, &service.UpdateDeviceNameRequest{TenantID: tenantID, ID: req.GetId(), Name: req.GetName()})
 	if err != nil {
@@ -131,6 +140,9 @@ func (s *DeviceGRPCServer) BindDevice(ctx context.Context, req *iotv1.BindDevice
 	tenantID, err := extractTenantID(ctx)
 	if err != nil {
 		return nil, err
+	}
+	if req.GetId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "device id is required")
 	}
 
 	d, err := s.svc.Bind(ctx, &service.BindDeviceRequest{
@@ -150,6 +162,9 @@ func (s *DeviceGRPCServer) UnbindDevice(ctx context.Context, req *iotv1.UnbindDe
 	if err != nil {
 		return nil, err
 	}
+	if req.GetId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "device id is required")
+	}
 
 	d, err := s.svc.Unbind(ctx, &service.UnbindDeviceRequest{TenantID: tenantID, ID: req.GetId()})
 	if err != nil {
@@ -162,6 +177,9 @@ func (s *DeviceGRPCServer) DisableDevice(ctx context.Context, req *iotv1.Disable
 	tenantID, err := extractTenantID(ctx)
 	if err != nil {
 		return nil, err
+	}
+	if req.GetId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "device id is required")
 	}
 
 	d, err := s.svc.Disable(ctx, &service.ChangeDeviceStatusRequest{TenantID: tenantID, ID: req.GetId()})
@@ -176,6 +194,9 @@ func (s *DeviceGRPCServer) EnableDevice(ctx context.Context, req *iotv1.EnableDe
 	if err != nil {
 		return nil, err
 	}
+	if req.GetId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "device id is required")
+	}
 
 	d, err := s.svc.Enable(ctx, &service.ChangeDeviceStatusRequest{TenantID: tenantID, ID: req.GetId()})
 	if err != nil {
@@ -188,6 +209,9 @@ func (s *DeviceGRPCServer) DeleteDevice(ctx context.Context, req *iotv1.DeleteDe
 	tenantID, err := extractTenantID(ctx)
 	if err != nil {
 		return nil, err
+	}
+	if req.GetId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "device id is required")
 	}
 
 	if err := s.svc.Delete(ctx, &service.DeleteDeviceRequest{TenantID: tenantID, ID: req.GetId()}); err != nil {
@@ -202,10 +226,11 @@ func (s *DeviceGRPCServer) BatchDisableDevices(ctx context.Context, req *iotv1.B
 		return nil, err
 	}
 
-	if err := s.svc.BatchDisable(ctx, &service.BatchChangeDeviceStatusRequest{TenantID: tenantID, IDs: req.GetIds()}); err != nil {
+	affected, err := s.svc.BatchDisable(ctx, &service.BatchChangeDeviceStatusRequest{TenantID: tenantID, IDs: req.GetIds()})
+	if err != nil {
 		return nil, toDeviceGRPCError(err)
 	}
-	return &iotv1.BatchDisableDevicesResponse{Affected: int32(len(req.GetIds()))}, nil
+	return &iotv1.BatchDisableDevicesResponse{Affected: int32(affected)}, nil
 }
 
 func (s *DeviceGRPCServer) BatchEnableDevices(ctx context.Context, req *iotv1.BatchEnableDevicesRequest) (*iotv1.BatchEnableDevicesResponse, error) {
@@ -214,10 +239,11 @@ func (s *DeviceGRPCServer) BatchEnableDevices(ctx context.Context, req *iotv1.Ba
 		return nil, err
 	}
 
-	if err := s.svc.BatchEnable(ctx, &service.BatchChangeDeviceStatusRequest{TenantID: tenantID, IDs: req.GetIds()}); err != nil {
+	affected, err := s.svc.BatchEnable(ctx, &service.BatchChangeDeviceStatusRequest{TenantID: tenantID, IDs: req.GetIds()})
+	if err != nil {
 		return nil, toDeviceGRPCError(err)
 	}
-	return &iotv1.BatchEnableDevicesResponse{Affected: int32(len(req.GetIds()))}, nil
+	return &iotv1.BatchEnableDevicesResponse{Affected: int32(affected)}, nil
 }
 
 func (s *DeviceGRPCServer) BatchDeleteDevices(ctx context.Context, req *iotv1.BatchDeleteDevicesRequest) (*iotv1.BatchDeleteDevicesResponse, error) {
@@ -226,10 +252,11 @@ func (s *DeviceGRPCServer) BatchDeleteDevices(ctx context.Context, req *iotv1.Ba
 		return nil, err
 	}
 
-	if err := s.svc.BatchDelete(ctx, &service.BatchDeleteDeviceRequest{TenantID: tenantID, IDs: req.GetIds()}); err != nil {
+	affected, err := s.svc.BatchDelete(ctx, &service.BatchDeleteDeviceRequest{TenantID: tenantID, IDs: req.GetIds()})
+	if err != nil {
 		return nil, toDeviceGRPCError(err)
 	}
-	return &iotv1.BatchDeleteDevicesResponse{Affected: int32(len(req.GetIds()))}, nil
+	return &iotv1.BatchDeleteDevicesResponse{Affected: int32(affected)}, nil
 }
 
 func (s *DeviceGRPCServer) BatchBindDevices(ctx context.Context, req *iotv1.BatchBindDevicesRequest) (*iotv1.BatchBindDevicesResponse, error) {
@@ -247,10 +274,11 @@ func (s *DeviceGRPCServer) BatchBindDevices(ctx context.Context, req *iotv1.Batc
 		})
 	}
 
-	if err := s.svc.BatchBind(ctx, &service.BatchBindDeviceRequest{TenantID: tenantID, Bindings: bindings}); err != nil {
+	affected, err := s.svc.BatchBind(ctx, &service.BatchBindDeviceRequest{TenantID: tenantID, Bindings: bindings})
+	if err != nil {
 		return nil, toDeviceGRPCError(err)
 	}
-	return &iotv1.BatchBindDevicesResponse{Affected: int32(len(bindings))}, nil
+	return &iotv1.BatchBindDevicesResponse{Affected: int32(affected)}, nil
 }
 
 func (s *DeviceGRPCServer) GetDeviceStats(ctx context.Context, req *iotv1.GetDeviceStatsRequest) (*iotv1.GetDeviceStatsResponse, error) {

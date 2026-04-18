@@ -9,6 +9,7 @@ import (
 //go:generate mockgen -source=./interface.go -package=repomocks -destination=./mocks/device_repo.mock.go DeviceRepo
 
 type DeviceRepo interface {
+	Transaction(ctx context.Context, fn func(repo DeviceRepo) error) error
 	Create(ctx context.Context, device *domain.Device) error
 	GetByID(ctx context.Context, tenantID, id string) (*domain.Device, error)
 	List(ctx context.Context, filter DeviceFilter, page, pageSize int) ([]*domain.Device, int64, error)

@@ -134,6 +134,20 @@ func (mr *MockDeviceRepoMockRecorder) List(ctx, filter, page, pageSize any) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockDeviceRepo)(nil).List), ctx, filter, page, pageSize)
 }
 
+// Transaction mocks base method.
+func (m *MockDeviceRepo) Transaction(ctx context.Context, fn func(repository.DeviceRepo) error) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Transaction", ctx, fn)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Transaction indicates an expected call of Transaction.
+func (mr *MockDeviceRepoMockRecorder) Transaction(ctx, fn any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Transaction", reflect.TypeOf((*MockDeviceRepo)(nil).Transaction), ctx, fn)
+}
+
 // UnbindByDeviceIDs mocks base method.
 func (m *MockDeviceRepo) UnbindByDeviceIDs(ctx context.Context, tenantID string, ids []string) error {
 	m.ctrl.T.Helper()

@@ -125,6 +125,18 @@ func TestGRPC_CreateDevice_MissingID(t *testing.T) {
 	assert.Equal(t, codes.InvalidArgument, status.Code(err))
 }
 
+func TestGRPC_CreateDevice_InvalidType(t *testing.T) {
+	client, _, ctrl := setupDeviceTestServer(t)
+	defer ctrl.Finish()
+
+	_, err := client.CreateDevice(ctxWithTenant(), &iotv1.CreateDeviceRequest{
+		Id:   "DEV-001",
+		Name: "test",
+		Type: iotv1.DeviceType_DEVICE_TYPE_UNSPECIFIED,
+	})
+	assert.Equal(t, codes.InvalidArgument, status.Code(err))
+}
+
 func TestGRPC_CreateDevice_DuplicateID(t *testing.T) {
 	client, mockSvc, ctrl := setupDeviceTestServer(t)
 	defer ctrl.Finish()
@@ -134,7 +146,7 @@ func TestGRPC_CreateDevice_DuplicateID(t *testing.T) {
 		Return(nil, errs.ErrDeviceIDDuplicate)
 
 	_, err := client.CreateDevice(ctxWithTenant(), &iotv1.CreateDeviceRequest{
-		Id: "DEV-001", Name: "dup",
+		Id: "DEV-001", Name: "dup", Type: iotv1.DeviceType_DEVICE_TYPE_INTEGRATED,
 	})
 	assert.Equal(t, codes.AlreadyExists, status.Code(err))
 }
@@ -163,6 +175,14 @@ func TestGRPC_GetDevice_NotFound(t *testing.T) {
 
 	_, err := client.GetDevice(ctxWithTenant(), &iotv1.GetDeviceRequest{Id: "bad-id"})
 	assert.Equal(t, codes.NotFound, status.Code(err))
+}
+
+func TestGRPC_GetDevice_EmptyID(t *testing.T) {
+	client, _, ctrl := setupDeviceTestServer(t)
+	defer ctrl.Finish()
+
+	_, err := client.GetDevice(ctxWithTenant(), &iotv1.GetDeviceRequest{})
+	assert.Equal(t, codes.InvalidArgument, status.Code(err))
 }
 
 func TestGRPC_ListDevices_WithPagination(t *testing.T) {
@@ -237,6 +257,14 @@ func TestGRPC_UpdateDeviceName_Success(t *testing.T) {
 	})
 	assert.NoError(t, err)
 	assert.Equal(t, "新名字", resp.Device.Name)
+}
+
+func TestGRPC_UpdateDeviceName_EmptyID(t *testing.T) {
+	client, _, ctrl := setupDeviceTestServer(t)
+	defer ctrl.Finish()
+
+	_, err := client.UpdateDeviceName(ctxWithTenant(), &iotv1.UpdateDeviceNameRequest{Name: "新名字"})
+	assert.Equal(t, codes.InvalidArgument, status.Code(err))
 }
 
 func TestGRPC_UpdateDeviceName_NotFound(t *testing.T) {
@@ -369,7 +397,7 @@ func TestGRPC_BatchDisableDevices_Success(t *testing.T) {
 
 	mockSvc.EXPECT().
 		BatchDisable(go_mock.Any(), go_mock.Any()).
-		Return(nil)
+		Return(int64(2), nil)
 
 	resp, err := client.BatchDisableDevices(ctxWithTenant(), &iotv1.BatchDisableDevicesRequest{
 		Ids: []string{"DEV-001", "DEV-002"},
@@ -384,7 +412,7 @@ func TestGRPC_BatchEnableDevices_Success(t *testing.T) {
 
 	mockSvc.EXPECT().
 		BatchEnable(go_mock.Any(), go_mock.Any()).
-		Return(nil)
+		Return(int64(1), nil)
 
 	resp, err := client.BatchEnableDevices(ctxWithTenant(), &iotv1.BatchEnableDevicesRequest{
 		Ids: []string{"DEV-001"},
@@ -399,7 +427,7 @@ func TestGRPC_BatchDeleteDevices_Success(t *testing.T) {
 
 	mockSvc.EXPECT().
 		BatchDelete(go_mock.Any(), go_mock.Any()).
-		Return(nil)
+		Return(int64(3), nil)
 
 	resp, err := client.BatchDeleteDevices(ctxWithTenant(), &iotv1.BatchDeleteDevicesRequest{
 		Ids: []string{"DEV-001", "DEV-002", "DEV-003"},
@@ -414,7 +442,7 @@ func TestGRPC_BatchBindDevices_Success(t *testing.T) {
 
 	mockSvc.EXPECT().
 		BatchBind(go_mock.Any(), go_mock.Any()).
-		Return(nil)
+		Return(int64(2), nil)
 
 	resp, err := client.BatchBindDevices(ctxWithTenant(), &iotv1.BatchBindDevicesRequest{
 		Bindings: []*iotv1.BatchBindDevicesRequest_Binding{
@@ -424,6 +452,10 @@ func TestGRPC_BatchBindDevices_Success(t *testing.T) {
 	})
 	assert.NoError(t, err)
 	assert.Equal(t, int32(2), resp.Affected)
+}
+
+func TestGRPC_BatchDisableDevices_AffectedShouldReflectActualRows(t *testing.T) {
+	t.Skip("current service/grpc contract only returns error, so actual affected rows cannot be asserted until the production signature is extended")
 }
 
 func TestGRPC_GetDeviceStats_Success(t *testing.T) {

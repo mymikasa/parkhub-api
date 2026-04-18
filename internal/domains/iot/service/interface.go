@@ -18,10 +18,10 @@ type DeviceService interface {
 	Disable(ctx context.Context, req *ChangeDeviceStatusRequest) (*domain.Device, error)
 	Enable(ctx context.Context, req *ChangeDeviceStatusRequest) (*domain.Device, error)
 	Delete(ctx context.Context, req *DeleteDeviceRequest) error
-	BatchDisable(ctx context.Context, req *BatchChangeDeviceStatusRequest) error
-	BatchEnable(ctx context.Context, req *BatchChangeDeviceStatusRequest) error
-	BatchDelete(ctx context.Context, req *BatchDeleteDeviceRequest) error
-	BatchBind(ctx context.Context, req *BatchBindDeviceRequest) error
+	BatchDisable(ctx context.Context, req *BatchChangeDeviceStatusRequest) (int64, error)
+	BatchEnable(ctx context.Context, req *BatchChangeDeviceStatusRequest) (int64, error)
+	BatchDelete(ctx context.Context, req *BatchDeleteDeviceRequest) (int64, error)
+	BatchBind(ctx context.Context, req *BatchBindDeviceRequest) (int64, error)
 	GetStats(ctx context.Context, tenantID string) (*DeviceStatsResponse, error)
 	SendCommand(ctx context.Context, tenantID, deviceID, action string) (*CommandResponse, error)
 }

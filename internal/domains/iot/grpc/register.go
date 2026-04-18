@@ -12,7 +12,7 @@ import (
 
 func RegisterServices(reg *registry.Registry, db *gorm.DB) {
 	deviceDAO := dao.NewDeviceDAO(db)
-	deviceRepo := repository.NewDeviceRepo(deviceDAO)
+	deviceRepo := repository.NewDeviceRepo(deviceDAO, db)
 	deviceSvc := service.NewDeviceService(deviceRepo)
 
 	reg.MustRegister("iot.v1.DeviceService", func(s *grpc.Server) {

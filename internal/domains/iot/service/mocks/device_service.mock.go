@@ -43,11 +43,12 @@ func (m *MockDeviceService) EXPECT() *MockDeviceServiceMockRecorder {
 }
 
 // BatchBind mocks base method.
-func (m *MockDeviceService) BatchBind(ctx context.Context, req *service.BatchBindDeviceRequest) error {
+func (m *MockDeviceService) BatchBind(ctx context.Context, req *service.BatchBindDeviceRequest) (int64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BatchBind", ctx, req)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // BatchBind indicates an expected call of BatchBind.
@@ -57,11 +58,12 @@ func (mr *MockDeviceServiceMockRecorder) BatchBind(ctx, req any) *gomock.Call {
 }
 
 // BatchDelete mocks base method.
-func (m *MockDeviceService) BatchDelete(ctx context.Context, req *service.BatchDeleteDeviceRequest) error {
+func (m *MockDeviceService) BatchDelete(ctx context.Context, req *service.BatchDeleteDeviceRequest) (int64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BatchDelete", ctx, req)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // BatchDelete indicates an expected call of BatchDelete.
@@ -71,11 +73,12 @@ func (mr *MockDeviceServiceMockRecorder) BatchDelete(ctx, req any) *gomock.Call 
 }
 
 // BatchDisable mocks base method.
-func (m *MockDeviceService) BatchDisable(ctx context.Context, req *service.BatchChangeDeviceStatusRequest) error {
+func (m *MockDeviceService) BatchDisable(ctx context.Context, req *service.BatchChangeDeviceStatusRequest) (int64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BatchDisable", ctx, req)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // BatchDisable indicates an expected call of BatchDisable.
@@ -85,11 +88,12 @@ func (mr *MockDeviceServiceMockRecorder) BatchDisable(ctx, req any) *gomock.Call
 }
 
 // BatchEnable mocks base method.
-func (m *MockDeviceService) BatchEnable(ctx context.Context, req *service.BatchChangeDeviceStatusRequest) error {
+func (m *MockDeviceService) BatchEnable(ctx context.Context, req *service.BatchChangeDeviceStatusRequest) (int64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BatchEnable", ctx, req)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // BatchEnable indicates an expected call of BatchEnable.

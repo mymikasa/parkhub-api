@@ -6,14 +6,23 @@ import (
 
 	"github.com/parkhub/api/internal/domains/iot/domain"
 	"github.com/parkhub/api/internal/domains/iot/repository/dao"
+	"gorm.io/gorm"
 )
 
 type deviceRepo struct {
 	dao dao.DeviceDAO
+	db  *gorm.DB
 }
 
-func NewDeviceRepo(d dao.DeviceDAO) DeviceRepo {
-	return &deviceRepo{dao: d}
+func NewDeviceRepo(d dao.DeviceDAO, db *gorm.DB) DeviceRepo {
+	return &deviceRepo{dao: d, db: db}
+}
+
+func (r *deviceRepo) Transaction(ctx context.Context, fn func(DeviceRepo) error) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		txRepo := &deviceRepo{dao: dao.NewDeviceDAO(tx), db: tx}
+		return fn(txRepo)
+	})
 }
 
 func (r *deviceRepo) Create(ctx context.Context, device *domain.Device) error {

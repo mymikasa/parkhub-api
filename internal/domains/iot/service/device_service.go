@@ -146,39 +146,93 @@ func (s *deviceService) Delete(ctx context.Context, req *DeleteDeviceRequest) er
 	return s.repo.Delete(ctx, req.TenantID, req.ID)
 }
 
-func (s *deviceService) BatchDisable(ctx context.Context, req *BatchChangeDeviceStatusRequest) error {
-	_, err := s.repo.UpdateStatusBatch(ctx, req.TenantID, req.IDs, string(domain.DeviceStatusDisabled))
-	return err
+func (s *deviceService) BatchDisable(ctx context.Context, req *BatchChangeDeviceStatusRequest) (int64, error) {
+	var affected int64
+	err := s.repo.Transaction(ctx, func(txRepo repository.DeviceRepo) error {
+		for _, id := range req.IDs {
+			d, err := txRepo.GetByID(ctx, req.TenantID, id)
+			if err != nil {
+				return err
+			}
+			if err := d.Disable(); err != nil {
+				return err
+			}
+			if err := txRepo.Update(ctx, d); err != nil {
+				return err
+			}
+			affected++
+		}
+		return nil
+	})
+	return affected, err
 }
 
-func (s *deviceService) BatchEnable(ctx context.Context, req *BatchChangeDeviceStatusRequest) error {
-	_, err := s.repo.UpdateStatusBatch(ctx, req.TenantID, req.IDs, string(domain.DeviceStatusActive))
-	return err
+func (s *deviceService) BatchEnable(ctx context.Context, req *BatchChangeDeviceStatusRequest) (int64, error) {
+	var affected int64
+	err := s.repo.Transaction(ctx, func(txRepo repository.DeviceRepo) error {
+		for _, id := range req.IDs {
+			d, err := txRepo.GetByID(ctx, req.TenantID, id)
+			if err != nil {
+				return err
+			}
+			if err := d.Enable(); err != nil {
+				return err
+			}
+			if err := txRepo.Update(ctx, d); err != nil {
+				return err
+			}
+			affected++
+		}
+		return nil
+	})
+	return affected, err
 }
 
-func (s *deviceService) BatchDelete(ctx context.Context, req *BatchDeleteDeviceRequest) error {
-	if err := s.repo.UnbindByDeviceIDs(ctx, req.TenantID, req.IDs); err != nil {
-		return err
-	}
-	_, err := s.repo.DeleteBatch(ctx, req.TenantID, req.IDs)
-	return err
+func (s *deviceService) BatchDelete(ctx context.Context, req *BatchDeleteDeviceRequest) (int64, error) {
+	var affected int64
+	err := s.repo.Transaction(ctx, func(txRepo repository.DeviceRepo) error {
+		for _, id := range req.IDs {
+			d, err := txRepo.GetByID(ctx, req.TenantID, id)
+			if err != nil {
+				return err
+			}
+			if d.IsBound() {
+				return errs.ErrDeviceMustUnbind
+			}
+			if err := txRepo.Delete(ctx, req.TenantID, id); err != nil {
+				return err
+			}
+			affected++
+		}
+		return nil
+	})
+	return affected, err
 }
 
-func (s *deviceService) BatchBind(ctx context.Context, req *BatchBindDeviceRequest) error {
-	for _, b := range req.Bindings {
-		d, err := s.repo.GetByID(ctx, req.TenantID, b.ID)
-		if err != nil {
-			return err
+func (s *deviceService) BatchBind(ctx context.Context, req *BatchBindDeviceRequest) (int64, error) {
+	var affected int64
+	err := s.repo.Transaction(ctx, func(txRepo repository.DeviceRepo) error {
+		devices := make([]*domain.Device, 0, len(req.Bindings))
+		for _, b := range req.Bindings {
+			d, err := txRepo.GetByID(ctx, req.TenantID, b.ID)
+			if err != nil {
+				return err
+			}
+			d.TenantID = req.TenantID
+			if err := d.Bind(b.ParkingLotID, b.GateID); err != nil {
+				return err
+			}
+			devices = append(devices, d)
 		}
-		d.TenantID = req.TenantID
-		if err := d.Bind(b.ParkingLotID, b.GateID); err != nil {
-			return err
+		for _, d := range devices {
+			if err := txRepo.Update(ctx, d); err != nil {
+				return err
+			}
+			affected++
 		}
-		if err := s.repo.Update(ctx, d); err != nil {
-			return err
-		}
-	}
-	return nil
+		return nil
+	})
+	return affected, err
 }
 
 func (s *deviceService) GetStats(ctx context.Context, tenantID string) (*DeviceStatsResponse, error) {

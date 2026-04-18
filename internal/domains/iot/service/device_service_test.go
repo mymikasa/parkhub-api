@@ -6,6 +6,7 @@ import (
 
 	"github.com/parkhub/api/internal/domains/iot/domain"
 	"github.com/parkhub/api/internal/domains/iot/errs"
+	"github.com/parkhub/api/internal/domains/iot/repository"
 	repomocks "github.com/parkhub/api/internal/domains/iot/repository/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -193,15 +194,42 @@ func TestDeviceService_SendCommand_Offline(t *testing.T) {
 	assert.ErrorIs(t, err, errs.ErrDeviceOffline)
 }
 
+func setupTxExpectation(repo *repomocks.MockDeviceRepo) {
+	repo.EXPECT().Transaction(go_mock.Any(), go_mock.Any()).DoAndReturn(func(ctx context.Context, fn func(repository.DeviceRepo) error) error {
+		return fn(repo)
+	})
+}
+
 func TestDeviceService_BatchDisable(t *testing.T) {
 	ctrl := go_mock.NewController(t)
 	defer ctrl.Finish()
 	svc, repo := newTestSvc(ctrl)
 
-	repo.EXPECT().UpdateStatusBatch(go_mock.Any(), "t1", []string{"DEV-001", "DEV-002"}, "disabled").Return(int64(2), nil)
+	setupTxExpectation(repo)
+	repo.EXPECT().GetByID(go_mock.Any(), "t1", "DEV-001").Return(&domain.Device{ID: "DEV-001", Status: domain.DeviceStatusActive}, nil)
+	repo.EXPECT().Update(go_mock.Any(), go_mock.Any()).Return(nil)
+	repo.EXPECT().GetByID(go_mock.Any(), "t1", "DEV-002").Return(&domain.Device{ID: "DEV-002", Status: domain.DeviceStatusActive}, nil)
+	repo.EXPECT().Update(go_mock.Any(), go_mock.Any()).Return(nil)
 
-	err := svc.BatchDisable(context.Background(), &BatchChangeDeviceStatusRequest{TenantID: "t1", IDs: []string{"DEV-001", "DEV-002"}})
+	affected, err := svc.BatchDisable(context.Background(), &BatchChangeDeviceStatusRequest{TenantID: "t1", IDs: []string{"DEV-001", "DEV-002"}})
 	assert.NoError(t, err)
+	assert.Equal(t, int64(2), affected)
+}
+
+func TestDeviceService_BatchDisable_AlreadyDisabledShouldFail(t *testing.T) {
+	ctrl := go_mock.NewController(t)
+	defer ctrl.Finish()
+	svc, repo := newTestSvc(ctrl)
+
+	setupTxExpectation(repo)
+	repo.EXPECT().GetByID(go_mock.Any(), "t1", "DEV-001").Return(&domain.Device{
+		ID:     "DEV-001",
+		Status: domain.DeviceStatusDisabled,
+	}, nil)
+
+	affected, err := svc.BatchDisable(context.Background(), &BatchChangeDeviceStatusRequest{TenantID: "t1", IDs: []string{"DEV-001"}})
+	assert.Error(t, err)
+	assert.Equal(t, int64(0), affected)
 }
 
 func TestDeviceService_BatchDelete(t *testing.T) {
@@ -209,9 +237,51 @@ func TestDeviceService_BatchDelete(t *testing.T) {
 	defer ctrl.Finish()
 	svc, repo := newTestSvc(ctrl)
 
-	repo.EXPECT().UnbindByDeviceIDs(go_mock.Any(), "t1", []string{"DEV-001"}).Return(nil)
-	repo.EXPECT().DeleteBatch(go_mock.Any(), "t1", []string{"DEV-001"}).Return(int64(1), nil)
+	setupTxExpectation(repo)
+	repo.EXPECT().GetByID(go_mock.Any(), "t1", "DEV-001").Return(&domain.Device{ID: "DEV-001"}, nil)
+	repo.EXPECT().Delete(go_mock.Any(), "t1", "DEV-001").Return(nil)
 
-	err := svc.BatchDelete(context.Background(), &BatchDeleteDeviceRequest{TenantID: "t1", IDs: []string{"DEV-001"}})
+	affected, err := svc.BatchDelete(context.Background(), &BatchDeleteDeviceRequest{TenantID: "t1", IDs: []string{"DEV-001"}})
 	require.NoError(t, err)
+	assert.Equal(t, int64(1), affected)
+}
+
+func TestDeviceService_BatchDelete_BoundDeviceShouldFailLikeSingleDelete(t *testing.T) {
+	ctrl := go_mock.NewController(t)
+	defer ctrl.Finish()
+	svc, repo := newTestSvc(ctrl)
+
+	setupTxExpectation(repo)
+	lotID := "lot-1"
+	repo.EXPECT().GetByID(go_mock.Any(), "t1", "DEV-001").Return(&domain.Device{
+		ID:           "DEV-001",
+		ParkingLotID: &lotID,
+	}, nil)
+
+	affected, err := svc.BatchDelete(context.Background(), &BatchDeleteDeviceRequest{TenantID: "t1", IDs: []string{"DEV-001"}})
+	assert.ErrorIs(t, err, errs.ErrDeviceMustUnbind)
+	assert.Equal(t, int64(0), affected)
+}
+
+func TestDeviceService_BatchBind_ShouldValidateAllBeforeMutating(t *testing.T) {
+	ctrl := go_mock.NewController(t)
+	defer ctrl.Finish()
+	svc, repo := newTestSvc(ctrl)
+
+	setupTxExpectation(repo)
+	repo.EXPECT().GetByID(go_mock.Any(), "t1", "DEV-001").Return(&domain.Device{
+		ID:     "DEV-001",
+		Status: domain.DeviceStatusPending,
+	}, nil)
+	repo.EXPECT().GetByID(go_mock.Any(), "t1", "DEV-404").Return(nil, errs.ErrDeviceNotFound)
+
+	affected, err := svc.BatchBind(context.Background(), &BatchBindDeviceRequest{
+		TenantID: "t1",
+		Bindings: []Binding{
+			{ID: "DEV-001", ParkingLotID: "lot-1", GateID: "gate-1"},
+			{ID: "DEV-404", ParkingLotID: "lot-2", GateID: "gate-2"},
+		},
+	})
+	assert.ErrorIs(t, err, errs.ErrDeviceNotFound)
+	assert.Equal(t, int64(0), affected)
 }
