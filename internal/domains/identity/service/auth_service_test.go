@@ -21,6 +21,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type testContextKey string
+
 func loadTestSigner(t *testing.T) *domain.RS256Signer {
 	t.Helper()
 	key, err := rsa.GenerateKey(rand.Reader, 2048)
@@ -179,6 +181,32 @@ func TestAuthService_Login_RefreshTokenHasMinimalClaims(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, domain.TokenUseRefresh, claims.TokenUse)
 	assert.NotEmpty(t, claims.ID)
+}
+
+func TestAuthService_Login_SaveRefreshTokenUsesContextWithoutCancelSemantics(t *testing.T) {
+	svc, mockUserRepo, mockRefreshRepo, _ := setupAuthService(t)
+	baseCtx := context.WithValue(context.Background(), testContextKey("trace_id"), "trace-123")
+	deadline := time.Now().Add(30 * time.Second)
+	ctx, cancel := context.WithDeadline(baseCtx, deadline)
+	defer cancel()
+
+	user := newTestUser()
+	user.PasswordHash = hashedPassword(t, "password123")
+
+	mockUserRepo.EXPECT().GetByUsername(gomock.Any(), "admin").Return(user, nil)
+	mockRefreshRepo.EXPECT().
+		Save(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+		DoAndReturn(func(ctx context.Context, _ string, _ string, _ time.Duration) error {
+			gotDeadline, ok := ctx.Deadline()
+			assert.False(t, ok, "context.WithoutCancel should remove request deadline")
+			assert.True(t, gotDeadline.IsZero())
+			assert.Equal(t, "trace-123", ctx.Value(testContextKey("trace_id")))
+			return nil
+		})
+	mockUserRepo.EXPECT().Update(gomock.Any(), gomock.Any()).Return(nil)
+
+	_, err := svc.Login(ctx, &LoginRequest{Username: "admin", Password: "password123"})
+	require.NoError(t, err)
 }
 
 func TestAuthService_RefreshToken_Success(t *testing.T) {
