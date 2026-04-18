@@ -104,7 +104,7 @@ generate-keys:
 		echo "RSA keys already exist in configs/keys/"; \
 	fi
 
-docker-up: generate-keys
+docker-up: generate-keys docker-build
 	$(DOCKER_COMPOSE) up -d
 
 docker-down:

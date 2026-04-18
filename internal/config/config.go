@@ -14,6 +14,7 @@ type Config struct {
 	Server          ServerConfig    `yaml:"server"`
 	Database        DatabaseConfig  `yaml:"database"`
 	ParkingDatabase DatabaseConfig  `yaml:"parking_database"`
+	IoTDatabase     DatabaseConfig  `yaml:"iot_database"`
 	Redis           RedisConfig     `yaml:"redis"`
 	Auth            AuthConfig      `yaml:"auth"`
 	Telemetry       TelemetryConfig `yaml:"telemetry"`
@@ -92,6 +93,13 @@ func Default() Config {
 			User:     "parkhub",
 			Password: "parkhub",
 			DBName:   "parkhub_parking",
+		},
+		IoTDatabase: DatabaseConfig{
+			Host:     "localhost",
+			Port:     3306,
+			User:     "parkhub",
+			Password: "parkhub",
+			DBName:   "parkhub_iot",
 		},
 		Redis: RedisConfig{
 			Addr: "localhost:6379",
@@ -202,6 +210,24 @@ func applyEnvOverrides(cfg *Config) {
 	}
 	if v := os.Getenv("PARKING_DB_NAME"); v != "" {
 		cfg.ParkingDatabase.DBName = v
+	}
+	if v := os.Getenv("IOT_DATABASE_URL"); v != "" {
+		cfg.IoTDatabase.URL = v
+	}
+	if v := os.Getenv("IOT_DB_HOST"); v != "" {
+		cfg.IoTDatabase.Host = v
+	}
+	if v := os.Getenv("IOT_DB_PORT"); v != "" {
+		cfg.IoTDatabase.Port = mustInt(v, cfg.IoTDatabase.Port)
+	}
+	if v := os.Getenv("IOT_DB_USER"); v != "" {
+		cfg.IoTDatabase.User = v
+	}
+	if v := os.Getenv("IOT_DB_PASSWORD"); v != "" {
+		cfg.IoTDatabase.Password = v
+	}
+	if v := os.Getenv("IOT_DB_NAME"); v != "" {
+		cfg.IoTDatabase.DBName = v
 	}
 	if v := os.Getenv("REDIS_ADDR"); v != "" {
 		cfg.Redis.Addr = v

@@ -10,3 +10,5 @@ scripts/
 *.md
 LICENSE
 monolith
+parkhub-web/
+package.json

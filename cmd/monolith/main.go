@@ -16,6 +16,8 @@ import (
 	identitygrpc "github.com/parkhub/api/internal/domains/identity/grpc"
 	"github.com/parkhub/api/internal/domains/identity/repository/dao"
 	identityservice "github.com/parkhub/api/internal/domains/identity/service"
+	iotgrpc "github.com/parkhub/api/internal/domains/iot/grpc"
+	iotdao "github.com/parkhub/api/internal/domains/iot/repository/dao"
 	parkinggrpc "github.com/parkhub/api/internal/domains/parking/grpc"
 	parkingdao "github.com/parkhub/api/internal/domains/parking/repository/dao"
 	smsdomain "github.com/parkhub/api/internal/domains/sms/domain"
@@ -121,6 +123,15 @@ func run() error {
 	parkingLotCounter := newParkingLotCounter(parkingDB)
 	identitygrpc.RegisterServices(reg, db, rdb, cfg.Auth, smsVerifyFn, parkingLotCounter)
 	parkinggrpc.RegisterServices(reg, parkingDB)
+
+	iotDB, err := gorm.Open(mysql.Open(cfg.IoTDatabase.DSN()), &gorm.Config{})
+	if err != nil {
+		return fmt.Errorf("connect iot database: %w", err)
+	}
+	if err := iotDB.AutoMigrate(&iotdao.Device{}); err != nil {
+		return fmt.Errorf("auto migrate iot: %w", err)
+	}
+	iotgrpc.RegisterServices(reg, iotDB)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Server.GRPCPort))
 	if err != nil {

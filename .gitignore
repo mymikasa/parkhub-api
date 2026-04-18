@@ -71,3 +71,6 @@ parkhub-api/internal/gen/
 
 #
 .worktree/
+
+# Frontend project
+parkhub-web/
