@@ -60,7 +60,7 @@ func (s *authService) Login(ctx context.Context, req *LoginRequest) (*LoginRespo
 		return nil, errs.ErrUserFrozen
 	}
 
-	pair, err := s.generateTokenPair(user)
+	pair, err := s.generateTokenPair(ctx, user)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (s *authService) SmsLogin(ctx context.Context, req *SmsLoginRequest) (*Logi
 		return nil, errs.ErrUserFrozen
 	}
 
-	pair, err := s.generateTokenPair(user)
+	pair, err := s.generateTokenPair(ctx, user)
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +140,7 @@ func (s *authService) RefreshToken(ctx context.Context, req *RefreshTokenRequest
 		return nil, errs.ErrUserFrozen
 	}
 
-	pair, err := s.generateTokenPair(user)
+	pair, err := s.generateTokenPair(ctx, user)
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +164,7 @@ func (s *authService) Logout(ctx context.Context, req *LogoutRequest) error {
 	return s.refreshRepo.Revoke(ctx, claims.ID)
 }
 
-func (s *authService) generateTokenPair(user *domain.User) (*domain.TokenPair, error) {
+func (s *authService) generateTokenPair(ctx context.Context, user *domain.User) (*domain.TokenPair, error) {
 	now := time.Now()
 	accessExpiresAt := now.Add(s.accessTTL)
 	refreshExpiresAt := now.Add(s.refreshTTL)
@@ -198,7 +198,6 @@ func (s *authService) generateTokenPair(user *domain.User) (*domain.TokenPair, e
 		return nil, err
 	}
 
-	ctx := context.Background()
 	if err := s.refreshRepo.Save(ctx, refreshJTI, user.ID, s.refreshTTL); err != nil {
 		return nil, err
 	}
