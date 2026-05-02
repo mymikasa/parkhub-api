@@ -26,6 +26,8 @@ type ParkingLot struct {
 	AvailableSpaces int
 	LotType         LotType
 	Status          ParkingLotStatus
+	EntryCount      int
+	ExitCount       int
 	CreatedAt       int64
 	UpdatedAt       int64
 }

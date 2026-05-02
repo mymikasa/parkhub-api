@@ -30,7 +30,7 @@ func newTestParkingLot(tenantID, id string) *domain.ParkingLot {
 func TestParkingLotService_Create(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockRepo := repomocks.NewMockParkingLotRepo(ctrl)
-	svc := NewParkingLotService(mockRepo)
+	svc := NewParkingLotService(mockRepo, nil)
 	ctx := context.Background()
 
 	mockRepo.EXPECT().Create(ctx, gomock.Any()).Return(nil)
@@ -55,7 +55,7 @@ func TestParkingLotService_Create(t *testing.T) {
 func TestParkingLotService_Create_DuplicateName(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockRepo := repomocks.NewMockParkingLotRepo(ctrl)
-	svc := NewParkingLotService(mockRepo)
+	svc := NewParkingLotService(mockRepo, nil)
 	ctx := context.Background()
 
 	mockRepo.EXPECT().Create(ctx, gomock.Any()).Return(errs.ErrParkingLotNameDuplicate)
@@ -69,7 +69,7 @@ func TestParkingLotService_Create_DuplicateName(t *testing.T) {
 func TestParkingLotService_GetByID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockRepo := repomocks.NewMockParkingLotRepo(ctrl)
-	svc := NewParkingLotService(mockRepo)
+	svc := NewParkingLotService(mockRepo, nil)
 	ctx := context.Background()
 
 	expected := newTestParkingLot("tenant-1", "lot-1")
@@ -83,7 +83,7 @@ func TestParkingLotService_GetByID(t *testing.T) {
 func TestParkingLotService_GetByID_NotFound(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockRepo := repomocks.NewMockParkingLotRepo(ctrl)
-	svc := NewParkingLotService(mockRepo)
+	svc := NewParkingLotService(mockRepo, nil)
 	ctx := context.Background()
 
 	mockRepo.EXPECT().GetByID(ctx, "tenant-1", "nonexistent").Return(nil, errs.ErrParkingLotNotFound)
@@ -95,7 +95,7 @@ func TestParkingLotService_GetByID_NotFound(t *testing.T) {
 func TestParkingLotService_List_DefaultPagination(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockRepo := repomocks.NewMockParkingLotRepo(ctrl)
-	svc := NewParkingLotService(mockRepo)
+	svc := NewParkingLotService(mockRepo, nil)
 	ctx := context.Background()
 
 	mockRepo.EXPECT().List(ctx, gomock.Any(), 1, 20).Return([]*domain.ParkingLot{}, int64(0), nil)
@@ -109,7 +109,7 @@ func TestParkingLotService_List_DefaultPagination(t *testing.T) {
 func TestParkingLotService_List_PageSizeCap(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockRepo := repomocks.NewMockParkingLotRepo(ctrl)
-	svc := NewParkingLotService(mockRepo)
+	svc := NewParkingLotService(mockRepo, nil)
 	ctx := context.Background()
 
 	mockRepo.EXPECT().List(ctx, gomock.Any(), 1, 100).Return([]*domain.ParkingLot{}, int64(0), nil)
@@ -122,7 +122,7 @@ func TestParkingLotService_List_PageSizeCap(t *testing.T) {
 func TestParkingLotService_List_TotalPages(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockRepo := repomocks.NewMockParkingLotRepo(ctrl)
-	svc := NewParkingLotService(mockRepo)
+	svc := NewParkingLotService(mockRepo, nil)
 	ctx := context.Background()
 
 	lots := make([]*domain.ParkingLot, 2)
@@ -136,7 +136,7 @@ func TestParkingLotService_List_TotalPages(t *testing.T) {
 func TestParkingLotService_List_FilterConversion(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockRepo := repomocks.NewMockParkingLotRepo(ctrl)
-	svc := NewParkingLotService(mockRepo)
+	svc := NewParkingLotService(mockRepo, nil)
 	ctx := context.Background()
 
 	mockRepo.EXPECT().List(ctx, repository.ParkingLotFilter{
@@ -158,7 +158,7 @@ func TestParkingLotService_List_FilterConversion(t *testing.T) {
 func TestParkingLotService_Update_PartialFields(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockRepo := repomocks.NewMockParkingLotRepo(ctrl)
-	svc := NewParkingLotService(mockRepo)
+	svc := NewParkingLotService(mockRepo, nil)
 	ctx := context.Background()
 
 	existing := newTestParkingLot("tenant-1", "lot-1")
@@ -179,7 +179,7 @@ func TestParkingLotService_Update_PartialFields(t *testing.T) {
 func TestParkingLotService_Update_StatusTransition(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockRepo := repomocks.NewMockParkingLotRepo(ctrl)
-	svc := NewParkingLotService(mockRepo)
+	svc := NewParkingLotService(mockRepo, nil)
 	ctx := context.Background()
 
 	lot := newTestParkingLot("tenant-1", "lot-1")
@@ -199,7 +199,7 @@ func TestParkingLotService_Update_StatusTransition(t *testing.T) {
 func TestParkingLotService_Update_StatusInvalidTransition(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockRepo := repomocks.NewMockParkingLotRepo(ctrl)
-	svc := NewParkingLotService(mockRepo)
+	svc := NewParkingLotService(mockRepo, nil)
 	ctx := context.Background()
 
 	lot := newTestParkingLot("tenant-1", "lot-1")
@@ -218,7 +218,7 @@ func TestParkingLotService_Update_StatusInvalidTransition(t *testing.T) {
 func TestParkingLotService_Update_TotalSpacesAdjustsAvailable(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockRepo := repomocks.NewMockParkingLotRepo(ctrl)
-	svc := NewParkingLotService(mockRepo)
+	svc := NewParkingLotService(mockRepo, nil)
 	ctx := context.Background()
 
 	lot := newTestParkingLot("tenant-1", "lot-1")
@@ -241,7 +241,7 @@ func TestParkingLotService_Update_TotalSpacesAdjustsAvailable(t *testing.T) {
 func TestParkingLotService_Update_TotalSpacesTooSmall(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockRepo := repomocks.NewMockParkingLotRepo(ctrl)
-	svc := NewParkingLotService(mockRepo)
+	svc := NewParkingLotService(mockRepo, nil)
 	ctx := context.Background()
 
 	lot := newTestParkingLot("tenant-1", "lot-1")
@@ -261,7 +261,7 @@ func TestParkingLotService_Update_TotalSpacesTooSmall(t *testing.T) {
 func TestParkingLotService_Delete(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockRepo := repomocks.NewMockParkingLotRepo(ctrl)
-	svc := NewParkingLotService(mockRepo)
+	svc := NewParkingLotService(mockRepo, nil)
 	ctx := context.Background()
 
 	mockRepo.EXPECT().Delete(ctx, "tenant-1", "lot-1").Return(nil)
@@ -273,7 +273,7 @@ func TestParkingLotService_Delete(t *testing.T) {
 func TestParkingLotService_GetStats(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockRepo := repomocks.NewMockParkingLotRepo(ctrl)
-	svc := NewParkingLotService(mockRepo)
+	svc := NewParkingLotService(mockRepo, nil)
 	ctx := context.Background()
 
 	mockRepo.EXPECT().SumStats(ctx, "tenant-1").Return(int64(300), int64(230), nil)
@@ -289,7 +289,7 @@ func TestParkingLotService_GetStats(t *testing.T) {
 func TestParkingLotService_GetStats_Empty(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockRepo := repomocks.NewMockParkingLotRepo(ctrl)
-	svc := NewParkingLotService(mockRepo)
+	svc := NewParkingLotService(mockRepo, nil)
 	ctx := context.Background()
 
 	mockRepo.EXPECT().SumStats(ctx, "tenant-1").Return(int64(0), int64(0), nil)
