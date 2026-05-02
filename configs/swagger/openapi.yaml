@@ -20,6 +20,8 @@ tags:
     description: 租户管理
   - name: ParkingLot
     description: 停车场管理
+  - name: Device
+    description: IoT 设备管理
 
 components:
   parameters:
@@ -38,6 +40,14 @@ components:
       schema:
         type: string
       description: 用户ID
+
+    DeviceId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: 设备ID
 
   schemas:
     PaginationRequest:
@@ -568,6 +578,162 @@ components:
           type: number
           format: double
           description: 平均每租户停车场数
+
+    DeviceType:
+      type: string
+      enum:
+        - DEVICE_TYPE_INTEGRATED
+        - DEVICE_TYPE_CAMERA_ONLY
+        - DEVICE_TYPE_BARRIER_ONLY
+
+    DeviceStatus:
+      type: string
+      enum:
+        - DEVICE_STATUS_PENDING
+        - DEVICE_STATUS_ACTIVE
+        - DEVICE_STATUS_OFFLINE
+        - DEVICE_STATUS_DISABLED
+
+    Device:
+      type: object
+      properties:
+        id:
+          type: string
+        tenant_id:
+          type: string
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/DeviceType'
+        status:
+          $ref: '#/components/schemas/DeviceStatus'
+        firmware_version:
+          type: string
+        last_heartbeat:
+          $ref: '#/components/schemas/Timestamp'
+        parking_lot_id:
+          type: string
+          nullable: true
+        gate_id:
+          type: string
+          nullable: true
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+        updated_at:
+          $ref: '#/components/schemas/Timestamp'
+
+    CreateDeviceRequest:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+          description: 设备序列号
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/DeviceType'
+        firmware_version:
+          type: string
+
+    UpdateDeviceNameRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+
+    BindDeviceRequest:
+      type: object
+      required:
+        - parking_lot_id
+        - gate_id
+      properties:
+        parking_lot_id:
+          type: string
+        gate_id:
+          type: string
+
+    BatchBindDeviceItem:
+      type: object
+      required:
+        - id
+        - parking_lot_id
+        - gate_id
+      properties:
+        id:
+          type: string
+        parking_lot_id:
+          type: string
+        gate_id:
+          type: string
+
+    BatchIdsRequest:
+      type: object
+      required:
+        - ids
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+
+    BatchBindDevicesRequest:
+      type: object
+      required:
+        - bindings
+      properties:
+        bindings:
+          type: array
+          items:
+            $ref: '#/components/schemas/BatchBindDeviceItem'
+
+    BatchAffectedResponse:
+      type: object
+      properties:
+        affected:
+          type: integer
+          format: int32
+
+    DeviceStatsResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          format: int64
+        active:
+          type: integer
+          format: int64
+        offline:
+          type: integer
+          format: int64
+        pending:
+          type: integer
+          format: int64
+        disabled:
+          type: integer
+          format: int64
+
+    SendDeviceCommandRequest:
+      type: object
+      required:
+        - action
+      properties:
+        action:
+          type: string
+          enum: [up, down]
+          description: up=抬杆, down=落杆
+
+    SendDeviceCommandResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
 
     securitySchemes:
       BearerAuth:
@@ -1398,22 +1564,408 @@ paths:
         '404':
           description: 停车场不存在
 
-    delete:
-      tags: [ParkingLot]
-      operationId: deleteParkingLot
-      summary: 删除停车场
+  /iot/v1/devices:
+    post:
+      tags: [Device]
+      operationId: createDevice
+      summary: 注册设备
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDeviceRequest'
+      responses:
+        '200':
+          description: 注册成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  device:
+                    $ref: '#/components/schemas/Device'
+        '400':
+          description: 参数错误
+        '401':
+          description: 未认证
+        '409':
+          description: 设备ID重复
+
+    get:
+      tags: [Device]
+      operationId: listDevices
+      summary: 获取设备列表
       security:
         - BearerAuth: []
       parameters:
-        - name: id
-          in: path
-          required: true
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/DeviceStatus'
+        - name: parking_lot_id
+          in: query
           schema:
             type: string
+          description: 按停车场ID过滤
+        - name: keyword
+          in: query
+          schema:
+            type: string
+          description: 按设备名称/ID搜索
+        - name: page
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 20
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  devices:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Device'
+                  pagination:
+                    $ref: '#/components/schemas/PaginationResponse'
+        '401':
+          description: 未认证
+
+  /iot/v1/devices/stats:
+    get:
+      tags: [Device]
+      operationId: getDeviceStats
+      summary: 获取设备统计
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceStatsResponse'
+        '401':
+          description: 未认证
+
+  /iot/v1/devices/{id}:
+    get:
+      tags: [Device]
+      operationId: getDevice
+      summary: 获取设备详情
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/DeviceId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  device:
+                    $ref: '#/components/schemas/Device'
+        '401':
+          description: 未认证
+        '404':
+          description: 设备不存在
+
+    patch:
+      tags: [Device]
+      operationId: updateDeviceName
+      summary: 更新设备名称
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/DeviceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDeviceNameRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  device:
+                    $ref: '#/components/schemas/Device'
+        '400':
+          description: 参数错误
+        '401':
+          description: 未认证
+        '404':
+          description: 设备不存在
+
+    delete:
+      tags: [Device]
+      operationId: deleteDevice
+      summary: 删除设备
+      description: 已绑定的设备需先解绑
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/DeviceId'
       responses:
         '200':
           description: 删除成功
         '401':
           description: 未认证
         '404':
-          description: 停车场不存在
+          description: 设备不存在
+        '412':
+          description: 设备已绑定，需先解绑
+
+  /iot/v1/devices/{id}/bind:
+    post:
+      tags: [Device]
+      operationId: bindDevice
+      summary: 绑定设备到停车场/道闸
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/DeviceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BindDeviceRequest'
+      responses:
+        '200':
+          description: 绑定成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  device:
+                    $ref: '#/components/schemas/Device'
+        '400':
+          description: 参数错误
+        '401':
+          description: 未认证
+        '404':
+          description: 设备不存在
+        '412':
+          description: 设备状态不允许绑定
+
+  /iot/v1/devices/{id}/unbind:
+    post:
+      tags: [Device]
+      operationId: unbindDevice
+      summary: 解绑设备
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/DeviceId'
+      responses:
+        '200':
+          description: 解绑成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  device:
+                    $ref: '#/components/schemas/Device'
+        '401':
+          description: 未认证
+        '404':
+          description: 设备不存在
+        '412':
+          description: 设备未绑定
+
+  /iot/v1/devices/{id}/disable:
+    post:
+      tags: [Device]
+      operationId: disableDevice
+      summary: 停用设备
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/DeviceId'
+      responses:
+        '200':
+          description: 停用成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  device:
+                    $ref: '#/components/schemas/Device'
+        '401':
+          description: 未认证
+        '404':
+          description: 设备不存在
+        '412':
+          description: 设备已停用
+
+  /iot/v1/devices/{id}/enable:
+    post:
+      tags: [Device]
+      operationId: enableDevice
+      summary: 启用设备
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/DeviceId'
+      responses:
+        '200':
+          description: 启用成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  device:
+                    $ref: '#/components/schemas/Device'
+        '401':
+          description: 未认证
+        '404':
+          description: 设备不存在
+        '412':
+          description: 设备状态不允许启用
+
+  /iot/v1/devices/{id}/command:
+    post:
+      tags: [Device]
+      operationId: sendDeviceCommand
+      summary: 发送设备指令（抬杆/落杆）
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/DeviceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendDeviceCommandRequest'
+      responses:
+        '200':
+          description: 指令已发送
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendDeviceCommandResponse'
+        '400':
+          description: 无效指令
+        '401':
+          description: 未认证
+        '404':
+          description: 设备不存在
+        '412':
+          description: 设备离线或已停用
+
+  /iot/v1/devices/batch/disable:
+    post:
+      tags: [Device]
+      operationId: batchDisableDevices
+      summary: 批量停用设备
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchIdsRequest'
+      responses:
+        '200':
+          description: 操作完成
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchAffectedResponse'
+        '401':
+          description: 未认证
+
+  /iot/v1/devices/batch/enable:
+    post:
+      tags: [Device]
+      operationId: batchEnableDevices
+      summary: 批量启用设备
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchIdsRequest'
+      responses:
+        '200':
+          description: 操作完成
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchAffectedResponse'
+        '401':
+          description: 未认证
+
+  /iot/v1/devices/batch/delete:
+    post:
+      tags: [Device]
+      operationId: batchDeleteDevices
+      summary: 批量删除设备
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchIdsRequest'
+      responses:
+        '200':
+          description: 操作完成
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchAffectedResponse'
+        '401':
+          description: 未认证
+
+  /iot/v1/devices/batch/bind:
+    post:
+      tags: [Device]
+      operationId: batchBindDevices
+      summary: 批量绑定设备
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchBindDevicesRequest'
+      responses:
+        '200':
+          description: 操作完成
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchAffectedResponse'
+        '401':
+          description: 未认证
