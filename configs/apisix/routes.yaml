@@ -309,3 +309,63 @@
 #     }
 #   }
 # }'
+
+# ──────────────────────────────────────────────
+# Lane (出入口配置) protected routes
+# ──────────────────────────────────────────────
+
+# GetLaneConfig
+# curl http://localhost:9180/apisix/admin/routes/lane-config-get -H 'X-API-KEY: ...' -X PUT -d '{
+#   "uri": "/parking/v1/lots/*parking_lot_id/lanes",
+#   "methods": ["GET"],
+#   "upstream": {
+#     "scheme": "grpc",
+#     "type": "roundrobin",
+#     "nodes": { "grpc_server:50051": 1 }
+#   },
+#   "plugins": {
+#     "jwt-auth": { "consumer": "jwt" },
+#     "proxy-rewrite": {
+#       "headers": {
+#         "set": {
+#           "x-user-id": "$jwt_payload.user_id",
+#           "x-tenant-id": "$jwt_payload.tenant_id",
+#           "x-user-role": "$jwt_payload.role"
+#         }
+#       }
+#     },
+#     "grpc-transcode": {
+#       "proto_id": "proto-descriptor",
+#       "service": "parkhub.parking.v1.LaneService",
+#       "method": "GetLaneConfig"
+#     }
+#   }
+# }'
+
+# UpdateLanes
+# curl http://localhost:9180/apisix/admin/routes/lane-config-update -H 'X-API-KEY: ...' -X PUT -d '{
+#   "uri": "/parking/v1/lots/*parking_lot_id/lanes",
+#   "methods": ["PUT"],
+#   "upstream": {
+#     "scheme": "grpc",
+#     "type": "roundrobin",
+#     "nodes": { "grpc_server:50051": 1 }
+#   },
+#   "plugins": {
+#     "jwt-auth": { "consumer": "jwt" },
+#     "proxy-rewrite": {
+#       "headers": {
+#         "set": {
+#           "x-user-id": "$jwt_payload.user_id",
+#           "x-tenant-id": "$jwt_payload.tenant_id",
+#           "x-user-role": "$jwt_payload.role"
+#         }
+#       }
+#     },
+#     "grpc-transcode": {
+#       "proto_id": "proto-descriptor",
+#       "service": "parkhub.parking.v1.LaneService",
+#       "method": "UpdateLanes"
+#     }
+#   }
+# }'

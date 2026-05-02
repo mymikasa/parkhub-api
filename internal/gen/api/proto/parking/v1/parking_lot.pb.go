@@ -136,6 +136,8 @@ type ParkingLot struct {
 	Status          ParkingLotStatus       `protobuf:"varint,8,opt,name=status,proto3,enum=parkhub.parking.v1.ParkingLotStatus" json:"status,omitempty"`
 	CreatedAt       *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt       *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	EntryCount      int32                  `protobuf:"varint,11,opt,name=entry_count,json=entryCount,proto3" json:"entry_count,omitempty"`
+	ExitCount       int32                  `protobuf:"varint,12,opt,name=exit_count,json=exitCount,proto3" json:"exit_count,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -238,6 +240,20 @@ func (x *ParkingLot) GetUpdatedAt() *timestamppb.Timestamp {
 		return x.UpdatedAt
 	}
 	return nil
+}
+
+func (x *ParkingLot) GetEntryCount() int32 {
+	if x != nil {
+		return x.EntryCount
+	}
+	return 0
+}
+
+func (x *ParkingLot) GetExitCount() int32 {
+	if x != nil {
+		return x.ExitCount
+	}
+	return 0
 }
 
 type CreateParkingLotRequest struct {
@@ -876,7 +892,7 @@ var File_parking_v1_parking_lot_proto protoreflect.FileDescriptor
 
 const file_parking_v1_parking_lot_proto_rawDesc = "" +
 	"\n" +
-	"\x1cparking/v1/parking_lot.proto\x12\x12parkhub.parking.v1\x1a\x1acommon/v1/pagination.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa1\x03\n" +
+	"\x1cparking/v1/parking_lot.proto\x12\x12parkhub.parking.v1\x1a\x1acommon/v1/pagination.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe1\x03\n" +
 	"\n" +
 	"ParkingLot\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
@@ -891,7 +907,11 @@ const file_parking_v1_parking_lot_proto_rawDesc = "" +
 	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
 	"updated_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xa2\x01\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x1f\n" +
+	"\ventry_count\x18\v \x01(\x05R\n" +
+	"entryCount\x12\x1d\n" +
+	"\n" +
+	"exit_count\x18\f \x01(\x05R\texitCount\"\xa2\x01\n" +
 	"\x17CreateParkingLotRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
 	"\aaddress\x18\x02 \x01(\tR\aaddress\x12!\n" +

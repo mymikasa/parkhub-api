@@ -19,6 +19,8 @@ func toProtoParkingLot(l *domain.ParkingLot) *parkingv1.ParkingLot {
 		AvailableSpaces: int32(l.AvailableSpaces),
 		LotType:         domainLotTypeToProto(l.LotType),
 		Status:          domainStatusToProto(l.Status),
+		EntryCount:      int32(l.EntryCount),
+		ExitCount:       int32(l.ExitCount),
 		CreatedAt:       toTimestamp(l.CreatedAt),
 		UpdatedAt:       toTimestamp(l.UpdatedAt),
 	}

@@ -19,3 +19,9 @@ func RegisterServices(reg *registry.Registry, db *gorm.DB) {
 		iotv1.RegisterDeviceServiceServer(s, NewDeviceGRPCServer(deviceSvc))
 	})
 }
+
+func RegisterServicesWithDeviceSvc(reg *registry.Registry, db *gorm.DB, deviceSvc service.DeviceService) {
+	reg.MustRegister("iot.v1.DeviceService", func(s *grpc.Server) {
+		iotv1.RegisterDeviceServiceServer(s, NewDeviceGRPCServer(deviceSvc))
+	})
+}

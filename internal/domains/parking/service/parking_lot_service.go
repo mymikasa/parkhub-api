@@ -11,11 +11,12 @@ import (
 )
 
 type parkingLotService struct {
-	repo repository.ParkingLotRepo
+	repo     repository.ParkingLotRepo
+	laneRepo repository.LaneRepo
 }
 
-func NewParkingLotService(repo repository.ParkingLotRepo) ParkingLotService {
-	return &parkingLotService{repo: repo}
+func NewParkingLotService(repo repository.ParkingLotRepo, laneRepo repository.LaneRepo) ParkingLotService {
+	return &parkingLotService{repo: repo, laneRepo: laneRepo}
 }
 
 func (s *parkingLotService) Create(ctx context.Context, req *CreateParkingLotRequest) (*domain.ParkingLot, error) {
@@ -31,7 +32,12 @@ func (s *parkingLotService) Create(ctx context.Context, req *CreateParkingLotReq
 }
 
 func (s *parkingLotService) GetByID(ctx context.Context, tenantID, id string) (*domain.ParkingLot, error) {
-	return s.repo.GetByID(ctx, tenantID, id)
+	lot, err := s.repo.GetByID(ctx, tenantID, id)
+	if err != nil {
+		return nil, err
+	}
+	s.populateLaneCounts(ctx, tenantID, []*domain.ParkingLot{lot})
+	return lot, nil
 }
 
 func (s *parkingLotService) List(ctx context.Context, req *ListParkingLotsRequest) (*ParkingLotListResponse, error) {
@@ -59,6 +65,8 @@ func (s *parkingLotService) List(ctx context.Context, req *ListParkingLotsReques
 		return nil, err
 	}
 
+	s.populateLaneCounts(ctx, req.TenantID, lots)
+
 	totalPages := int(math.Ceil(float64(total) / float64(pageSize)))
 
 	return &ParkingLotListResponse{
@@ -68,6 +76,26 @@ func (s *parkingLotService) List(ctx context.Context, req *ListParkingLotsReques
 		PageSize:    pageSize,
 		TotalPages:  totalPages,
 	}, nil
+}
+
+func (s *parkingLotService) populateLaneCounts(ctx context.Context, tenantID string, lots []*domain.ParkingLot) {
+	if s.laneRepo == nil || len(lots) == 0 {
+		return
+	}
+	ids := make([]string, len(lots))
+	for i, l := range lots {
+		ids[i] = l.ID
+	}
+	counts, err := s.laneRepo.CountByParkingLots(ctx, tenantID, ids)
+	if err != nil {
+		return
+	}
+	for _, l := range lots {
+		if c, ok := counts[l.ID]; ok {
+			l.EntryCount = c.EntryCount
+			l.ExitCount = c.ExitCount
+		}
+	}
 }
 
 func (s *parkingLotService) Update(ctx context.Context, req *UpdateParkingLotRequest) (*domain.ParkingLot, error) {
@@ -126,10 +154,27 @@ func (s *parkingLotService) GetStats(ctx context.Context, tenantID string) (*Par
 		return nil, err
 	}
 
+	var totalGates int64
+	if s.laneRepo != nil {
+		lotIDs, _, err := s.repo.List(ctx, repository.ParkingLotFilter{TenantID: tenantID}, 1, 1000)
+		if err == nil && len(lotIDs) > 0 {
+			ids := make([]string, len(lotIDs))
+			for i, l := range lotIDs {
+				ids[i] = l.ID
+			}
+			counts, err := s.laneRepo.CountByParkingLots(ctx, tenantID, ids)
+			if err == nil {
+				for _, c := range counts {
+					totalGates += int64(c.EntryCount + c.ExitCount)
+				}
+			}
+		}
+	}
+
 	return &ParkingLotStatsResponse{
 		TotalSpaces:      totalSpaces,
 		AvailableSpaces:  availableSpaces,
 		OccupiedVehicles: totalSpaces - availableSpaces,
-		TotalGates:       0,
+		TotalGates:       totalGates,
 	}, nil
 }

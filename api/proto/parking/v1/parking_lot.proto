@@ -31,6 +31,8 @@ message ParkingLot {
   ParkingLotStatus status = 8;
   google.protobuf.Timestamp created_at = 9;
   google.protobuf.Timestamp updated_at = 10;
+  int32 entry_count = 11;
+  int32 exit_count = 12;
 }
 
 message CreateParkingLotRequest {

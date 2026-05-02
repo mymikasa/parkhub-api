@@ -932,6 +932,66 @@ curl -sf "${APISIX_ADMIN}/routes/55" \
     }
   }' && echo ""
 
+echo "Creating route: GetLaneConfig (GET /parking/v1/lots/:parking_lot_id/lanes)"
+curl -sf "${APISIX_ADMIN}/routes/lane-config-get" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "lane-config-get",
+    "methods": ["GET"],
+    "uri": "/parking/v1/lots/*parking_lot_id/lanes",
+    "priority": 100,
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/parking/v1/lots/([^/]+)/lanes$\"); if id then ngx.req.set_uri_args({parking_lot_id = id}) end end"
+        ]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.parking.v1.LaneService",
+        "method": "GetLaneConfig",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
+echo "Creating route: UpdateLanes (PUT /parking/v1/lots/:parking_lot_id/lanes)"
+curl -sf "${APISIX_ADMIN}/routes/lane-config-update" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "lane-config-update",
+    "methods": ["PUT"],
+    "uri": "/parking/v1/lots/*parking_lot_id/lanes",
+    "priority": 100,
+    "upstream_id": "1",
+    "plugins": {
+      "jwt-auth": { "store_in_ctx": true },
+      "serverless-pre-function": {
+        "phase": "access",
+        "functions": [
+          "'"${JWT_INJECT}"'",
+          "return function(conf, ctx) local id = ngx.var.uri:match(\"^/parking/v1/lots/([^/]+)/lanes$\"); ngx.req.read_body(); local cjson = require(\"cjson.safe\"); local body = ngx.req.get_body_data() or \"{}\"; local t = cjson.decode(body) or {}; if id then t.parking_lot_id = id; ngx.req.set_body_data(cjson.encode(t)) end end"
+        ]
+      },
+      "grpc-transcode": {
+        "proto_id": "1",
+        "service": "parkhub.parking.v1.LaneService",
+        "method": "UpdateLanes",
+        "pb_option": ["enum_as_name", "int64_as_number"]
+      },
+      "opentelemetry": { "sampler": { "name": "always_on" } },
+      "prometheus": {}
+    }
+  }' && echo ""
+
 echo "APISIX ParkingLot routes configuration complete"
 
 # ══════════════════════════════════════════════════════════════════════

@@ -18,6 +18,8 @@ import (
 	identityservice "github.com/parkhub/api/internal/domains/identity/service"
 	iotgrpc "github.com/parkhub/api/internal/domains/iot/grpc"
 	iotdao "github.com/parkhub/api/internal/domains/iot/repository/dao"
+	iotrepo "github.com/parkhub/api/internal/domains/iot/repository"
+	iotservice "github.com/parkhub/api/internal/domains/iot/service"
 	parkinggrpc "github.com/parkhub/api/internal/domains/parking/grpc"
 	parkingdao "github.com/parkhub/api/internal/domains/parking/repository/dao"
 	smsdomain "github.com/parkhub/api/internal/domains/sms/domain"
@@ -100,7 +102,7 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("connect parking database: %w", err)
 	}
-	if err := parkingDB.AutoMigrate(&parkingdao.ParkingLot{}); err != nil {
+	if err := parkingDB.AutoMigrate(&parkingdao.ParkingLot{}, &parkingdao.Lane{}); err != nil {
 		return fmt.Errorf("auto migrate parking: %w", err)
 	}
 
@@ -109,6 +111,14 @@ func run() error {
 		Password: cfg.Redis.Password,
 		DB:       cfg.Redis.DB,
 	})
+
+	iotDB, err := gorm.Open(mysql.Open(cfg.IoTDatabase.DSN()), &gorm.Config{})
+	if err != nil {
+		return fmt.Errorf("connect iot database: %w", err)
+	}
+	if err := iotDB.AutoMigrate(&iotdao.Device{}); err != nil {
+		return fmt.Errorf("auto migrate iot: %w", err)
+	}
 
 	reg := registry.New()
 	smsSvc := smsgrpc.RegisterServices(reg, db, rdb)
@@ -122,16 +132,14 @@ func run() error {
 
 	parkingLotCounter := newParkingLotCounter(parkingDB)
 	identitygrpc.RegisterServices(reg, db, rdb, cfg.Auth, smsVerifyFn, parkingLotCounter)
-	parkinggrpc.RegisterServices(reg, parkingDB)
 
-	iotDB, err := gorm.Open(mysql.Open(cfg.IoTDatabase.DSN()), &gorm.Config{})
-	if err != nil {
-		return fmt.Errorf("connect iot database: %w", err)
-	}
-	if err := iotDB.AutoMigrate(&iotdao.Device{}); err != nil {
-		return fmt.Errorf("auto migrate iot: %w", err)
-	}
-	iotgrpc.RegisterServices(reg, iotDB)
+	// Create IoT device service for cross-domain lane-device binding
+	deviceDAO := iotdao.NewDeviceDAO(iotDB)
+	deviceRepo := iotrepo.NewDeviceRepo(deviceDAO, iotDB)
+	deviceSvc := iotservice.NewDeviceService(deviceRepo)
+
+	parkinggrpc.RegisterServices(reg, parkingDB, deviceSvc)
+	iotgrpc.RegisterServicesWithDeviceSvc(reg, iotDB, deviceSvc)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Server.GRPCPort))
 	if err != nil {

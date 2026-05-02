@@ -27,6 +27,8 @@ var errorMappings = []grpcutil.ErrorMapping{
 	{Target: errs.ErrParkingLotNameDuplicate, Code: codes.AlreadyExists},
 	{Target: errs.ErrParkingLotInvalidStatus, Code: codes.InvalidArgument},
 	{Target: errs.ErrParkingLotInvalidCapacity, Code: codes.InvalidArgument},
+	{Target: errs.ErrLaneNotFound, Code: codes.NotFound},
+	{Target: errs.ErrLaneNameDuplicate, Code: codes.AlreadyExists},
 }
 
 func toGRPCError(err error) error {

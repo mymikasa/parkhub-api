@@ -58,3 +58,36 @@ type ParkingLotService interface {
 	Delete(ctx context.Context, tenantID, id string) error
 	GetStats(ctx context.Context, tenantID string) (*ParkingLotStatsResponse, error)
 }
+
+// LaneService 出入口配置服务
+type LaneService interface {
+	GetLaneConfig(ctx context.Context, tenantID, parkingLotID string) (*LaneConfigResponse, error)
+	UpdateLanes(ctx context.Context, tenantID string, req *UpdateLanesRequest) (*UpdateLanesResponse, error)
+}
+
+type LaneConfigResponse struct {
+	Lanes            []*domain.LaneWithDevice
+	AvailableDevices []*AvailableDevice
+}
+
+type AvailableDevice struct {
+	ID     string
+	Name   string
+	Status string
+}
+
+type UpdateLanesRequest struct {
+	ParkingLotID string
+	Lanes        []LaneInput
+}
+
+type LaneInput struct {
+	ID       *string
+	Name     string
+	Type     domain.LaneType
+	DeviceID *string
+}
+
+type UpdateLanesResponse struct {
+	Lanes []*domain.LaneWithDevice
+}

@@ -23,3 +23,18 @@ type ParkingLotRepo interface {
 	Delete(ctx context.Context, tenantID, id string) error
 	SumStats(ctx context.Context, tenantID string) (totalSpaces, availableSpaces int64, err error)
 }
+
+type LaneCountResult struct {
+	EntryCount int
+	ExitCount  int
+}
+
+type LaneRepo interface {
+	Create(ctx context.Context, lane *domain.Lane) error
+	GetByID(ctx context.Context, tenantID, id string) (*domain.Lane, error)
+	ListByParkingLotID(ctx context.Context, tenantID, parkingLotID string) ([]*domain.Lane, error)
+	Update(ctx context.Context, lane *domain.Lane) error
+	Delete(ctx context.Context, tenantID, id string) error
+	ExistsByName(ctx context.Context, parkingLotID, name string) (bool, error)
+	CountByParkingLots(ctx context.Context, tenantID string, parkingLotIDs []string) (map[string]*LaneCountResult, error)
+}
