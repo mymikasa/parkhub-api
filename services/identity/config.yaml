@@ -1,0 +1,38 @@
+server:
+  grpc_port: 50052
+  metrics_port: 9092
+  http_health_port: 8083
+
+database:
+  host: localhost
+  port: 3306
+  user: parkhub
+  password: parkhub
+  dbname: parkhub_identity
+
+redis:
+  addr: localhost:6379
+
+auth:
+  issuer: parkhub
+  access_ttl: 15m
+  refresh_ttl: 168h
+  private_key_path: /keys/private.pem
+  public_key_path: /keys/public.pem
+  key_id: parkhub-rs256-01
+
+sms_client:
+  addr: parkhub-sms:50053
+
+telemetry:
+  service_name: parkhub-identity
+  environment: development
+  log:
+    level: info
+    format: json
+  trace:
+    endpoint: localhost:4317
+    insecure: true
+    sampling_ratio: 1.0
+  metrics:
+    path: /metrics

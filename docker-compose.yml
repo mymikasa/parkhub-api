@@ -102,6 +102,45 @@ services:
       redis:
         condition: service_healthy
 
+  identity:
+    build:
+      context: .
+      dockerfile: services/identity/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "50052:50052"
+      - "9094:9092"
+      - "8083:8083"
+    environment:
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_USER: parkhub
+      DB_PASSWORD: parkhub
+      DB_NAME: parkhub_identity
+      REDIS_ADDR: redis:6379
+      SMS_CLIENT_ADDR: sms:50053
+      AUTH_ISSUER: parkhub
+      AUTH_ACCESS_TTL: 15m
+      AUTH_REFRESH_TTL: 168h
+      AUTH_PRIVATE_KEY_PATH: /keys/jwt_private.pem
+      AUTH_PUBLIC_KEY_PATH: /keys/jwt_public.pem
+      AUTH_KEY_ID: parkhub-rs256-01
+      OTEL_TRACE_ENDPOINT: tempo:4317
+      GRPC_PORT: "50052"
+      METRICS_PORT: "9092"
+      HTTP_HEALTH_PORT: "8083"
+      LOG_FORMAT: json
+      LOG_LEVEL: info
+    volumes:
+      - ./configs/keys:/keys:ro
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      sms:
+        condition: service_started
+
   monolith:
     build:
       context: .
@@ -162,6 +201,10 @@ services:
       apisix:
         condition: service_started
       monolith:
+        condition: service_started
+      identity:
+        condition: service_started
+      sms:
         condition: service_started
     entrypoint: ["sh", "/scripts/init-apisix.sh"]
     volumes:

@@ -10,8 +10,9 @@ DOCKER_COMPOSE ?= docker compose
 BIN_DIR := bin
 MONOLITH_BIN := $(BIN_DIR)/parkhub
 SMS_BIN := $(BIN_DIR)/parkhub-sms
+IDENTITY_BIN := $(BIN_DIR)/parkhub-identity
 
-.PHONY: help proto-gen proto-lint proto-breaking proto-descriptor lint lint-tenant test test-integration build-monolith build-sms docker-build docker-build-sms wire migrate generate-keys docker-up docker-down docker-ps clean
+.PHONY: help proto-gen proto-lint proto-breaking proto-descriptor lint lint-tenant test test-integration build-monolith build-sms build-identity docker-build docker-build-sms docker-build-identity wire migrate generate-keys docker-up docker-down docker-ps clean
 
 help:
 	@echo "Available targets:"
@@ -24,6 +25,7 @@ help:
 	@echo "  test-integration  Run integration tests"
 	@echo "  build-monolith    Build cmd/monolith to bin/parkhub"
 	@echo "  build-sms         Build services/sms to bin/parkhub-sms"
+	@echo "  build-identity    Build services/identity to bin/parkhub-identity"
 	@echo "  docker-build      Build monolith Docker image"
 	@echo "  docker-build-sms  Build sms Docker image"
 	@echo "  generate-keys     Generate RSA key pair for JWT signing"
@@ -38,6 +40,7 @@ proto-gen:
 	@command -v $(BUF) >/dev/null 2>&1 || { echo "buf is required but not installed"; exit 1; }
 	$(BUF) generate
 	$(BUF) generate ./services/sms
+	$(BUF) generate ./services/identity
 	@$(MAKE) proto-descriptor
 
 proto-descriptor:
@@ -78,11 +81,18 @@ build-sms:
 	@mkdir -p $(BIN_DIR)
 	cd services/sms && $(GO) build -o ../../$(SMS_BIN) .
 
+build-identity:
+	@mkdir -p $(BIN_DIR)
+	cd services/identity && $(GO) build -o ../../$(IDENTITY_BIN) .
+
 docker-build:
 	docker build -t parkhub-monolith .
 
 docker-build-sms:
 	docker build -t parkhub-sms -f services/sms/Dockerfile .
+
+docker-build-identity:
+	docker build -t parkhub-identity -f services/identity/Dockerfile .
 
 wire:
 	@command -v $(WIRE) >/dev/null 2>&1 || { echo "wire is required but not installed"; exit 1; }

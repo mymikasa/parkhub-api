@@ -1,0 +1,167 @@
+syntax = "proto3";
+
+package parkhub.identity.v1;
+
+option go_package = "github.com/parkhub/api/services/identity/internal/gen/api/proto/identity/v1;identityv1";
+
+import "common/v1/pagination.proto";
+import "google/protobuf/timestamp.proto";
+
+enum UserRole {
+  USER_ROLE_UNSPECIFIED = 0;
+  USER_ROLE_PLATFORM_ADMIN = 1;
+  USER_ROLE_TENANT_ADMIN = 2;
+  USER_ROLE_OPERATOR = 3;
+}
+
+enum UserStatus {
+  USER_STATUS_UNSPECIFIED = 0;
+  USER_STATUS_ACTIVE = 1;
+  USER_STATUS_FROZEN = 2;
+}
+
+message User {
+  string user_id = 1;
+  optional string tenant_id = 2;
+  string username = 3;
+  optional string email = 4;
+  optional string phone = 5;
+  string real_name = 6;
+  UserRole role = 7;
+  UserStatus status = 8;
+  optional google.protobuf.Timestamp last_login_at = 9;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+}
+
+message CreateUserRequest {
+  optional string tenant_id = 1;
+  string username = 2;
+  string password = 3;
+  optional string email = 4;
+  optional string phone = 5;
+  string real_name = 6;
+  UserRole role = 7;
+}
+
+message CreateUserResponse {
+  User user = 1;
+}
+
+message GetUserRequest {
+  string user_id = 1;
+}
+
+message GetUserResponse {
+  User user = 1;
+}
+
+message GetCurrentUserRequest {}
+
+message GetCurrentUserResponse {
+  User user = 1;
+}
+
+message ListUsersRequest {
+  string tenant_id = 1;
+  UserRole role = 2;
+  UserStatus status = 3;
+  string keyword = 4;
+  common.v1.PaginationRequest pagination = 5;
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
+  common.v1.PaginationResponse pagination = 2;
+}
+
+message UpdateUserRequest {
+  string user_id = 1;
+  optional string username = 2;
+  optional string email = 3;
+  optional string phone = 4;
+  optional string real_name = 5;
+  optional UserRole role = 6;
+}
+
+message UpdateUserResponse {
+  User user = 1;
+}
+
+message FreezeUserRequest {
+  string user_id = 1;
+}
+
+message FreezeUserResponse {}
+
+message UnfreezeUserRequest {
+  string user_id = 1;
+}
+
+message UnfreezeUserResponse {}
+
+message ResetPasswordRequest {
+  string user_id = 1;
+  string new_password = 2;
+}
+
+message ResetPasswordResponse {}
+
+message UpdateProfileRequest {
+  string user_id = 1;
+  optional string real_name = 2;
+  optional string email = 3;
+  optional string phone = 4;
+}
+
+message UpdateProfileResponse {
+  User user = 1;
+}
+
+message ChangePasswordRequest {
+  string user_id = 1;
+  string old_password = 2;
+  string new_password = 3;
+}
+
+message ChangePasswordResponse {}
+
+message ImportUserItem {
+  optional string tenant_id = 1;
+  string username = 2;
+  string password = 3;
+  optional string email = 4;
+  optional string phone = 5;
+  string real_name = 6;
+  UserRole role = 7;
+}
+
+message ImportUsersRequest {
+  repeated ImportUserItem users = 1;
+}
+
+message ImportError {
+  int32 index = 1;
+  string message = 2;
+}
+
+message ImportUsersResponse {
+  int32 total = 1;
+  int32 success = 2;
+  int32 failed = 3;
+  repeated ImportError errors = 4;
+}
+
+service UserService {
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  rpc GetCurrentUser(GetCurrentUserRequest) returns (GetCurrentUserResponse);
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+  rpc FreezeUser(FreezeUserRequest) returns (FreezeUserResponse);
+  rpc UnfreezeUser(UnfreezeUserRequest) returns (UnfreezeUserResponse);
+  rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
+  rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse);
+  rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
+  rpc ImportUsers(ImportUsersRequest) returns (ImportUsersResponse);
+}
