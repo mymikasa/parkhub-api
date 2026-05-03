@@ -53,6 +53,35 @@ curl -sf "${APISIX_ADMIN}/upstreams/1" \
     }
   }' && echo ""
 
+# ── Upstream: sms gRPC ──────────────────────────────────────────────
+echo "Creating upstream: sms-grpc"
+curl -sf "${APISIX_ADMIN}/upstreams/2" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "sms-grpc",
+    "type": "roundrobin",
+    "scheme": "grpc",
+    "nodes": {
+      "sms:50053": 1
+    },
+    "checks": {
+      "active": {
+        "type": "http",
+        "port": 8082,
+        "http_path": "/healthz",
+        "healthy": {
+          "interval": 5,
+          "successes": 2
+        },
+        "unhealthy": {
+          "interval": 5,
+          "http_failures": 3
+        }
+      }
+    }
+  }' && echo ""
+
 # ── Proto: FileDescriptorSet (buf build output) ──────────────────────
 echo "Registering proto descriptor"
 B64=$(base64 -w 0 "$DESC_FILE")
@@ -727,7 +756,7 @@ curl -sf "${APISIX_ADMIN}/routes/40" \
     "name": "sms-send-code",
     "methods": ["POST"],
     "uri": "/identity/v1/auth/sms/send",
-    "upstream_id": "1",
+    "upstream_id": "2",
     "plugins": {
       "grpc-transcode": {
         "proto_id": "1",
