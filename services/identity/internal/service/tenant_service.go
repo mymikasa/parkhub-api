@@ -11,12 +11,11 @@ import (
 )
 
 type tenantService struct {
-	tenantRepo     repository.TenantRepo
-	parkingCounter ParkingLotCounter
+	tenantRepo repository.TenantRepo
 }
 
-func NewTenantService(repo repository.TenantRepo, parkingCounter ParkingLotCounter) TenantService {
-	return &tenantService{tenantRepo: repo, parkingCounter: parkingCounter}
+func NewTenantService(repo repository.TenantRepo) TenantService {
+	return &tenantService{tenantRepo: repo}
 }
 
 func (s *tenantService) CreateTenant(ctx context.Context, req *CreateTenantRequest) (*domain.Tenant, error) {
@@ -164,24 +163,9 @@ func (s *tenantService) GetTenantSummary(ctx context.Context) (*TenantSummaryRes
 
 	total := active + frozen
 
-	var totalParkingLots int64
-	if s.parkingCounter != nil {
-		totalParkingLots, err = s.parkingCounter.CountParkingLots(ctx)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	var avg float64
-	if total > 0 {
-		avg = float64(totalParkingLots) / float64(total)
-	}
-
 	return &TenantSummaryResponse{
-		Total:                   total,
-		Active:                  active,
-		Frozen:                  frozen,
-		TotalParkingLots:        totalParkingLots,
-		AvgParkingLotsPerTenant: avg,
+		Total:  total,
+		Active: active,
+		Frozen: frozen,
 	}, nil
 }

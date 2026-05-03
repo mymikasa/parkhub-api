@@ -119,7 +119,6 @@ services:
       DB_NAME: parkhub_identity
       REDIS_ADDR: redis:6379
       SMS_CLIENT_ADDR: sms:50053
-      PARKING_CLIENT_ADDR: monolith:50051
       AUTH_ISSUER: parkhub
       AUTH_ACCESS_TTL: 15m
       AUTH_REFRESH_TTL: 168h
@@ -140,8 +139,6 @@ services:
       redis:
         condition: service_healthy
       sms:
-        condition: service_started
-      monolith:
         condition: service_started
 
   monolith:

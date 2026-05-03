@@ -16,7 +16,6 @@ import (
 	"github.com/parkhub/api/pkg/slogutil"
 	"github.com/parkhub/api/pkg/telemetry"
 	"github.com/parkhub/api/services/identity/internal/config"
-	parkingv1 "github.com/parkhub/api/services/identity/internal/gen/api/proto/parking/v1"
 	smsv1 "github.com/parkhub/api/services/identity/internal/gen/api/proto/sms/v1"
 	identitygrpc "github.com/parkhub/api/services/identity/internal/grpc"
 	"github.com/parkhub/api/services/identity/internal/health"
@@ -103,14 +102,6 @@ func run() error {
 	}
 	smsClient := smsv1.NewSmsServiceClient(smsConn)
 
-	parkingConn, err := grpc.NewClient(cfg.ParkingClient.Addr,
-		grpc.WithInsecure(),
-	)
-	if err != nil {
-		return fmt.Errorf("connect parking service: %w", err)
-	}
-	parkingClient := parkingv1.NewParkingLotServiceClient(parkingConn)
-
 	reg := registry.New()
 	identitygrpc.RegisterServices(reg, db, rdb, identitygrpc.Config{
 		Issuer:         cfg.Auth.Issuer,
@@ -119,7 +110,7 @@ func run() error {
 		PrivateKeyPath: cfg.Auth.PrivateKeyPath,
 		PublicKeyPath:  cfg.Auth.PublicKeyPath,
 		KeyID:          cfg.Auth.KeyID,
-	}, smsClient, parkingClient)
+	}, smsClient)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Server.GRPCPort))
 	if err != nil {

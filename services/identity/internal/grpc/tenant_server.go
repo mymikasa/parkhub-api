@@ -163,10 +163,8 @@ func (s *TenantGRPCServer) GetTenantSummary(ctx context.Context, req *identityv1
 		return nil, toGRPCError(err)
 	}
 	return &identityv1.GetTenantSummaryResponse{
-		Total:                   summary.Total,
-		Active:                  summary.Active,
-		Frozen:                  summary.Frozen,
-		TotalParkingLots:        summary.TotalParkingLots,
-		AvgParkingLotsPerTenant: summary.AvgParkingLotsPerTenant,
+		Total:  summary.Total,
+		Active: summary.Active,
+		Frozen: summary.Frozen,
 	}, nil
 }

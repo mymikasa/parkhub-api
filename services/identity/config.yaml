@@ -24,9 +24,6 @@ auth:
 sms_client:
   addr: parkhub-sms:50053
 
-parking_client:
-  addr: monolith:50051
-
 telemetry:
   service_name: parkhub-identity
   environment: development

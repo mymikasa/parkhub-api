@@ -47,15 +47,9 @@ type TenantListResponse struct {
 }
 
 type TenantSummaryResponse struct {
-	Total                   int64
-	Active                  int64
-	Frozen                  int64
-	TotalParkingLots        int64
-	AvgParkingLotsPerTenant float64
-}
-
-type ParkingLotCounter interface {
-	CountParkingLots(ctx context.Context) (int64, error)
+	Total  int64
+	Active int64
+	Frozen int64
 }
 
 type TenantService interface {

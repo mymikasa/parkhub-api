@@ -11,13 +11,12 @@ import (
 const DefaultPath = "config.yaml"
 
 type Config struct {
-	Server        ServerConfig        `yaml:"server"`
-	Database      DatabaseConfig      `yaml:"database"`
-	Redis         RedisConfig         `yaml:"redis"`
-	Auth          AuthConfig          `yaml:"auth"`
-	SmsClient     SmsClientConfig     `yaml:"sms_client"`
-	ParkingClient ParkingClientConfig `yaml:"parking_client"`
-	Telemetry     TelemetryConfig     `yaml:"telemetry"`
+	Server    ServerConfig    `yaml:"server"`
+	Database  DatabaseConfig  `yaml:"database"`
+	Redis     RedisConfig     `yaml:"redis"`
+	Auth      AuthConfig      `yaml:"auth"`
+	SmsClient SmsClientConfig `yaml:"sms_client"`
+	Telemetry TelemetryConfig `yaml:"telemetry"`
 }
 
 type AuthConfig struct {
@@ -30,10 +29,6 @@ type AuthConfig struct {
 }
 
 type SmsClientConfig struct {
-	Addr string `yaml:"addr"`
-}
-
-type ParkingClientConfig struct {
 	Addr string `yaml:"addr"`
 }
 
@@ -108,9 +103,6 @@ func Default() Config {
 		},
 		SmsClient: SmsClientConfig{
 			Addr: "localhost:50053",
-		},
-		ParkingClient: ParkingClientConfig{
-			Addr: "localhost:50051",
 		},
 		Telemetry: TelemetryConfig{
 			ServiceName: "parkhub-identity",
@@ -204,9 +196,6 @@ func applyEnvOverrides(cfg *Config) {
 	}
 	if v := os.Getenv("SMS_CLIENT_ADDR"); v != "" {
 		cfg.SmsClient.Addr = v
-	}
-	if v := os.Getenv("PARKING_CLIENT_ADDR"); v != "" {
-		cfg.ParkingClient.Addr = v
 	}
 	if v := os.Getenv("AUTH_ISSUER"); v != "" {
 		cfg.Auth.Issuer = v

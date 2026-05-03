@@ -3,7 +3,6 @@ package grpc
 import (
 	"github.com/parkhub/api/services/identity/internal/domain"
 	identityv1 "github.com/parkhub/api/services/identity/internal/gen/api/proto/identity/v1"
-	parkingv1 "github.com/parkhub/api/services/identity/internal/gen/api/proto/parking/v1"
 	smsv1 "github.com/parkhub/api/services/identity/internal/gen/api/proto/sms/v1"
 	"github.com/parkhub/api/services/identity/internal/registry"
 	"github.com/parkhub/api/services/identity/internal/repository"
@@ -25,11 +24,10 @@ type Config struct {
 	KeyID          string
 }
 
-func RegisterServices(reg *registry.Registry, coreDB *gorm.DB, rdb *redis.Client, authCfg Config, smsClient smsv1.SmsServiceClient, parkingClient parkingv1.ParkingLotServiceClient) {
+func RegisterServices(reg *registry.Registry, coreDB *gorm.DB, rdb *redis.Client, authCfg Config, smsClient smsv1.SmsServiceClient) {
 	tenantDAO := dao.NewTenantDAO(coreDB)
 	tenantRepo := repository.NewTenantRepo(tenantDAO)
-	parkingCounter := client.NewParkingLotCounterClient(parkingClient)
-	tenantSvc := service.NewTenantService(tenantRepo, parkingCounter)
+	tenantSvc := service.NewTenantService(tenantRepo)
 
 	reg.MustRegister("identity.v1.TenantService", func(s *grpc.Server) {
 		identityv1.RegisterTenantServiceServer(s, NewTenantGRPCServer(tenantSvc))

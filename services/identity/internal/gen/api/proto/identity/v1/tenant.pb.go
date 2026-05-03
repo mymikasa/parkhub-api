@@ -1098,14 +1098,12 @@ func (*GetTenantSummaryRequest) Descriptor() ([]byte, []int) {
 }
 
 type GetTenantSummaryResponse struct {
-	state                   protoimpl.MessageState `protogen:"open.v1"`
-	Total                   int64                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
-	Active                  int64                  `protobuf:"varint,2,opt,name=active,proto3" json:"active,omitempty"`
-	Frozen                  int64                  `protobuf:"varint,3,opt,name=frozen,proto3" json:"frozen,omitempty"`
-	TotalParkingLots        int64                  `protobuf:"varint,4,opt,name=total_parking_lots,json=totalParkingLots,proto3" json:"total_parking_lots,omitempty"`
-	AvgParkingLotsPerTenant float64                `protobuf:"fixed64,5,opt,name=avg_parking_lots_per_tenant,json=avgParkingLotsPerTenant,proto3" json:"avg_parking_lots_per_tenant,omitempty"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Total         int64                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
+	Active        int64                  `protobuf:"varint,2,opt,name=active,proto3" json:"active,omitempty"`
+	Frozen        int64                  `protobuf:"varint,3,opt,name=frozen,proto3" json:"frozen,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetTenantSummaryResponse) Reset() {
@@ -1155,20 +1153,6 @@ func (x *GetTenantSummaryResponse) GetActive() int64 {
 func (x *GetTenantSummaryResponse) GetFrozen() int64 {
 	if x != nil {
 		return x.Frozen
-	}
-	return 0
-}
-
-func (x *GetTenantSummaryResponse) GetTotalParkingLots() int64 {
-	if x != nil {
-		return x.TotalParkingLots
-	}
-	return 0
-}
-
-func (x *GetTenantSummaryResponse) GetAvgParkingLotsPerTenant() float64 {
-	if x != nil {
-		return x.AvgParkingLotsPerTenant
 	}
 	return 0
 }
@@ -1269,13 +1253,11 @@ const file_identity_v1_tenant_proto_rawDesc = "" +
 	"\x13DeleteTenantRequest\x12\x1b\n" +
 	"\ttenant_id\x18\x01 \x01(\tR\btenantId\"\x16\n" +
 	"\x14DeleteTenantResponse\"\x19\n" +
-	"\x17GetTenantSummaryRequest\"\xcc\x01\n" +
+	"\x17GetTenantSummaryRequest\"`\n" +
 	"\x18GetTenantSummaryResponse\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x12\x16\n" +
 	"\x06active\x18\x02 \x01(\x03R\x06active\x12\x16\n" +
-	"\x06frozen\x18\x03 \x01(\x03R\x06frozen\x12,\n" +
-	"\x12total_parking_lots\x18\x04 \x01(\x03R\x10totalParkingLots\x12<\n" +
-	"\x1bavg_parking_lots_per_tenant\x18\x05 \x01(\x01R\x17avgParkingLotsPerTenant*a\n" +
+	"\x06frozen\x18\x03 \x01(\x03R\x06frozen*a\n" +
 	"\fTenantStatus\x12\x1d\n" +
 	"\x19TENANT_STATUS_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14TENANT_STATUS_ACTIVE\x10\x01\x12\x18\n" +
