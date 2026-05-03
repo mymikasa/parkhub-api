@@ -117,12 +117,8 @@ func run() error {
 	}
 
 	reg := registry.New()
-	smsSvc := smsgrpc.RegisterServices(reg, db, rdb)
-	_ = smsSvc
+	smsgrpc.RegisterServices(reg, db, rdb)
 
-	parkinggrpc.RegisterServices(reg, parkingDB, nil)
-
-	// Create IoT device service for cross-domain lane-device binding
 	deviceDAO := iotdao.NewDeviceDAO(iotDB)
 	deviceRepo := iotrepo.NewDeviceRepo(deviceDAO, iotDB)
 	deviceSvc := iotservice.NewDeviceService(deviceRepo)
