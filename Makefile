@@ -76,7 +76,7 @@ build-monolith:
 
 build-sms:
 	@mkdir -p $(BIN_DIR)
-	$(GO) build -o $(SMS_BIN) ./services/sms
+	cd services/sms && $(GO) build -o ../../$(SMS_BIN) .
 
 docker-build:
 	docker build -t parkhub-monolith .
