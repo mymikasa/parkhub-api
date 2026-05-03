@@ -1,0 +1,136 @@
+syntax = "proto3";
+
+package parkhub.identity.v1;
+
+option go_package = "github.com/parkhub/api/services/identity/internal/gen/api/proto/identity/v1;identityv1";
+
+import "common/v1/pagination.proto";
+import "google/protobuf/timestamp.proto";
+
+enum TenantStatus {
+  TENANT_STATUS_UNSPECIFIED = 0;
+  TENANT_STATUS_ACTIVE = 1;
+  TENANT_STATUS_FROZEN = 2;
+}
+
+enum PlanType {
+  PLAN_TYPE_UNSPECIFIED = 0;
+  PLAN_TYPE_FREE = 1;
+  PLAN_TYPE_BASIC = 2;
+  PLAN_TYPE_PRO = 3;
+  PLAN_TYPE_ENTERPRISE = 4;
+}
+
+message Tenant {
+  string tenant_id = 1;
+  string name = 2;
+  string contact_name = 3;
+  string contact_phone = 4;
+  string contact_email = 5;
+  TenantStatus status = 6;
+  string address = 7;
+  PlanType plan_type = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
+  string description = 11;
+  string credit_code = 12;
+  string remark = 13;
+  int32 parking_lot_count = 14;
+}
+
+message CreateTenantRequest {
+  string name = 1;
+  string contact_name = 2;
+  string contact_phone = 3;
+  string contact_email = 4;
+  string address = 5;
+  PlanType plan_type = 6;
+  optional string description = 7;
+  optional string credit_code = 8;
+  optional string remark = 9;
+}
+
+message CreateTenantResponse {
+  Tenant tenant = 1;
+}
+
+message GetTenantRequest {
+  string tenant_id = 1;
+}
+
+message GetTenantResponse {
+  Tenant tenant = 1;
+}
+
+message ListTenantsRequest {
+  TenantStatus status = 1;
+  string keyword = 2;
+  common.v1.PaginationRequest pagination = 3;
+}
+
+message ListTenantsResponse {
+  repeated Tenant tenants = 1;
+  common.v1.PaginationResponse pagination = 2;
+}
+
+message UpdateTenantRequest {
+  string tenant_id = 1;
+  optional string name = 2;
+  optional string contact_name = 3;
+  optional string contact_phone = 4;
+  optional string contact_email = 5;
+  optional string address = 6;
+  optional PlanType plan_type = 7;
+  optional TenantStatus status = 8 [deprecated = true];
+  optional string description = 9;
+  optional string credit_code = 10;
+  optional string remark = 11;
+}
+
+message FreezeTenantRequest {
+  string tenant_id = 1;
+  optional string reason = 2;
+}
+
+message FreezeTenantResponse {
+  Tenant tenant = 1;
+}
+
+message UnfreezeTenantRequest {
+  string tenant_id = 1;
+}
+
+message UnfreezeTenantResponse {
+  Tenant tenant = 1;
+}
+
+message UpdateTenantResponse {
+  Tenant tenant = 1;
+}
+
+message DeleteTenantRequest {
+  string tenant_id = 1;
+}
+
+message DeleteTenantResponse {}
+
+message GetTenantSummaryRequest {}
+
+message GetTenantSummaryResponse {
+  int64 total = 1;
+  int64 active = 2;
+  int64 frozen = 3;
+  int64 total_parking_lots = 4;
+  double avg_parking_lots_per_tenant = 5;
+}
+
+service TenantService {
+  rpc CreateTenant(CreateTenantRequest) returns (CreateTenantResponse);
+  rpc GetTenant(GetTenantRequest) returns (GetTenantResponse);
+  rpc ListTenants(ListTenantsRequest) returns (ListTenantsResponse);
+  rpc UpdateTenant(UpdateTenantRequest) returns (UpdateTenantResponse);
+  rpc FreezeTenant(FreezeTenantRequest) returns (FreezeTenantResponse);
+  rpc UnfreezeTenant(UnfreezeTenantRequest) returns (UnfreezeTenantResponse);
+  rpc DeleteTenant(DeleteTenantRequest) returns (DeleteTenantResponse);
+  rpc GetTenantSummary(GetTenantSummaryRequest) returns (GetTenantSummaryResponse);
+}

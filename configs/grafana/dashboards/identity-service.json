@@ -1,0 +1,133 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "title": "gRPC Requests / sec",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        {
+          "expr": "sum(rate(rpc_server_call_duration_seconds_count{job=\"parkhub-identity\",rpc_method=~\"parkhub.identity.v1.*/.*\"}[1m])) by (rpc_method, rpc_response_status_code)",
+          "legendFormat": "{{rpc_method}} {{rpc_response_status_code}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "reqps" },
+        "overrides": []
+      }
+    },
+    {
+      "title": "gRPC Duration p50 / p95 / p99",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "histogram_quantile(0.50, sum(rate(rpc_server_call_duration_seconds_bucket{job=\"parkhub-identity\"}[1m])) by (le, rpc_method))", "legendFormat": "p50 {{rpc_method}}" },
+        { "expr": "histogram_quantile(0.95, sum(rate(rpc_server_call_duration_seconds_bucket{job=\"parkhub-identity\"}[1m])) by (le, rpc_method))", "legendFormat": "p95 {{rpc_method}}" },
+        { "expr": "histogram_quantile(0.99, sum(rate(rpc_server_call_duration_seconds_bucket{job=\"parkhub-identity\"}[1m])) by (le, rpc_method))", "legendFormat": "p99 {{rpc_method}}" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s" },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Error Rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        {
+          "expr": "sum(rate(rpc_server_call_duration_seconds_count{job=\"parkhub-identity\",rpc_response_status_code!=\"OK\"}[1m])) by (rpc_method) / sum(rate(rpc_server_call_duration_seconds_count{job=\"parkhub-identity\"}[1m])) by (rpc_method)",
+          "legendFormat": "{{rpc_method}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "percentunit", "max": 1, "min": 0 },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Goroutines",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "go_goroutine_count{job=\"parkhub-identity\"}", "legendFormat": "goroutines" }
+      ]
+    },
+    {
+      "title": "Memory Used",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "go_memory_used_bytes{job=\"parkhub-identity\"}", "legendFormat": "{{go_memory_type}}" },
+        { "expr": "go_memory_gc_goal_bytes{job=\"parkhub-identity\"}", "legendFormat": "gc goal" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "bytes" },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Total Requests",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "sum(rpc_server_call_duration_seconds_count{job=\"parkhub-identity\"})", "legendFormat": "total" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "short" },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Alloc Rate",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "rate(go_memory_allocated_bytes_total{job=\"parkhub-identity\"}[1m])", "legendFormat": "alloc/s" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "Bps" },
+        "overrides": []
+      }
+    },
+    {
+      "title": "GOGC",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 20 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "go_config_gogc_percent{job=\"parkhub-identity\"}", "legendFormat": "GOGC" }
+      ]
+    },
+    {
+      "title": "Processors",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 20 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "go_processor_limit{job=\"parkhub-identity\"}", "legendFormat": "GOMAXPROCS" }
+      ]
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["identity", "parkhub"],
+  "templating": { "list": [] },
+  "time": { "from": "now-5m", "to": "now" },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Identity Service",
+  "uid": "identity-service",
+  "version": 1
+}

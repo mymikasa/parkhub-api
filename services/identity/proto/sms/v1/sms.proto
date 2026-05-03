@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package parkhub.sms.v1;
+
+option go_package = "github.com/parkhub/api/services/identity/internal/gen/api/proto/sms/v1;smsv1";
+
+enum SmsPurpose {
+  SMS_PURPOSE_UNSPECIFIED = 0;
+  SMS_PURPOSE_LOGIN = 1;
+  SMS_PURPOSE_REGISTER = 2;
+  SMS_PURPOSE_RESET_PASSWORD = 3;
+}
+
+message SendCodeRequest {
+  string phone = 1;
+  SmsPurpose purpose = 2;
+}
+
+message SendCodeResponse {}
+
+message VerifyCodeRequest {
+  string phone = 1;
+  string code = 2;
+  SmsPurpose purpose = 3;
+}
+
+message VerifyCodeResponse {}
+
+service SmsService {
+  rpc SendCode(SendCodeRequest) returns (SendCodeResponse);
+  rpc VerifyCode(VerifyCodeRequest) returns (VerifyCodeResponse);
+}

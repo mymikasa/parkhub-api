@@ -82,6 +82,35 @@ curl -sf "${APISIX_ADMIN}/upstreams/2" \
     }
   }' && echo ""
 
+# ── Upstream: identity gRPC ───────────────────────────────────────────
+echo "Creating upstream: identity-grpc"
+curl -sf "${APISIX_ADMIN}/upstreams/3" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "identity-grpc",
+    "type": "roundrobin",
+    "scheme": "grpc",
+    "nodes": {
+      "identity:50052": 1
+    },
+    "checks": {
+      "active": {
+        "type": "http",
+        "port": 8083,
+        "http_path": "/healthz",
+        "healthy": {
+          "interval": 5,
+          "successes": 2
+        },
+        "unhealthy": {
+          "interval": 5,
+          "http_failures": 3
+        }
+      }
+    }
+  }' && echo ""
+
 # ── Proto: FileDescriptorSet (buf build output) ──────────────────────
 echo "Registering proto descriptor"
 B64=$(base64 -w 0 "$DESC_FILE")
@@ -158,7 +187,7 @@ curl -sf "${APISIX_ADMIN}/routes/10" \
     "name": "tenant-create",
     "methods": ["POST"],
     "uri": "/api/v1/tenants",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -184,7 +213,7 @@ curl -sf "${APISIX_ADMIN}/routes/11" \
     "name": "tenant-list",
     "methods": ["GET"],
     "uri": "/api/v1/tenants",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -210,7 +239,7 @@ curl -sf "${APISIX_ADMIN}/routes/12" \
     "name": "tenant-get",
     "methods": ["GET"],
     "uri": "/api/v1/tenants/*",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -239,7 +268,7 @@ curl -sf "${APISIX_ADMIN}/routes/13" \
     "name": "tenant-update",
     "methods": ["PUT"],
     "uri": "/api/v1/tenants/*",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -268,7 +297,7 @@ curl -sf "${APISIX_ADMIN}/routes/14" \
     "name": "tenant-delete",
     "methods": ["DELETE"],
     "uri": "/api/v1/tenants/*",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -297,7 +326,7 @@ curl -sf "${APISIX_ADMIN}/routes/15" \
     "name": "tenant-freeze",
     "methods": ["POST"],
     "uri": "/api/v1/tenants/*/freeze",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -326,7 +355,7 @@ curl -sf "${APISIX_ADMIN}/routes/16" \
     "name": "tenant-unfreeze",
     "methods": ["POST"],
     "uri": "/api/v1/tenants/*/unfreeze",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -359,7 +388,7 @@ curl -sf "${APISIX_ADMIN}/routes/20" \
     "name": "user-create",
     "methods": ["POST"],
     "uri": "/api/v1/users",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -385,7 +414,7 @@ curl -sf "${APISIX_ADMIN}/routes/21" \
     "name": "user-list",
     "methods": ["GET"],
     "uri": "/api/v1/users",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -411,7 +440,7 @@ curl -sf "${APISIX_ADMIN}/routes/22" \
     "name": "user-get",
     "methods": ["GET"],
     "uri": "/api/v1/users/*",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -440,7 +469,7 @@ curl -sf "${APISIX_ADMIN}/routes/23" \
     "name": "user-update",
     "methods": ["PUT"],
     "uri": "/api/v1/users/*",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -469,7 +498,7 @@ curl -sf "${APISIX_ADMIN}/routes/24" \
     "name": "user-freeze",
     "methods": ["PUT"],
     "uri": "/api/v1/users/*/freeze",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -498,7 +527,7 @@ curl -sf "${APISIX_ADMIN}/routes/25" \
     "name": "user-unfreeze",
     "methods": ["PUT"],
     "uri": "/api/v1/users/*/unfreeze",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -527,7 +556,7 @@ curl -sf "${APISIX_ADMIN}/routes/26" \
     "name": "user-reset-password",
     "methods": ["PUT"],
     "uri": "/api/v1/users/*/reset-password",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -556,7 +585,7 @@ curl -sf "${APISIX_ADMIN}/routes/27" \
     "name": "user-update-profile",
     "methods": ["PUT"],
     "uri": "/api/v1/users/*/profile",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -585,7 +614,7 @@ curl -sf "${APISIX_ADMIN}/routes/28" \
     "name": "user-change-password",
     "methods": ["PUT"],
     "uri": "/api/v1/users/*/change-password",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -614,7 +643,7 @@ curl -sf "${APISIX_ADMIN}/routes/29" \
     "name": "user-import",
     "methods": ["POST"],
     "uri": "/api/v1/users/import",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -644,7 +673,7 @@ curl -sf "${APISIX_ADMIN}/routes/34" \
     "name": "user-me",
     "methods": ["GET"],
     "uri": "/identity/v1/users/me",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -670,7 +699,7 @@ curl -sf "${APISIX_ADMIN}/routes/30" \
     "name": "auth-login",
     "methods": ["POST"],
     "uri": "/identity/v1/auth/login",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "grpc-transcode": {
         "proto_id": "1",
@@ -691,7 +720,7 @@ curl -sf "${APISIX_ADMIN}/routes/31" \
     "name": "auth-refresh",
     "methods": ["POST"],
     "uri": "/identity/v1/auth/refresh",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "grpc-transcode": {
         "proto_id": "1",
@@ -712,7 +741,7 @@ curl -sf "${APISIX_ADMIN}/routes/32" \
     "name": "auth-logout",
     "methods": ["POST"],
     "uri": "/identity/v1/auth/logout",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "grpc-transcode": {
         "proto_id": "1",
@@ -733,7 +762,7 @@ curl -sf "${APISIX_ADMIN}/routes/33" \
     "name": "auth-jwks",
     "methods": ["GET"],
     "uri": "/identity/v1/auth/jwks",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "grpc-transcode": {
         "proto_id": "1",
@@ -777,7 +806,7 @@ curl -sf "${APISIX_ADMIN}/routes/41" \
     "name": "auth-sms-login",
     "methods": ["POST"],
     "uri": "/identity/v1/auth/sms/login",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "grpc-transcode": {
         "proto_id": "1",
@@ -1035,7 +1064,7 @@ curl -sf "${APISIX_ADMIN}/routes/17" \
     "name": "tenant-summary",
     "methods": ["GET"],
     "uri": "/api/v1/tenants/summary",
-    "upstream_id": "1",
+    "upstream_id": "3",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {

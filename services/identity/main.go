@@ -12,22 +12,16 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/parkhub/api/internal/config"
-	"github.com/parkhub/api/internal/domains/identity/repository/dao"
-	iotgrpc "github.com/parkhub/api/internal/domains/iot/grpc"
-	iotrepo "github.com/parkhub/api/internal/domains/iot/repository"
-	iotdao "github.com/parkhub/api/internal/domains/iot/repository/dao"
-	iotservice "github.com/parkhub/api/internal/domains/iot/service"
-	parkinggrpc "github.com/parkhub/api/internal/domains/parking/grpc"
-	parkingdao "github.com/parkhub/api/internal/domains/parking/repository/dao"
-	smsgrpc "github.com/parkhub/api/internal/domains/sms/grpc"
-	smsdao "github.com/parkhub/api/internal/domains/sms/repository/dao"
-	"github.com/parkhub/api/internal/health"
-	"github.com/parkhub/api/internal/middleware"
-	"github.com/parkhub/api/internal/registry"
-	pkgmetrics "github.com/parkhub/api/pkg/metrics"
+	"github.com/parkhub/api/pkg/metrics"
 	"github.com/parkhub/api/pkg/slogutil"
 	"github.com/parkhub/api/pkg/telemetry"
+	"github.com/parkhub/api/services/identity/internal/config"
+	smsv1 "github.com/parkhub/api/services/identity/internal/gen/api/proto/sms/v1"
+	identitygrpc "github.com/parkhub/api/services/identity/internal/grpc"
+	"github.com/parkhub/api/services/identity/internal/health"
+	"github.com/parkhub/api/services/identity/internal/middleware"
+	"github.com/parkhub/api/services/identity/internal/registry"
+	"github.com/parkhub/api/services/identity/internal/repository/dao"
 	"github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	grpc "google.golang.org/grpc"
@@ -38,7 +32,7 @@ import (
 
 func main() {
 	if err := run(); err != nil {
-		fmt.Fprintf(os.Stderr, "parkhub failed to start: %v\n", err)
+		fmt.Fprintf(os.Stderr, "parkhub-identity failed to start: %v\n", err)
 		os.Exit(1)
 	}
 }
@@ -83,23 +77,15 @@ func run() error {
 		}
 	}()
 
-	pkgmetrics.Init(telemetryProviders.MeterProvider)
+	metrics.Init(telemetryProviders.MeterProvider)
 
 	db, err := gorm.Open(mysql.Open(cfg.Database.DSN()), &gorm.Config{})
 	if err != nil {
 		return fmt.Errorf("connect database: %w", err)
 	}
 
-	if err := db.AutoMigrate(&dao.Tenant{}, &dao.User{}, &smsdao.SmsRecord{}); err != nil {
+	if err := db.AutoMigrate(&dao.Tenant{}, &dao.User{}); err != nil {
 		return fmt.Errorf("auto migrate: %w", err)
-	}
-
-	parkingDB, err := gorm.Open(mysql.Open(cfg.ParkingDatabase.DSN()), &gorm.Config{})
-	if err != nil {
-		return fmt.Errorf("connect parking database: %w", err)
-	}
-	if err := parkingDB.AutoMigrate(&parkingdao.ParkingLot{}, &parkingdao.Lane{}); err != nil {
-		return fmt.Errorf("auto migrate parking: %w", err)
 	}
 
 	rdb := redis.NewClient(&redis.Options{
@@ -108,27 +94,23 @@ func run() error {
 		DB:       cfg.Redis.DB,
 	})
 
-	iotDB, err := gorm.Open(mysql.Open(cfg.IoTDatabase.DSN()), &gorm.Config{})
+	smsConn, err := grpc.NewClient(cfg.SmsClient.Addr,
+		grpc.WithInsecure(),
+	)
 	if err != nil {
-		return fmt.Errorf("connect iot database: %w", err)
+		return fmt.Errorf("connect SMS service: %w", err)
 	}
-	if err := iotDB.AutoMigrate(&iotdao.Device{}); err != nil {
-		return fmt.Errorf("auto migrate iot: %w", err)
-	}
+	smsClient := smsv1.NewSmsServiceClient(smsConn)
 
 	reg := registry.New()
-	smsSvc := smsgrpc.RegisterServices(reg, db, rdb)
-	_ = smsSvc
-
-	parkinggrpc.RegisterServices(reg, parkingDB, nil)
-
-	// Create IoT device service for cross-domain lane-device binding
-	deviceDAO := iotdao.NewDeviceDAO(iotDB)
-	deviceRepo := iotrepo.NewDeviceRepo(deviceDAO, iotDB)
-	deviceSvc := iotservice.NewDeviceService(deviceRepo)
-
-	parkinggrpc.RegisterServices(reg, parkingDB, deviceSvc)
-	iotgrpc.RegisterServicesWithDeviceSvc(reg, iotDB, deviceSvc)
+	identitygrpc.RegisterServices(reg, db, rdb, identitygrpc.Config{
+		Issuer:         cfg.Auth.Issuer,
+		AccessTTL:      cfg.Auth.AccessTTL,
+		RefreshTTL:     cfg.Auth.RefreshTTL,
+		PrivateKeyPath: cfg.Auth.PrivateKeyPath,
+		PublicKeyPath:  cfg.Auth.PublicKeyPath,
+		KeyID:          cfg.Auth.KeyID,
+	}, smsClient)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Server.GRPCPort))
 	if err != nil {
