@@ -9,8 +9,9 @@ DOCKER_COMPOSE ?= docker compose
 
 BIN_DIR := bin
 MONOLITH_BIN := $(BIN_DIR)/parkhub
+SMS_BIN := $(BIN_DIR)/parkhub-sms
 
-.PHONY: help proto-gen proto-lint proto-breaking proto-descriptor lint lint-tenant test test-integration build-monolith docker-build wire migrate generate-keys docker-up docker-down docker-ps clean
+.PHONY: help proto-gen proto-lint proto-breaking proto-descriptor lint lint-tenant test test-integration build-monolith build-sms docker-build docker-build-sms wire migrate generate-keys docker-up docker-down docker-ps clean
 
 help:
 	@echo "Available targets:"
@@ -22,7 +23,9 @@ help:
 	@echo "  test              Run unit tests"
 	@echo "  test-integration  Run integration tests"
 	@echo "  build-monolith    Build cmd/monolith to bin/parkhub"
+	@echo "  build-sms         Build services/sms to bin/parkhub-sms"
 	@echo "  docker-build      Build monolith Docker image"
+	@echo "  docker-build-sms  Build sms Docker image"
 	@echo "  generate-keys     Generate RSA key pair for JWT signing"
 	@echo "  wire              Generate Wire DI code if configured"
 	@echo "  migrate           Run goose migrations if configured"
@@ -34,6 +37,7 @@ help:
 proto-gen:
 	@command -v $(BUF) >/dev/null 2>&1 || { echo "buf is required but not installed"; exit 1; }
 	$(BUF) generate
+	$(BUF) generate ./services/sms
 	@$(MAKE) proto-descriptor
 
 proto-descriptor:
@@ -70,8 +74,15 @@ build-monolith:
 	@mkdir -p $(BIN_DIR)
 	$(GO) build -o $(MONOLITH_BIN) ./cmd/monolith
 
+build-sms:
+	@mkdir -p $(BIN_DIR)
+	cd services/sms && $(GO) build -o ../../$(SMS_BIN) .
+
 docker-build:
 	docker build -t parkhub-monolith .
+
+docker-build-sms:
+	docker build -t parkhub-sms -f services/sms/Dockerfile .
 
 wire:
 	@command -v $(WIRE) >/dev/null 2>&1 || { echo "wire is required but not installed"; exit 1; }
@@ -104,7 +115,7 @@ generate-keys:
 		echo "RSA keys already exist in configs/keys/"; \
 	fi
 
-docker-up: generate-keys docker-build
+docker-up: generate-keys docker-build docker-build-sms
 	$(DOCKER_COMPOSE) up -d
 
 docker-down:
