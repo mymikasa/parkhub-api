@@ -4,6 +4,11 @@ scrape_configs:
     static_configs:
       - targets:
           - monolith:9090
+  - job_name: parkhub-sms
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - sms:9093
   - job_name: apisix
     scrape_interval: 15s
     metrics_path: /apisix/prometheus/metrics
