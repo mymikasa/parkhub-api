@@ -12,21 +12,25 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/parkhub/api/internal/config"
-	"github.com/parkhub/api/internal/health"
-	"github.com/parkhub/api/internal/middleware"
-	"github.com/parkhub/api/internal/registry"
-	pkgmetrics "github.com/parkhub/api/pkg/metrics"
+	"github.com/parkhub/api/pkg/metrics"
 	"github.com/parkhub/api/pkg/slogutil"
 	"github.com/parkhub/api/pkg/telemetry"
+	"github.com/parkhub/api/services/iot/internal/config"
+	iotgrpc "github.com/parkhub/api/services/iot/internal/grpc"
+	"github.com/parkhub/api/services/iot/internal/health"
+	"github.com/parkhub/api/services/iot/internal/middleware"
+	"github.com/parkhub/api/services/iot/internal/registry"
+	"github.com/parkhub/api/services/iot/internal/repository/dao"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	grpc "google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 func main() {
 	if err := run(); err != nil {
-		fmt.Fprintf(os.Stderr, "parkhub failed to start: %v\n", err)
+		fmt.Fprintf(os.Stderr, "parkhub-iot failed to start: %v\n", err)
 		os.Exit(1)
 	}
 }
@@ -71,9 +75,19 @@ func run() error {
 		}
 	}()
 
-	pkgmetrics.Init(telemetryProviders.MeterProvider)
+	metrics.Init(telemetryProviders.MeterProvider)
+
+	db, err := gorm.Open(mysql.Open(cfg.Database.DSN()), &gorm.Config{})
+	if err != nil {
+		return fmt.Errorf("connect database: %w", err)
+	}
+
+	if err := db.AutoMigrate(&dao.Device{}); err != nil {
+		return fmt.Errorf("auto migrate: %w", err)
+	}
 
 	reg := registry.New()
+	iotgrpc.RegisterServices(reg, db)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Server.GRPCPort))
 	if err != nil {

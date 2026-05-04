@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package parkhub.parking.v1;
+
+option go_package = "github.com/parkhub/api/services/parking/internal/gen/api/proto/parking/v1;parkingv1";
+
+import "google/protobuf/timestamp.proto";
+
+enum LaneType {
+  LANE_TYPE_UNSPECIFIED = 0;
+  LANE_TYPE_ENTRY = 1;
+  LANE_TYPE_EXIT = 2;
+}
+
+message LaneDevice {
+  string device_id = 1;
+  string name = 2;
+  string status = 3;
+  google.protobuf.Timestamp last_heartbeat = 4;
+}
+
+message DeviceOption {
+  string device_id = 1;
+  string name = 2;
+  string status = 3;
+}
+
+message Lane {
+  string lane_id = 1;
+  string parking_lot_id = 2;
+  string name = 3;
+  LaneType lane_type = 4;
+  string device_id = 5;
+  LaneDevice device = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+message GetLaneConfigRequest {
+  string parking_lot_id = 1;
+}
+
+message GetLaneConfigResponse {
+  repeated Lane lanes = 1;
+  repeated DeviceOption available_devices = 2;
+}
+
+message LaneInput {
+  string lane_id = 1;
+  string name = 2;
+  LaneType lane_type = 3;
+  string device_id = 4;
+}
+
+message UpdateLanesRequest {
+  string parking_lot_id = 1;
+  repeated LaneInput lanes = 2;
+}
+
+message UpdateLanesResponse {
+  repeated Lane lanes = 1;
+}
+
+service LaneService {
+  rpc GetLaneConfig(GetLaneConfigRequest) returns (GetLaneConfigResponse);
+  rpc UpdateLanes(UpdateLanesRequest) returns (UpdateLanesResponse);
+}

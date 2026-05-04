@@ -1,0 +1,192 @@
+syntax = "proto3";
+
+package parkhub.iot.v1;
+
+option go_package = "github.com/parkhub/api/services/parking/internal/gen/api/proto/iot/v1;iotv1";
+
+import "common/v1/pagination.proto";
+import "google/protobuf/timestamp.proto";
+
+enum DeviceType {
+  DEVICE_TYPE_UNSPECIFIED = 0;
+  DEVICE_TYPE_INTEGRATED = 1;
+  DEVICE_TYPE_CAMERA_ONLY = 2;
+  DEVICE_TYPE_BARRIER_ONLY = 3;
+}
+
+enum DeviceStatus {
+  DEVICE_STATUS_UNSPECIFIED = 0;
+  DEVICE_STATUS_PENDING = 1;
+  DEVICE_STATUS_ACTIVE = 2;
+  DEVICE_STATUS_OFFLINE = 3;
+  DEVICE_STATUS_DISABLED = 4;
+}
+
+message Device {
+  string id = 1;
+  string tenant_id = 2;
+  string name = 3;
+  DeviceType type = 4;
+  DeviceStatus status = 5;
+  string firmware_version = 6;
+  google.protobuf.Timestamp last_heartbeat = 7;
+  optional string parking_lot_id = 8;
+  optional string gate_id = 9;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+}
+
+message CreateDeviceRequest {
+  string id = 1;
+  string name = 2;
+  DeviceType type = 3;
+  string firmware_version = 4;
+}
+
+message CreateDeviceResponse {
+  Device device = 1;
+}
+
+message GetDeviceRequest {
+  string id = 1;
+}
+
+message GetDeviceResponse {
+  Device device = 1;
+}
+
+message ListDevicesRequest {
+  DeviceStatus status = 1;
+  string parking_lot_id = 2;
+  string keyword = 3;
+  common.v1.PaginationRequest pagination = 4;
+}
+
+message ListDevicesResponse {
+  repeated Device devices = 1;
+  common.v1.PaginationResponse pagination = 2;
+}
+
+message UpdateDeviceNameRequest {
+  string id = 1;
+  string name = 2;
+}
+
+message UpdateDeviceNameResponse {
+  Device device = 1;
+}
+
+message BindDeviceRequest {
+  string id = 1;
+  string parking_lot_id = 2;
+  string gate_id = 3;
+}
+
+message BindDeviceResponse {
+  Device device = 1;
+}
+
+message UnbindDeviceRequest {
+  string id = 1;
+}
+
+message UnbindDeviceResponse {
+  Device device = 1;
+}
+
+message DisableDeviceRequest {
+  string id = 1;
+}
+
+message DisableDeviceResponse {
+  Device device = 1;
+}
+
+message EnableDeviceRequest {
+  string id = 1;
+}
+
+message EnableDeviceResponse {
+  Device device = 1;
+}
+
+message DeleteDeviceRequest {
+  string id = 1;
+}
+
+message DeleteDeviceResponse {}
+
+message BatchDisableDevicesRequest {
+  repeated string ids = 1;
+}
+
+message BatchDisableDevicesResponse {
+  int32 affected = 1;
+}
+
+message BatchEnableDevicesRequest {
+  repeated string ids = 1;
+}
+
+message BatchEnableDevicesResponse {
+  int32 affected = 1;
+}
+
+message BatchDeleteDevicesRequest {
+  repeated string ids = 1;
+}
+
+message BatchDeleteDevicesResponse {
+  int32 affected = 1;
+}
+
+message BatchBindDevicesRequest {
+  message Binding {
+    string id = 1;
+    string parking_lot_id = 2;
+    string gate_id = 3;
+  }
+  repeated Binding bindings = 1;
+}
+
+message BatchBindDevicesResponse {
+  int32 affected = 1;
+}
+
+message GetDeviceStatsRequest {}
+
+message GetDeviceStatsResponse {
+  int64 total = 1;
+  int64 active = 2;
+  int64 offline = 3;
+  int64 pending = 4;
+  int64 disabled = 5;
+}
+
+message SendDeviceCommandRequest {
+  string id = 1;
+  string action = 2;
+}
+
+message SendDeviceCommandResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+service DeviceService {
+  rpc CreateDevice(CreateDeviceRequest) returns (CreateDeviceResponse);
+  rpc GetDevice(GetDeviceRequest) returns (GetDeviceResponse);
+  rpc ListDevices(ListDevicesRequest) returns (ListDevicesResponse);
+  rpc UpdateDeviceName(UpdateDeviceNameRequest) returns (UpdateDeviceNameResponse);
+  rpc BindDevice(BindDeviceRequest) returns (BindDeviceResponse);
+  rpc UnbindDevice(UnbindDeviceRequest) returns (UnbindDeviceResponse);
+  rpc DisableDevice(DisableDeviceRequest) returns (DisableDeviceResponse);
+  rpc EnableDevice(EnableDeviceRequest) returns (EnableDeviceResponse);
+  rpc DeleteDevice(DeleteDeviceRequest) returns (DeleteDeviceResponse);
+  rpc BatchDisableDevices(BatchDisableDevicesRequest) returns (BatchDisableDevicesResponse);
+  rpc BatchEnableDevices(BatchEnableDevicesRequest) returns (BatchEnableDevicesResponse);
+  rpc BatchDeleteDevices(BatchDeleteDevicesRequest) returns (BatchDeleteDevicesResponse);
+  rpc BatchBindDevices(BatchBindDevicesRequest) returns (BatchBindDevicesResponse);
+  rpc GetDeviceStats(GetDeviceStatsRequest) returns (GetDeviceStatsResponse);
+  rpc SendDeviceCommand(SendDeviceCommandRequest) returns (SendDeviceCommandResponse);
+}

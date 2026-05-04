@@ -8,10 +8,11 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const DefaultPath = "configs/config.yaml"
+const DefaultPath = "config.yaml"
 
 type Config struct {
 	Server    ServerConfig    `yaml:"server"`
+	Database  DatabaseConfig  `yaml:"database"`
 	Telemetry TelemetryConfig `yaml:"telemetry"`
 }
 
@@ -19,6 +20,15 @@ type ServerConfig struct {
 	GRPCPort       int `yaml:"grpc_port"`
 	MetricsPort    int `yaml:"metrics_port"`
 	HTTPHealthPort int `yaml:"http_health_port"`
+}
+
+type DatabaseConfig struct {
+	URL      string `yaml:"url"`
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	DBName   string `yaml:"dbname"`
 }
 
 type TelemetryConfig struct {
@@ -47,12 +57,19 @@ type MetricsConfig struct {
 func Default() Config {
 	return Config{
 		Server: ServerConfig{
-			GRPCPort:       50051,
-			MetricsPort:    9090,
-			HTTPHealthPort: 8080,
+			GRPCPort:       50054,
+			MetricsPort:    9092,
+			HTTPHealthPort: 8084,
+		},
+		Database: DatabaseConfig{
+			Host:     "localhost",
+			Port:     3306,
+			User:     "parkhub",
+			Password: "parkhub",
+			DBName:   "parkhub_iot",
 		},
 		Telemetry: TelemetryConfig{
-			ServiceName: "parkhub-monolith",
+			ServiceName: "parkhub-iot",
 			Environment: "development",
 			Log: LogConfig{
 				Level:  "info",
@@ -90,6 +107,20 @@ func Load(path string) (Config, error) {
 	return cfg, nil
 }
 
+func (c DatabaseConfig) DSN() string {
+	if c.URL != "" {
+		return c.URL
+	}
+	return fmt.Sprintf(
+		"%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		c.User,
+		c.Password,
+		c.Host,
+		c.Port,
+		c.DBName,
+	)
+}
+
 func applyEnvOverrides(cfg *Config) {
 	if v := os.Getenv("GRPC_PORT"); v != "" {
 		cfg.Server.GRPCPort = mustInt(v, cfg.Server.GRPCPort)
@@ -99,6 +130,24 @@ func applyEnvOverrides(cfg *Config) {
 	}
 	if v := os.Getenv("HTTP_HEALTH_PORT"); v != "" {
 		cfg.Server.HTTPHealthPort = mustInt(v, cfg.Server.HTTPHealthPort)
+	}
+	if v := os.Getenv("DATABASE_URL"); v != "" {
+		cfg.Database.URL = v
+	}
+	if v := os.Getenv("DB_HOST"); v != "" {
+		cfg.Database.Host = v
+	}
+	if v := os.Getenv("DB_PORT"); v != "" {
+		cfg.Database.Port = mustInt(v, cfg.Database.Port)
+	}
+	if v := os.Getenv("DB_USER"); v != "" {
+		cfg.Database.User = v
+	}
+	if v := os.Getenv("DB_PASSWORD"); v != "" {
+		cfg.Database.Password = v
+	}
+	if v := os.Getenv("DB_NAME"); v != "" {
+		cfg.Database.DBName = v
 	}
 	if v := os.Getenv("OTEL_SERVICE_NAME"); v != "" {
 		cfg.Telemetry.ServiceName = v

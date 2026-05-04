@@ -1,0 +1,24 @@
+server:
+  grpc_port: 50054
+  metrics_port: 9092
+  http_health_port: 8084
+
+database:
+  host: localhost
+  port: 3306
+  user: parkhub
+  password: parkhub
+  dbname: parkhub_iot
+
+telemetry:
+  service_name: parkhub-iot
+  environment: development
+  log:
+    level: info
+    format: json
+  trace:
+    endpoint: localhost:4317
+    insecure: true
+    sampling_ratio: 1.0
+  metrics:
+    path: /metrics

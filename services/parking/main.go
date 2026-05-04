@@ -12,21 +12,26 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/parkhub/api/internal/config"
-	"github.com/parkhub/api/internal/health"
-	"github.com/parkhub/api/internal/middleware"
-	"github.com/parkhub/api/internal/registry"
-	pkgmetrics "github.com/parkhub/api/pkg/metrics"
+	"github.com/parkhub/api/pkg/metrics"
 	"github.com/parkhub/api/pkg/slogutil"
 	"github.com/parkhub/api/pkg/telemetry"
+	"github.com/parkhub/api/services/parking/internal/config"
+	parkinggrpc "github.com/parkhub/api/services/parking/internal/grpc"
+	"github.com/parkhub/api/services/parking/internal/health"
+	"github.com/parkhub/api/services/parking/internal/middleware"
+	"github.com/parkhub/api/services/parking/internal/registry"
+	"github.com/parkhub/api/services/parking/internal/repository/dao"
+	"github.com/parkhub/api/services/parking/internal/service"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	grpc "google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 func main() {
 	if err := run(); err != nil {
-		fmt.Fprintf(os.Stderr, "parkhub failed to start: %v\n", err)
+		fmt.Fprintf(os.Stderr, "parkhub-parking failed to start: %v\n", err)
 		os.Exit(1)
 	}
 }
@@ -71,9 +76,28 @@ func run() error {
 		}
 	}()
 
-	pkgmetrics.Init(telemetryProviders.MeterProvider)
+	metrics.Init(telemetryProviders.MeterProvider)
+
+	db, err := gorm.Open(mysql.Open(cfg.Database.DSN()), &gorm.Config{})
+	if err != nil {
+		return fmt.Errorf("connect database: %w", err)
+	}
+
+	if err := db.AutoMigrate(&dao.ParkingLot{}, &dao.Lane{}); err != nil {
+		return fmt.Errorf("auto migrate: %w", err)
+	}
+
+	iotClient, err := service.NewIoTDeviceClient(cfg.IoTService.Address)
+	if err != nil {
+		slog.Warn("failed to connect to IoT service, lane service will have limited functionality", slog.String("error", err.Error()))
+		iotClient = nil
+	}
+	if iotClient != nil {
+		defer iotClient.Close()
+	}
 
 	reg := registry.New()
+	parkinggrpc.RegisterServices(reg, db, iotClient)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Server.GRPCPort))
 	if err != nil {

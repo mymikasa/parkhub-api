@@ -14,6 +14,16 @@ scrape_configs:
     static_configs:
       - targets:
           - identity:9092
+  - job_name: parkhub-iot
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - iot:9092
+  - job_name: parkhub-parking
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - parking:9092
   - job_name: apisix
     scrape_interval: 15s
     metrics_path: /apisix/prometheus/metrics
