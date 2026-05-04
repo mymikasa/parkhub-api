@@ -95,7 +95,7 @@ func Default() Config {
 		},
 		Auth: AuthConfig{
 			Issuer:         "parkhub",
-			AccessTTL:      "15m",
+			AccessTTL:      "4h",
 			RefreshTTL:     "168h",
 			PrivateKeyPath: "configs/keys/private.pem",
 			PublicKeyPath:  "configs/keys/public.pem",
