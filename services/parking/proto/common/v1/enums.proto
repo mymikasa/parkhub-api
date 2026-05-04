@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package parkhub.common.v1;
+
+option go_package = "github.com/parkhub/api/services/parking/internal/gen/api/proto/common/v1;commonv1";
+
+enum OperatorRole {
+  OPERATOR_ROLE_UNSPECIFIED = 0;
+  OPERATOR_ROLE_PLATFORM_ADMIN = 1;
+  OPERATOR_ROLE_TENANT_ADMIN = 2;
+  OPERATOR_ROLE_TENANT_USER = 3;
+}

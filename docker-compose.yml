@@ -141,6 +141,59 @@ services:
       sms:
         condition: service_started
 
+  iot:
+    build:
+      context: .
+      dockerfile: services/iot/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "50054:50054"
+      - "9095:9092"
+      - "8084:8084"
+    environment:
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_USER: parkhub
+      DB_PASSWORD: parkhub
+      DB_NAME: parkhub_iot
+      OTEL_TRACE_ENDPOINT: tempo:4317
+      GRPC_PORT: "50054"
+      METRICS_PORT: "9092"
+      HTTP_HEALTH_PORT: "8084"
+      LOG_FORMAT: json
+      LOG_LEVEL: info
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  parking:
+    build:
+      context: .
+      dockerfile: services/parking/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "50055:50055"
+      - "9096:9092"
+      - "8085:8085"
+    environment:
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_USER: parkhub
+      DB_PASSWORD: parkhub
+      DB_NAME: parkhub_parking
+      IOT_SERVICE_ADDR: "iot:50054"
+      OTEL_TRACE_ENDPOINT: tempo:4317
+      GRPC_PORT: "50055"
+      METRICS_PORT: "9092"
+      HTTP_HEALTH_PORT: "8085"
+      LOG_FORMAT: json
+      LOG_LEVEL: info
+    depends_on:
+      mysql:
+        condition: service_healthy
+      iot:
+        condition: service_started
+
   monolith:
     build:
       context: .
@@ -151,35 +204,12 @@ services:
       - "9090:9090"
       - "8080:8080"
     environment:
-      DB_HOST: mysql
-      DB_PORT: "3306"
-      DB_USER: parkhub
-      DB_PASSWORD: parkhub
-      DB_NAME: parkhub_identity
-      PARKING_DB_HOST: mysql
-      PARKING_DB_PORT: "3306"
-      PARKING_DB_USER: parkhub
-      PARKING_DB_PASSWORD: parkhub
-      PARKING_DB_NAME: parkhub_parking
-      IOT_DB_HOST: mysql
-      IOT_DB_PORT: "3306"
-      IOT_DB_USER: parkhub
-      IOT_DB_PASSWORD: parkhub
-      IOT_DB_NAME: parkhub_iot
-      REDIS_ADDR: redis:6379
       OTEL_TRACE_ENDPOINT: tempo:4317
       GRPC_PORT: "50051"
       METRICS_PORT: "9090"
       HTTP_HEALTH_PORT: "8080"
       LOG_FORMAT: json
       LOG_LEVEL: info
-    depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
 
   apisix:
     image: apache/apisix:3.15.0-debian
@@ -205,6 +235,10 @@ services:
       identity:
         condition: service_started
       sms:
+        condition: service_started
+      iot:
+        condition: service_started
+      parking:
         condition: service_started
     entrypoint: ["sh", "/scripts/init-apisix.sh"]
     volumes:

@@ -111,6 +111,64 @@ curl -sf "${APISIX_ADMIN}/upstreams/3" \
     }
   }' && echo ""
 
+# ── Upstream: iot gRPC ───────────────────────────────────────────────
+echo "Creating upstream: iot-grpc"
+curl -sf "${APISIX_ADMIN}/upstreams/4" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "iot-grpc",
+    "type": "roundrobin",
+    "scheme": "grpc",
+    "nodes": {
+      "iot:50054": 1
+    },
+    "checks": {
+      "active": {
+        "type": "http",
+        "port": 8084,
+        "http_path": "/healthz",
+        "healthy": {
+          "interval": 5,
+          "successes": 2
+        },
+        "unhealthy": {
+          "interval": 5,
+          "http_failures": 3
+        }
+      }
+    }
+  }' && echo ""
+
+# ── Upstream: parking gRPC ───────────────────────────────────────────
+echo "Creating upstream: parking-grpc"
+curl -sf "${APISIX_ADMIN}/upstreams/5" \
+  -H "X-API-KEY: ${API_KEY}" \
+  -X PUT \
+  -d '{
+    "name": "parking-grpc",
+    "type": "roundrobin",
+    "scheme": "grpc",
+    "nodes": {
+      "parking:50055": 1
+    },
+    "checks": {
+      "active": {
+        "type": "http",
+        "port": 8085,
+        "http_path": "/healthz",
+        "healthy": {
+          "interval": 5,
+          "successes": 2
+        },
+        "unhealthy": {
+          "interval": 5,
+          "http_failures": 3
+        }
+      }
+    }
+  }' && echo ""
+
 # ── Proto: FileDescriptorSet (buf build output) ──────────────────────
 echo "Registering proto descriptor"
 B64=$(base64 -w 0 "$DESC_FILE")
@@ -148,7 +206,7 @@ else
       "plugins": {
         "jwt-auth": {
           "algorithm": "RS256",
-          "key": "parkhub-2026-04"
+          "key": "parkhub-rs256-01"
         }
       }
     }' && echo ""
@@ -833,7 +891,7 @@ curl -sf "${APISIX_ADMIN}/routes/50" \
     "name": "parking-lot-create",
     "methods": ["POST"],
     "uri": "/parking/v1/lots",
-    "upstream_id": "1",
+    "upstream_id": "5",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -859,7 +917,7 @@ curl -sf "${APISIX_ADMIN}/routes/51" \
     "name": "parking-lot-list",
     "methods": ["GET"],
     "uri": "/parking/v1/lots",
-    "upstream_id": "1",
+    "upstream_id": "5",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -885,7 +943,7 @@ curl -sf "${APISIX_ADMIN}/routes/52" \
     "name": "parking-lot-stats",
     "methods": ["GET"],
     "uri": "/parking/v1/lots/stats",
-    "upstream_id": "1",
+    "upstream_id": "5",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -911,7 +969,7 @@ curl -sf "${APISIX_ADMIN}/routes/53" \
     "name": "parking-lot-get",
     "methods": ["GET"],
     "uri": "/parking/v1/lots/*",
-    "upstream_id": "1",
+    "upstream_id": "5",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -940,7 +998,7 @@ curl -sf "${APISIX_ADMIN}/routes/54" \
     "name": "parking-lot-update",
     "methods": ["PATCH"],
     "uri": "/parking/v1/lots/*",
-    "upstream_id": "1",
+    "upstream_id": "5",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -969,7 +1027,7 @@ curl -sf "${APISIX_ADMIN}/routes/55" \
     "name": "parking-lot-delete",
     "methods": ["DELETE"],
     "uri": "/parking/v1/lots/*",
-    "upstream_id": "1",
+    "upstream_id": "5",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -999,7 +1057,7 @@ curl -sf "${APISIX_ADMIN}/routes/lane-config-get" \
     "methods": ["GET"],
     "uri": "/parking/v1/lots/*parking_lot_id/lanes",
     "priority": 100,
-    "upstream_id": "1",
+    "upstream_id": "5",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -1029,7 +1087,7 @@ curl -sf "${APISIX_ADMIN}/routes/lane-config-update" \
     "methods": ["PUT"],
     "uri": "/parking/v1/lots/*parking_lot_id/lanes",
     "priority": 100,
-    "upstream_id": "1",
+    "upstream_id": "5",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -1090,7 +1148,7 @@ curl -sf "${APISIX_ADMIN}/routes/56" \
     "name": "tenant-parking-lots",
     "methods": ["GET"],
     "uri": "/api/v1/tenants/*/parking-lots",
-    "upstream_id": "1",
+    "upstream_id": "5",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -1125,7 +1183,7 @@ curl -sf "${APISIX_ADMIN}/routes/60" \
     "name": "iot-CreateDevice",
     "methods": ["POST"],
     "uri": "/iot/v1/devices",
-    "upstream_id": "1",
+    "upstream_id": "4",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -1151,7 +1209,7 @@ curl -sf "${APISIX_ADMIN}/routes/61" \
     "name": "iot-GetDevice",
     "methods": ["GET"],
     "uri": "/iot/v1/devices/*",
-    "upstream_id": "1",
+    "upstream_id": "4",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -1180,7 +1238,7 @@ curl -sf "${APISIX_ADMIN}/routes/62" \
     "name": "iot-ListDevices",
     "methods": ["GET"],
     "uri": "/iot/v1/devices",
-    "upstream_id": "1",
+    "upstream_id": "4",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -1206,7 +1264,7 @@ curl -sf "${APISIX_ADMIN}/routes/63" \
     "name": "iot-GetDeviceStats",
     "methods": ["GET"],
     "uri": "/iot/v1/devices/stats",
-    "upstream_id": "1",
+    "upstream_id": "4",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -1232,7 +1290,7 @@ curl -sf "${APISIX_ADMIN}/routes/64" \
     "name": "iot-UpdateDeviceName",
     "methods": ["PATCH"],
     "uri": "/iot/v1/devices/*",
-    "upstream_id": "1",
+    "upstream_id": "4",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -1261,7 +1319,7 @@ curl -sf "${APISIX_ADMIN}/routes/65" \
     "name": "iot-BindDevice",
     "methods": ["POST"],
     "uri": "/iot/v1/devices/*/bind",
-    "upstream_id": "1",
+    "upstream_id": "4",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -1290,7 +1348,7 @@ curl -sf "${APISIX_ADMIN}/routes/66" \
     "name": "iot-UnbindDevice",
     "methods": ["POST"],
     "uri": "/iot/v1/devices/*/unbind",
-    "upstream_id": "1",
+    "upstream_id": "4",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -1319,7 +1377,7 @@ curl -sf "${APISIX_ADMIN}/routes/67" \
     "name": "iot-DisableDevice",
     "methods": ["POST"],
     "uri": "/iot/v1/devices/*/disable",
-    "upstream_id": "1",
+    "upstream_id": "4",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -1348,7 +1406,7 @@ curl -sf "${APISIX_ADMIN}/routes/68" \
     "name": "iot-EnableDevice",
     "methods": ["POST"],
     "uri": "/iot/v1/devices/*/enable",
-    "upstream_id": "1",
+    "upstream_id": "4",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -1377,7 +1435,7 @@ curl -sf "${APISIX_ADMIN}/routes/69" \
     "name": "iot-DeleteDevice",
     "methods": ["DELETE"],
     "uri": "/iot/v1/devices/*",
-    "upstream_id": "1",
+    "upstream_id": "4",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -1406,7 +1464,7 @@ curl -sf "${APISIX_ADMIN}/routes/70" \
     "name": "iot-SendDeviceCommand",
     "methods": ["POST"],
     "uri": "/iot/v1/devices/*/command",
-    "upstream_id": "1",
+    "upstream_id": "4",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -1435,7 +1493,7 @@ curl -sf "${APISIX_ADMIN}/routes/71" \
     "name": "iot-BatchDisableDevices",
     "methods": ["POST"],
     "uri": "/iot/v1/devices/batch/disable",
-    "upstream_id": "1",
+    "upstream_id": "4",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -1461,7 +1519,7 @@ curl -sf "${APISIX_ADMIN}/routes/72" \
     "name": "iot-BatchEnableDevices",
     "methods": ["POST"],
     "uri": "/iot/v1/devices/batch/enable",
-    "upstream_id": "1",
+    "upstream_id": "4",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -1487,7 +1545,7 @@ curl -sf "${APISIX_ADMIN}/routes/73" \
     "name": "iot-BatchDeleteDevices",
     "methods": ["POST"],
     "uri": "/iot/v1/devices/batch/delete",
-    "upstream_id": "1",
+    "upstream_id": "4",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {
@@ -1513,7 +1571,7 @@ curl -sf "${APISIX_ADMIN}/routes/74" \
     "name": "iot-BatchBindDevices",
     "methods": ["POST"],
     "uri": "/iot/v1/devices/batch/bind",
-    "upstream_id": "1",
+    "upstream_id": "4",
     "plugins": {
       "jwt-auth": { "store_in_ctx": true },
       "serverless-pre-function": {

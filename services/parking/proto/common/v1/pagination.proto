@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package parkhub.common.v1;
+
+option go_package = "github.com/parkhub/api/services/parking/internal/gen/api/proto/common/v1;commonv1";
+
+message PaginationRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+message PaginationResponse {
+  int32 page = 1;
+  int32 page_size = 2;
+  int64 total = 3;
+  int32 total_pages = 4;
+}

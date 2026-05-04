@@ -11,8 +11,10 @@ BIN_DIR := bin
 MONOLITH_BIN := $(BIN_DIR)/parkhub
 SMS_BIN := $(BIN_DIR)/parkhub-sms
 IDENTITY_BIN := $(BIN_DIR)/parkhub-identity
+IOT_BIN := $(BIN_DIR)/parkhub-iot
+PARKING_BIN := $(BIN_DIR)/parkhub-parking
 
-.PHONY: help proto-gen proto-lint proto-breaking proto-descriptor lint lint-tenant test test-integration build-monolith build-sms build-identity docker-build docker-build-sms docker-build-identity wire migrate generate-keys docker-up docker-down docker-ps clean
+.PHONY: help proto-gen proto-lint proto-breaking proto-descriptor lint lint-tenant test test-integration build-monolith build-sms build-identity build-iot build-parking docker-build docker-build-sms docker-build-identity docker-build-iot docker-build-parking wire migrate generate-keys docker-up docker-down docker-ps clean
 
 help:
 	@echo "Available targets:"
@@ -26,6 +28,8 @@ help:
 	@echo "  build-monolith    Build cmd/monolith to bin/parkhub"
 	@echo "  build-sms         Build services/sms to bin/parkhub-sms"
 	@echo "  build-identity    Build services/identity to bin/parkhub-identity"
+	@echo "  build-iot         Build services/iot to bin/parkhub-iot"
+	@echo "  build-parking     Build services/parking to bin/parkhub-parking"
 	@echo "  docker-build      Build monolith Docker image"
 	@echo "  docker-build-sms  Build sms Docker image"
 	@echo "  generate-keys     Generate RSA key pair for JWT signing"
@@ -41,6 +45,8 @@ proto-gen:
 	$(BUF) generate
 	$(BUF) generate ./services/sms
 	$(BUF) generate ./services/identity
+	$(BUF) generate ./services/iot
+	$(BUF) generate ./services/parking
 	@$(MAKE) proto-descriptor
 
 proto-descriptor:
@@ -85,6 +91,14 @@ build-identity:
 	@mkdir -p $(BIN_DIR)
 	cd services/identity && $(GO) build -o ../../$(IDENTITY_BIN) .
 
+build-iot:
+	@mkdir -p $(BIN_DIR)
+	cd services/iot && $(GO) build -o ../../$(IOT_BIN) .
+
+build-parking:
+	@mkdir -p $(BIN_DIR)
+	cd services/parking && $(GO) build -o ../../$(PARKING_BIN) .
+
 docker-build:
 	docker build -t parkhub-monolith .
 
@@ -93,6 +107,12 @@ docker-build-sms:
 
 docker-build-identity:
 	docker build -t parkhub-identity -f services/identity/Dockerfile .
+
+docker-build-iot:
+	docker build -t parkhub-iot -f services/iot/Dockerfile .
+
+docker-build-parking:
+	docker build -t parkhub-parking -f services/parking/Dockerfile .
 
 wire:
 	@command -v $(WIRE) >/dev/null 2>&1 || { echo "wire is required but not installed"; exit 1; }
@@ -125,7 +145,7 @@ generate-keys:
 		echo "RSA keys already exist in configs/keys/"; \
 	fi
 
-docker-up: generate-keys docker-build docker-build-sms
+docker-up: generate-keys docker-build docker-build-sms docker-build-parking
 	$(DOCKER_COMPOSE) up -d
 
 docker-down:
