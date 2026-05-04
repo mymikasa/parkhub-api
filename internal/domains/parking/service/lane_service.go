@@ -46,7 +46,7 @@ func (s *laneService) GetLaneConfig(ctx context.Context, tenantID, parkingLotID 
 	}
 
 	// Available devices = unbound + not disabled
-	var available []*AvailableDevice
+	available := make([]*AvailableDevice, 0)
 	if devicesResp != nil {
 		for _, d := range devicesResp.Devices {
 			if boundDevices[d.ID] || d.Status == iotdomain.DeviceStatusDisabled {
